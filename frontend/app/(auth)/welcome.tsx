@@ -27,6 +27,7 @@ export default function Welcome() {
           <Text style={styles.description}>
             Prepare for the Chicago Police Department Detective Exam with flashcards, scenarios, and AI-powered grading
           </Text>
+          <Text style={styles.createdBy}>Created by Nathaniel Warner</Text>
         </View>
 
         <View style={styles.buttonContainer}>

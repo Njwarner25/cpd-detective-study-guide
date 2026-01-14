@@ -48,7 +48,7 @@ class UserCreate(BaseModel):
     name: str
 
 class UserLogin(BaseModel):
-    email: EmailStr
+    email: str  # Changed from EmailStr to allow username
     password: str
 
 class SessionDataResponse(BaseModel):

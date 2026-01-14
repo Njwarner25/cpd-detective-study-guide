@@ -105,11 +105,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const login = async (email: string, password: string) => {
     try {
       const userData = await authService.login(email, password);
-      // Backend sets cookie, but we'll also store for mobile
-      const token = await AsyncStorage.getItem('session_token');
+      // Store session token from response
+      if (userData.session_token) {
+        await AsyncStorage.setItem('session_token', userData.session_token);
+        setSessionToken(userData.session_token);
+      }
       setUser(userData);
-      setSessionToken(token);
-      await checkAuth();
     } catch (error: any) {
       throw new Error(error.response?.data?.detail || 'Login failed');
     }

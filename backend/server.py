@@ -208,7 +208,8 @@ async def register(user_data: UserCreate):
         "user_id": user_id,
         "email": user.email,
         "name": user.name,
-        "role": user.role
+        "role": user.role,
+        "session_token": session_token
     })
     
     response.set_cookie(

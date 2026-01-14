@@ -1,21 +1,11 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { useAuth } from '../../contexts/AuthContext';
 
 export default function Welcome() {
   const router = useRouter();
-  const { loginWithGoogle } = useAuth();
-
-  const handleGoogleLogin = async () => {
-    try {
-      await loginWithGoogle();
-    } catch (error: any) {
-      alert(error.message);
-    }
-  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -32,32 +22,21 @@ export default function Welcome() {
 
         <View style={styles.buttonContainer}>
           <TouchableOpacity 
-            style={styles.googleButton}
-            onPress={handleGoogleLogin}
-          >
-            <Ionicons name="logo-google" size={20} color="#fff" />
-            <Text style={styles.googleButtonText}>Continue with Google</Text>
-          </TouchableOpacity>
-
-          <View style={styles.divider}>
-            <View style={styles.dividerLine} />
-            <Text style={styles.dividerText}>or</Text>
-            <View style={styles.dividerLine} />
-          </View>
-
-          <TouchableOpacity 
             style={styles.loginButton}
             onPress={() => router.push('/(auth)/login')}
           >
-            <Text style={styles.loginButtonText}>Login with Email</Text>
+            <Ionicons name="log-in" size={20} color="#fff" />
+            <Text style={styles.loginButtonText}>Login to Study</Text>
           </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={styles.registerButton}
-            onPress={() => router.push('/(auth)/register')}
-          >
-            <Text style={styles.registerButtonText}>Create Account</Text>
-          </TouchableOpacity>
+          
+          <View style={styles.credentialsBox}>
+            <Ionicons name="information-circle" size={20} color="#64748b" />
+            <View style={styles.credentialsText}>
+              <Text style={styles.credentialsLabel}>Universal Login</Text>
+              <Text style={styles.credentialsDetail}>Username: Detective2026</Text>
+              <Text style={styles.credentialsDetail}>Password: Exam2026</Text>
+            </View>
+          </View>
         </View>
       </View>
     </SafeAreaView>

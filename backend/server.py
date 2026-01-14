@@ -226,26 +226,42 @@ async def register(user_data: UserCreate):
 
 @api_router.post("/auth/login")
 async def login(credentials: UserLogin):
-    user_doc = await db.users.find_one({"email": credentials.email}, {"_id": 0})
-    if not user_doc or not user_doc.get("password_hash"):
+    # Universal login credentials
+    UNIVERSAL_USERNAME = "Detective2026"
+    UNIVERSAL_PASSWORD = "Exam2026"
+    
+    # Check universal credentials
+    if credentials.email != UNIVERSAL_USERNAME or credentials.password != UNIVERSAL_PASSWORD:
         raise HTTPException(status_code=401, detail="Invalid credentials")
     
-    if not verify_password(credentials.password, user_doc["password_hash"]):
-        raise HTTPException(status_code=401, detail="Invalid credentials")
+    # Check if universal user exists, create if not
+    user_doc = await db.users.find_one({"email": UNIVERSAL_USERNAME}, {"_id": 0})
+    
+    if not user_doc:
+        # Create universal user
+        user_id = "user_universal_detective"
+        user_doc = {
+            "user_id": user_id,
+            "email": UNIVERSAL_USERNAME,
+            "name": "Detective 2026",
+            "role": "user",
+            "created_at": datetime.now(timezone.utc)
+        }
+        await db.users.insert_one(user_doc)
     
     # Create session
     session_token = f"session_{uuid.uuid4().hex}"
     await db.user_sessions.insert_one({
         "user_id": user_doc["user_id"],
         "session_token": session_token,
-        "expires_at": datetime.now(timezone.utc) + timedelta(days=7),
+        "expires_at": datetime.now(timezone.utc) + timedelta(days=30),
         "created_at": datetime.now(timezone.utc)
     })
     
     response = JSONResponse(content={
         "user_id": user_doc["user_id"],
         "email": user_doc["email"],
-        "name": user_doc["name"],
+        "name": user_doc.get("name", "Detective 2026"),
         "role": user_doc.get("role", "user"),
         "session_token": session_token
     })
@@ -256,7 +272,7 @@ async def login(credentials: UserLogin):
         httponly=True,
         secure=True,
         samesite="none",
-        max_age=7*24*60*60,
+        max_age=30*24*60*60,
         path="/"
     )
     

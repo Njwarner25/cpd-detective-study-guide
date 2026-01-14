@@ -97,6 +97,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     lineHeight: 24,
   },
+  createdBy: {
+    fontSize: 14,
+    color: '#94a3b8',
+    textAlign: 'center',
+    marginTop: 16,
+    fontStyle: 'italic',
+  },
   buttonContainer: {
     gap: 12,
   },

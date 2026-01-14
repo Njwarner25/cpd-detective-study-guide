@@ -53,7 +53,7 @@ class BackendTester:
 
     async def test_auth_register(self):
         """Test user registration"""
-        test_email = f"testuser_{uuid.uuid4().hex[:8]}@cpd.test"
+        test_email = f"testuser_{uuid.uuid4().hex[:8]}@example.com"
         test_data = {
             "email": test_email,
             "password": "testpass123",

@@ -84,59 +84,44 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
   },
   buttonContainer: {
-    gap: 12,
+    gap: 16,
   },
-  googleButton: {
+  loginButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#dc2626',
+    backgroundColor: '#2563eb',
     padding: 16,
     borderRadius: 12,
     gap: 8,
   },
-  googleButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  divider: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: 8,
-  },
-  dividerLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: '#334155',
-  },
-  dividerText: {
-    color: '#64748b',
-    marginHorizontal: 16,
-    fontSize: 14,
-  },
-  loginButton: {
-    backgroundColor: '#2563eb',
-    padding: 16,
-    borderRadius: 12,
-    alignItems: 'center',
-  },
   loginButtonText: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: '600',
   },
-  registerButton: {
-    backgroundColor: 'transparent',
+  credentialsBox: {
+    flexDirection: 'row',
+    backgroundColor: '#1e293b',
     padding: 16,
     borderRadius: 12,
-    alignItems: 'center',
-    borderWidth: 2,
+    gap: 12,
+    borderWidth: 1,
     borderColor: '#334155',
   },
-  registerButtonText: {
-    color: '#e2e8f0',
-    fontSize: 16,
+  credentialsText: {
+    flex: 1,
+    gap: 4,
+  },
+  credentialsLabel: {
+    fontSize: 14,
     fontWeight: '600',
+    color: '#cbd5e1',
+    marginBottom: 4,
+  },
+  credentialsDetail: {
+    fontSize: 13,
+    color: '#94a3b8',
+    fontFamily: 'monospace',
   },
 });

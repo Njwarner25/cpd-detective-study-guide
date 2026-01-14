@@ -119,8 +119,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const register = async (email: string, password: string, name: string) => {
     try {
       const userData = await authService.register(email, password, name);
+      // Store session token from response
+      if (userData.session_token) {
+        await AsyncStorage.setItem('session_token', userData.session_token);
+        setSessionToken(userData.session_token);
+      }
       setUser(userData);
-      await checkAuth();
     } catch (error: any) {
       throw new Error(error.response?.data?.detail || 'Registration failed');
     }

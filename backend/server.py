@@ -261,8 +261,11 @@ async def login(credentials: UserLogin):
     return response
 
 @api_router.get("/auth/session-data")
-async def get_session_data(x_session_id: str):
+async def get_session_data(x_session_id: str = Header(None)):
     """Exchange session_id from Google OAuth for session data"""
+    if not x_session_id:
+        raise HTTPException(status_code=422, detail="X-Session-ID header required")
+    
     async with httpx.AsyncClient() as client:
         response = await client.get(
             "https://demobackend.emergentagent.com/auth/v1/env/oauth/session-data",

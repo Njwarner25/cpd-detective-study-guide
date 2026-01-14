@@ -238,7 +238,6 @@ export default function Study() {
           </TouchableOpacity>
         </View>
       </SafeAreaView>
-    </SafeAreaView>
   );
 }
 

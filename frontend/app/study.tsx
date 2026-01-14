@@ -5,7 +5,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../contexts/AuthContext';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { questionService, bookmarkService } from '../services/api';
-import { GestureHandlerRootView, PanGestureHandler } from 'react-native-gesture-handler';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 

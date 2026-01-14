@@ -238,7 +238,7 @@ export default function Study() {
           </TouchableOpacity>
         </View>
       </SafeAreaView>
-    </GestureHandlerRootView>
+    </SafeAreaView>
   );
 }
 

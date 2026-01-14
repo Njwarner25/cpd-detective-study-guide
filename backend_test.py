@@ -84,7 +84,7 @@ class BackendTester:
     async def test_auth_login(self):
         """Test user login with admin credentials"""
         admin_data = {
-            "email": "admin@cpd.test",
+            "email": "admin@example.com",
             "password": "admin123"
         }
         

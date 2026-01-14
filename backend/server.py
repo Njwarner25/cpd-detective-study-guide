@@ -246,7 +246,8 @@ async def login(credentials: UserLogin):
         "user_id": user_doc["user_id"],
         "email": user_doc["email"],
         "name": user_doc["name"],
-        "role": user_doc.get("role", "user")
+        "role": user_doc.get("role", "user"),
+        "session_token": session_token
     })
     
     response.set_cookie(

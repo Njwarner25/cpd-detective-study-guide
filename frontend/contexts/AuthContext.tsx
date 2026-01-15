@@ -145,6 +145,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setSessionToken(userData.session_token);
       }
       setUser(userData);
+      setIsGuest(false);
     } catch (error: any) {
       throw new Error(error.response?.data?.detail || 'Registration failed');
     }

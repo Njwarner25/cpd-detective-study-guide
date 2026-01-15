@@ -115,8 +115,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setSessionToken(userData.session_token);
       }
       setUser(userData);
+      setIsGuest(userData.is_guest || false);
     } catch (error: any) {
       throw new Error(error.response?.data?.detail || 'Login failed');
+    }
+  };
+
+  const guestLogin = async () => {
+    try {
+      const userData = await authService.guestLogin();
+      // Store session token from response
+      if (userData.session_token) {
+        await AsyncStorage.setItem('session_token', userData.session_token);
+        setSessionToken(userData.session_token);
+      }
+      setUser(userData);
+      setIsGuest(true);
+    } catch (error: any) {
+      throw new Error(error.response?.data?.detail || 'Guest login failed');
     }
   };
 

@@ -6,7 +6,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useRouter } from 'expo-router';
 
 export default function Profile() {
-  const { user, logout } = useAuth();
+  const { user, logout, isGuest } = useAuth();
   const router = useRouter();
 
   const handleLogout = () => {
@@ -27,55 +27,123 @@ export default function Profile() {
     );
   };
 
+  const handleUpgradeAccount = () => {
+    router.push('/(auth)/login');
+  };
+
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top']}>
       <ScrollView style={styles.scrollView}>
         <View style={styles.header}>
           <View style={styles.avatarContainer}>
             {user?.picture ? (
               <Image source={{ uri: user.picture }} style={styles.avatar} />
             ) : (
-              <View style={styles.avatarPlaceholder}>
-                <Ionicons name="person" size={48} color="#64748b" />
+              <View style={[styles.avatarPlaceholder, isGuest && styles.guestAvatar]}>
+                <Ionicons name={isGuest ? "person-outline" : "person"} size={48} color={isGuest ? "#f59e0b" : "#64748b"} />
               </View>
             )}
           </View>
-          <Text style={styles.name}>{user?.name}</Text>
+          <Text style={styles.name}>{user?.name || 'Guest User'}</Text>
           <Text style={styles.email}>{user?.email}</Text>
-          {user?.role === 'admin' && (
+          
+          {isGuest ? (
+            <View style={styles.guestBadge}>
+              <Ionicons name="time-outline" size={14} color="#f59e0b" />
+              <Text style={styles.guestBadgeText}>Guest Account</Text>
+            </View>
+          ) : user?.role === 'admin' ? (
             <View style={styles.adminBadge}>
               <Text style={styles.adminBadgeText}>Admin</Text>
+            </View>
+          ) : (
+            <View style={styles.registeredBadge}>
+              <Ionicons name="checkmark-circle" size={14} color="#10b981" />
+              <Text style={styles.registeredBadgeText}>Registered</Text>
             </View>
           )}
         </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Account</Text>
-          
-          <TouchableOpacity style={styles.menuItem}>
-            <View style={styles.menuIconContainer}>
-              <Ionicons name="person-outline" size={20} color="#fff" />
+        {isGuest && (
+          <View style={styles.upgradeSection}>
+            <View style={styles.upgradeCard}>
+              <View style={styles.upgradeIcon}>
+                <Ionicons name="star" size={32} color="#f59e0b" />
+              </View>
+              <View style={styles.upgradeContent}>
+                <Text style={styles.upgradeTitle}>Upgrade Your Account</Text>
+                <Text style={styles.upgradeText}>
+                  Create a free account to save your progress, sync across devices, and track your study history.
+                </Text>
+              </View>
+              <TouchableOpacity style={styles.upgradeButton} onPress={handleUpgradeAccount}>
+                <Text style={styles.upgradeButtonText}>Create Account</Text>
+              </TouchableOpacity>
             </View>
-            <Text style={styles.menuText}>Edit Profile</Text>
-            <Ionicons name="chevron-forward" size={20} color="#64748b" />
-          </TouchableOpacity>
+          </View>
+        )}
 
-          <TouchableOpacity style={styles.menuItem}>
-            <View style={styles.menuIconContainer}>
-              <Ionicons name="notifications-outline" size={20} color="#fff" />
+        {isGuest && (
+          <View style={styles.limitationsSection}>
+            <Text style={styles.sectionTitle}>Guest Limitations</Text>
+            <View style={styles.limitationItem}>
+              <Ionicons name="close-circle" size={18} color="#ef4444" />
+              <Text style={styles.limitationText}>Progress not saved after logout</Text>
             </View>
-            <Text style={styles.menuText}>Notifications</Text>
-            <Ionicons name="chevron-forward" size={20} color="#64748b" />
-          </TouchableOpacity>
+            <View style={styles.limitationItem}>
+              <Ionicons name="close-circle" size={18} color="#ef4444" />
+              <Text style={styles.limitationText}>No cross-device sync</Text>
+            </View>
+            <View style={styles.limitationItem}>
+              <Ionicons name="close-circle" size={18} color="#ef4444" />
+              <Text style={styles.limitationText}>Shared progress with other guests</Text>
+            </View>
+          </View>
+        )}
 
-          <TouchableOpacity style={styles.menuItem}>
-            <View style={styles.menuIconContainer}>
-              <Ionicons name="lock-closed-outline" size={20} color="#fff" />
+        {!isGuest && (
+          <View style={styles.benefitsSection}>
+            <Text style={styles.sectionTitle}>Account Benefits</Text>
+            <View style={styles.benefitItem}>
+              <Ionicons name="checkmark-circle" size={18} color="#10b981" />
+              <Text style={styles.benefitText}>Personal progress tracking</Text>
             </View>
-            <Text style={styles.menuText}>Privacy & Security</Text>
-            <Ionicons name="chevron-forward" size={20} color="#64748b" />
-          </TouchableOpacity>
-        </View>
+            <View style={styles.benefitItem}>
+              <Ionicons name="checkmark-circle" size={18} color="#10b981" />
+              <Text style={styles.benefitText}>Sync across all devices</Text>
+            </View>
+            <View style={styles.benefitItem}>
+              <Ionicons name="checkmark-circle" size={18} color="#10b981" />
+              <Text style={styles.benefitText}>Bookmarks saved to your account</Text>
+            </View>
+            <View style={styles.benefitItem}>
+              <Ionicons name="checkmark-circle" size={18} color="#10b981" />
+              <Text style={styles.benefitText}>Study history preserved</Text>
+            </View>
+          </View>
+        )}
+
+        {!isGuest && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Account</Text>
+            
+            <TouchableOpacity style={styles.menuItem}>
+              <View style={styles.menuIconContainer}>
+                <Ionicons name="person-outline" size={20} color="#fff" />
+              </View>
+              <Text style={styles.menuText}>Edit Profile</Text>
+              <Ionicons name="chevron-forward" size={20} color="#64748b" />
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.menuItem}>
+              <View style={styles.menuIconContainer}>
+                <Ionicons name="lock-closed-outline" size={20} color="#fff" />
+              </View>
+              <Text style={styles.menuText}>Change Password</Text>
+              <Ionicons name="chevron-forward" size={20} color="#64748b" />
+            </TouchableOpacity>
+          </View>
+        )}
 
         {user?.role === 'admin' && (
           <View style={styles.section}>
@@ -107,17 +175,9 @@ export default function Profile() {
 
           <TouchableOpacity style={styles.menuItem}>
             <View style={styles.menuIconContainer}>
-              <Ionicons name="document-text-outline" size={20} color="#fff" />
+              <Ionicons name="information-circle-outline" size={20} color="#fff" />
             </View>
-            <Text style={styles.menuText}>Terms & Conditions</Text>
-            <Ionicons name="chevron-forward" size={20} color="#64748b" />
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.menuItem}>
-            <View style={styles.menuIconContainer}>
-              <Ionicons name="shield-outline" size={20} color="#fff" />
-            </View>
-            <Text style={styles.menuText}>Privacy Policy</Text>
+            <Text style={styles.menuText}>About</Text>
             <Ionicons name="chevron-forward" size={20} color="#64748b" />
           </TouchableOpacity>
         </View>
@@ -130,6 +190,7 @@ export default function Profile() {
         </View>
 
         <Text style={styles.version}>Version 1.0.0</Text>
+        <Text style={styles.credits}>Created by Nathaniel Warner</Text>
       </ScrollView>
     </SafeAreaView>
   );
@@ -146,7 +207,7 @@ const styles = StyleSheet.create({
   header: {
     padding: 24,
     alignItems: 'center',
-    paddingTop: 40,
+    paddingTop: 20,
   },
   avatarContainer: {
     marginBottom: 16,
@@ -164,6 +225,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  guestAvatar: {
+    borderWidth: 2,
+    borderColor: '#f59e0b',
+    borderStyle: 'dashed',
+  },
   name: {
     fontSize: 24,
     fontWeight: 'bold',
@@ -173,6 +239,21 @@ const styles = StyleSheet.create({
   email: {
     fontSize: 16,
     color: '#94a3b8',
+  },
+  guestBadge: {
+    backgroundColor: '#78350f',
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 12,
+    marginTop: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  guestBadgeText: {
+    color: '#fcd34d',
+    fontSize: 12,
+    fontWeight: '600',
   },
   adminBadge: {
     backgroundColor: '#7c3aed',
@@ -185,6 +266,91 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 12,
     fontWeight: '600',
+  },
+  registeredBadge: {
+    backgroundColor: '#064e3b',
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 12,
+    marginTop: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  registeredBadgeText: {
+    color: '#10b981',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  upgradeSection: {
+    paddingHorizontal: 24,
+    marginBottom: 16,
+  },
+  upgradeCard: {
+    backgroundColor: '#1e3a5f',
+    borderRadius: 16,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: '#f59e0b',
+  },
+  upgradeIcon: {
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  upgradeContent: {
+    marginBottom: 16,
+  },
+  upgradeTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#fff',
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  upgradeText: {
+    fontSize: 14,
+    color: '#94a3b8',
+    textAlign: 'center',
+    lineHeight: 20,
+  },
+  upgradeButton: {
+    backgroundColor: '#f59e0b',
+    padding: 14,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  upgradeButtonText: {
+    color: '#000',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  limitationsSection: {
+    paddingHorizontal: 24,
+    marginBottom: 16,
+  },
+  limitationItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingVertical: 8,
+  },
+  limitationText: {
+    color: '#94a3b8',
+    fontSize: 14,
+  },
+  benefitsSection: {
+    paddingHorizontal: 24,
+    marginBottom: 16,
+  },
+  benefitItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingVertical: 8,
+  },
+  benefitText: {
+    color: '#94a3b8',
+    fontSize: 14,
   },
   section: {
     padding: 24,
@@ -240,6 +406,13 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: '#64748b',
     fontSize: 12,
-    paddingVertical: 24,
+    paddingTop: 24,
+  },
+  credits: {
+    textAlign: 'center',
+    color: '#64748b',
+    fontSize: 12,
+    paddingBottom: 24,
+    fontStyle: 'italic',
   },
 });

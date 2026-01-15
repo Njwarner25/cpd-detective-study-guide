@@ -376,4 +376,12 @@ const styles = StyleSheet.create({
     fontSize: 12,
     textAlign: 'center',
   },
+  forgotPassword: {
+    alignItems: 'center',
+    paddingVertical: 8,
+  },
+  forgotPasswordText: {
+    color: '#60a5fa',
+    fontSize: 14,
+  },
 });

@@ -4,29 +4,20 @@ import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 
-// Chicago Police Star Badge - 5-pointed gold star design (authentic style)
+// Chicago Police Star Badge - Simple silver star with navy center
 const ChicagoPoliceStar = () => (
   <View style={starStyles.container}>
     <View style={starStyles.starWrapper}>
-      {/* 5-pointed star using SVG-like approach */}
+      {/* 5-pointed silver star */}
       <View style={starStyles.starOuter}>
-        {/* Star points */}
         <View style={[starStyles.point, starStyles.pointTop]} />
         <View style={[starStyles.point, starStyles.pointTopRight]} />
         <View style={[starStyles.point, starStyles.pointBottomRight]} />
         <View style={[starStyles.point, starStyles.pointBottomLeft]} />
         <View style={[starStyles.point, starStyles.pointTopLeft]} />
         
-        {/* Center circle with Chicago seal */}
-        <View style={starStyles.centerCircle}>
-          <View style={starStyles.innerRing}>
-            <Text style={starStyles.topText}>CHICAGO</Text>
-            <View style={starStyles.sealCenter}>
-              <Text style={starStyles.sealText}>★</Text>
-            </View>
-            <Text style={starStyles.bottomText}>POLICE</Text>
-          </View>
-        </View>
+        {/* Navy blue center */}
+        <View style={starStyles.centerCircle} />
       </View>
     </View>
   </View>
@@ -39,14 +30,14 @@ const starStyles = StyleSheet.create({
     marginBottom: 24,
   },
   starWrapper: {
-    width: 150,
-    height: 150,
+    width: 140,
+    height: 140,
     alignItems: 'center',
     justifyContent: 'center',
   },
   starOuter: {
-    width: 140,
-    height: 140,
+    width: 130,
+    height: 130,
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
@@ -55,83 +46,44 @@ const starStyles = StyleSheet.create({
     position: 'absolute',
     width: 0,
     height: 0,
-    borderLeftWidth: 20,
-    borderRightWidth: 20,
-    borderBottomWidth: 55,
+    borderLeftWidth: 22,
+    borderRightWidth: 22,
+    borderBottomWidth: 60,
     borderLeftColor: 'transparent',
     borderRightColor: 'transparent',
-    borderBottomColor: '#CFB53B', // Classic gold
+    borderBottomColor: '#C0C0C0', // Silver
   },
   pointTop: {
-    top: -8,
+    top: -12,
   },
   pointTopRight: {
-    top: 28,
-    right: -2,
+    top: 25,
+    right: -5,
     transform: [{ rotate: '72deg' }],
   },
   pointBottomRight: {
-    bottom: 5,
-    right: 12,
+    bottom: 2,
+    right: 10,
     transform: [{ rotate: '144deg' }],
   },
   pointBottomLeft: {
-    bottom: 5,
-    left: 12,
+    bottom: 2,
+    left: 10,
     transform: [{ rotate: '-144deg' }],
   },
   pointTopLeft: {
-    top: 28,
-    left: -2,
+    top: 25,
+    left: -5,
     transform: [{ rotate: '-72deg' }],
   },
   centerCircle: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: '#CFB53B',
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 10,
-    borderWidth: 2,
-    borderColor: '#8B7500',
-  },
-  innerRing: {
-    width: 68,
-    height: 68,
-    borderRadius: 34,
+    width: 70,
+    height: 70,
+    borderRadius: 35,
     backgroundColor: '#1B3D6D', // Navy blue
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 2,
-    borderColor: '#CFB53B',
-  },
-  topText: {
-    color: '#CFB53B',
-    fontSize: 10,
-    fontWeight: 'bold',
-    letterSpacing: 1,
-    marginTop: 2,
-  },
-  sealCenter: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: '#CFB53B',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginVertical: 2,
-  },
-  sealText: {
-    color: '#1B3D6D',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  bottomText: {
-    color: '#CFB53B',
-    fontSize: 9,
-    fontWeight: 'bold',
-    letterSpacing: 1.5,
+    zIndex: 10,
+    borderWidth: 3,
+    borderColor: '#A8A8A8', // Darker silver border
   },
 });
 

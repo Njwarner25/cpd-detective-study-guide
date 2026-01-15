@@ -20,14 +20,20 @@ export default function Flashcards() {
 
   const loadData = async () => {
     try {
+      setLoading(true);
+      console.log('Loading flashcards with category:', selectedCategory, 'token:', sessionToken ? 'present' : 'missing');
+      
       const [questionsData, categoriesData] = await Promise.all([
         questionService.getQuestions('flashcard', selectedCategory || undefined, sessionToken || undefined),
         categoryService.getCategories()
       ]);
+      
+      console.log('Loaded', questionsData.length, 'flashcards and', categoriesData.length, 'categories');
       setQuestions(questionsData);
       setCategories(categoriesData);
     } catch (error) {
       console.error('Failed to load flashcards:', error);
+      setQuestions([]);
     } finally {
       setLoading(false);
     }

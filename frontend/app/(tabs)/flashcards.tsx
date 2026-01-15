@@ -171,12 +171,16 @@ const styles = StyleSheet.create({
   categoryScroll: {
     flexDirection: 'row',
   },
+  categoryContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
   categoryChip: {
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
     backgroundColor: '#1e293b',
-    marginRight: 8,
     borderWidth: 1,
     borderColor: '#334155',
   },

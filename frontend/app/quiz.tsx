@@ -274,9 +274,9 @@ export default function Quiz() {
       <View style={styles.footer}>
         {!showResult ? (
           <TouchableOpacity 
-            style={[styles.submitButton, !selectedAnswer && styles.submitButtonDisabled]}
+            style={[styles.submitButton, selectedAnswers.length === 0 && styles.submitButtonDisabled]}
             onPress={handleSubmitAnswer}
-            disabled={!selectedAnswer}
+            disabled={selectedAnswers.length === 0}
           >
             <Text style={styles.submitButtonText}>Submit Answer</Text>
           </TouchableOpacity>

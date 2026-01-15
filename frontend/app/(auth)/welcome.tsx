@@ -4,23 +4,32 @@ import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 
-// Chicago Police Star Badge SVG as a component
+// Chicago Police Star Badge - 6-pointed gold star design
 const ChicagoPoliceStar = () => (
   <View style={starStyles.container}>
-    <View style={starStyles.star}>
-      <View style={starStyles.centerCircle}>
-        <Text style={starStyles.cityText}>CITY OF</Text>
-        <Text style={starStyles.chicagoText}>CHICAGO</Text>
-        <View style={starStyles.divider} />
-        <Text style={starStyles.policeText}>POLICE</Text>
+    {/* Outer star shape using positioned triangles */}
+    <View style={starStyles.starContainer}>
+      {/* Six points of the star */}
+      <View style={[starStyles.point, starStyles.point0]} />
+      <View style={[starStyles.point, starStyles.point1]} />
+      <View style={[starStyles.point, starStyles.point2]} />
+      <View style={[starStyles.point, starStyles.point3]} />
+      <View style={[starStyles.point, starStyles.point4]} />
+      <View style={[starStyles.point, starStyles.point5]} />
+      
+      {/* Center hexagon */}
+      <View style={starStyles.centerHex}>
+        {/* Inner circle with text */}
+        <View style={starStyles.innerCircle}>
+          <Text style={starStyles.chicagoText}>CHICAGO</Text>
+          <View style={starStyles.shield}>
+            <View style={starStyles.shieldStripe1} />
+            <View style={starStyles.shieldStripe2} />
+            <View style={starStyles.shieldStripe3} />
+          </View>
+          <Text style={starStyles.policeText}>POLICE</Text>
+        </View>
       </View>
-      {/* Star points */}
-      <View style={[starStyles.point, starStyles.pointTop]} />
-      <View style={[starStyles.point, starStyles.pointTopRight]} />
-      <View style={[starStyles.point, starStyles.pointBottomRight]} />
-      <View style={[starStyles.point, starStyles.pointBottom]} />
-      <View style={[starStyles.point, starStyles.pointBottomLeft]} />
-      <View style={[starStyles.point, starStyles.pointTopLeft]} />
     </View>
   </View>
 );
@@ -29,88 +38,106 @@ const starStyles = StyleSheet.create({
   container: {
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 20,
+    marginBottom: 24,
   },
-  star: {
-    width: 120,
-    height: 120,
+  starContainer: {
+    width: 140,
+    height: 140,
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
-  },
-  centerCircle: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: '#1e3a5f',
-    borderWidth: 3,
-    borderColor: '#c9a227',
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 10,
-  },
-  cityText: {
-    color: '#c9a227',
-    fontSize: 8,
-    fontWeight: 'bold',
-    letterSpacing: 1,
-  },
-  chicagoText: {
-    color: '#c9a227',
-    fontSize: 12,
-    fontWeight: 'bold',
-    letterSpacing: 1,
-  },
-  divider: {
-    width: 40,
-    height: 1,
-    backgroundColor: '#c9a227',
-    marginVertical: 4,
-  },
-  policeText: {
-    color: '#c9a227',
-    fontSize: 10,
-    fontWeight: 'bold',
-    letterSpacing: 2,
   },
   point: {
     position: 'absolute',
     width: 0,
     height: 0,
-    borderLeftWidth: 12,
-    borderRightWidth: 12,
-    borderBottomWidth: 30,
+    borderLeftWidth: 18,
+    borderRightWidth: 18,
+    borderBottomWidth: 45,
     borderLeftColor: 'transparent',
     borderRightColor: 'transparent',
-    borderBottomColor: '#c9a227',
+    borderBottomColor: '#D4AF37', // Gold color
   },
-  pointTop: {
-    top: -5,
+  point0: { // Top point
+    top: 0,
     transform: [{ rotate: '0deg' }],
   },
-  pointTopRight: {
-    top: 15,
-    right: 5,
+  point1: { // Top-right
+    top: 22,
+    right: 8,
     transform: [{ rotate: '60deg' }],
   },
-  pointBottomRight: {
-    bottom: 15,
-    right: 5,
+  point2: { // Bottom-right
+    bottom: 22,
+    right: 8,
     transform: [{ rotate: '120deg' }],
   },
-  pointBottom: {
-    bottom: -5,
+  point3: { // Bottom
+    bottom: 0,
     transform: [{ rotate: '180deg' }],
   },
-  pointBottomLeft: {
-    bottom: 15,
-    left: 5,
+  point4: { // Bottom-left
+    bottom: 22,
+    left: 8,
     transform: [{ rotate: '240deg' }],
   },
-  pointTopLeft: {
-    top: 15,
-    left: 5,
+  point5: { // Top-left
+    top: 22,
+    left: 8,
     transform: [{ rotate: '300deg' }],
+  },
+  centerHex: {
+    width: 90,
+    height: 90,
+    borderRadius: 45,
+    backgroundColor: '#D4AF37',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 10,
+  },
+  innerCircle: {
+    width: 76,
+    height: 76,
+    borderRadius: 38,
+    backgroundColor: '#1a237e', // Deep blue
+    borderWidth: 2,
+    borderColor: '#D4AF37',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  chicagoText: {
+    color: '#D4AF37',
+    fontSize: 11,
+    fontWeight: 'bold',
+    letterSpacing: 1.5,
+    marginTop: 4,
+  },
+  shield: {
+    width: 24,
+    height: 18,
+    backgroundColor: '#fff',
+    borderRadius: 2,
+    marginVertical: 4,
+    overflow: 'hidden',
+    flexDirection: 'row',
+  },
+  shieldStripe1: {
+    flex: 1,
+    backgroundColor: '#bf0a30', // Red
+  },
+  shieldStripe2: {
+    flex: 1,
+    backgroundColor: '#fff', // White
+  },
+  shieldStripe3: {
+    flex: 1,
+    backgroundColor: '#002868', // Blue
+  },
+  policeText: {
+    color: '#D4AF37',
+    fontSize: 10,
+    fontWeight: 'bold',
+    letterSpacing: 2,
   },
 });
 

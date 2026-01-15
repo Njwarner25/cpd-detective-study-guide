@@ -127,7 +127,7 @@ def verify_password(password: str, hashed: str) -> bool:
 
 async def get_current_user(
     session_token: Optional[str] = Cookie(None),
-    authorization: Optional[str] = None
+    authorization: Optional[str] = Header(None)
 ) -> Optional[User]:
     # Try cookie first, then Authorization header
     token = session_token

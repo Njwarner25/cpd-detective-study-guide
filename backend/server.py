@@ -178,15 +178,18 @@ async def require_admin(user: User = Depends(require_user)) -> User:
 
 @api_router.post("/auth/register")
 async def register(user_data: UserCreate):
+    # Normalize email to lowercase
+    email = user_data.email.lower()
+    
     # Check if user exists
-    existing = await db.users.find_one({"email": user_data.email}, {"_id": 0})
+    existing = await db.users.find_one({"email": email}, {"_id": 0})
     if existing:
         raise HTTPException(status_code=400, detail="Email already registered")
     
     user_id = f"user_{uuid.uuid4().hex[:12]}"
     user = User(
         user_id=user_id,
-        email=user_data.email,
+        email=email,
         name=user_data.name,
         password_hash=hash_password(user_data.password),
         role="user",
@@ -200,15 +203,16 @@ async def register(user_data: UserCreate):
     await db.user_sessions.insert_one({
         "user_id": user_id,
         "session_token": session_token,
-        "expires_at": datetime.now(timezone.utc) + timedelta(days=7),
+        "expires_at": datetime.now(timezone.utc) + timedelta(days=30),
         "created_at": datetime.now(timezone.utc)
     })
     
     response = JSONResponse(content={
         "user_id": user_id,
-        "email": user.email,
-        "name": user.name,
-        "role": user.role,
+        "email": email,
+        "name": user_data.name,
+        "role": "user",
+        "is_guest": False,
         "session_token": session_token
     })
     
@@ -218,7 +222,7 @@ async def register(user_data: UserCreate):
         httponly=True,
         secure=True,
         samesite="none",
-        max_age=7*24*60*60,
+        max_age=30*24*60*60,
         path="/"
     )
     

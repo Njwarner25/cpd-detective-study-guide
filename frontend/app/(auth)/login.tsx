@@ -205,6 +205,16 @@ export default function Login() {
               </TouchableOpacity>
             </View>
 
+            {mode === 'login' && (
+              <TouchableOpacity 
+                style={styles.forgotPassword}
+                onPress={() => router.push('/forgot-password')}
+                disabled={loading || guestLoading}
+              >
+                <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+              </TouchableOpacity>
+            )}
+
             <View style={styles.divider}>
               <View style={styles.dividerLine} />
               <Text style={styles.dividerText}>or</Text>

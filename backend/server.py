@@ -35,7 +35,7 @@ EMERGENT_LLM_KEY = os.environ.get('EMERGENT_LLM_KEY')
 
 class User(BaseModel):
     user_id: str
-    email: EmailStr
+    email: str  # Changed from EmailStr to allow usernames
     name: str
     picture: Optional[str] = None
     password_hash: Optional[str] = None

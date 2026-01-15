@@ -214,7 +214,7 @@ export default function Quiz() {
 
         <View style={styles.optionsContainer}>
           {currentQuestion.options.map((option: string, index: number) => {
-            const isSelected = selectedAnswer === option;
+            const isSelected = selectedAnswers.includes(option);
             const isCorrect = currentQuestion.correct_answers.includes(option);
             
             let optionStyle = styles.option;
@@ -239,11 +239,15 @@ export default function Quiz() {
                 onPress={() => handleSelectAnswer(option)}
                 disabled={showResult}
               >
-                <View style={styles.optionLetter}>
-                  <Text style={styles.optionLetterText}>
-                    {String.fromCharCode(65 + index)}
-                  </Text>
-                </View>
+                {hasMultipleCorrect ? (
+                  <View style={[styles.checkbox, isSelected && styles.checkboxSelected]}>
+                    {isSelected && <Ionicons name="checkmark" size={16} color="#fff" />}
+                  </View>
+                ) : (
+                  <View style={[styles.radioButton, isSelected && styles.radioButtonSelected]}>
+                    {isSelected && <View style={styles.radioButtonInner} />}
+                  </View>
+                )}
                 <Text style={textStyle}>{option}</Text>
                 {showResult && isCorrect && (
                   <Ionicons name="checkmark-circle" size={24} color="#10b981" style={styles.optionIcon} />

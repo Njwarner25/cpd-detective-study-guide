@@ -11,14 +11,17 @@ interface User {
   name: string;
   picture?: string;
   role: string;
+  is_guest?: boolean;
 }
 
 interface AuthContextType {
   user: User | null;
   sessionToken: string | null;
   loading: boolean;
+  isGuest: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, name: string) => Promise<void>;
+  guestLogin: () => Promise<void>;
   loginWithGoogle: () => Promise<void>;
   logout: () => Promise<void>;
   checkAuth: () => Promise<void>;

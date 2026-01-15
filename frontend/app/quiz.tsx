@@ -98,7 +98,7 @@ export default function Quiz() {
   const handleNextQuestion = () => {
     if (currentIndex < questions.length - 1) {
       setCurrentIndex(prev => prev + 1);
-      setSelectedAnswer(null);
+      setSelectedAnswers([]);
       setShowResult(false);
     } else {
       setQuizComplete(true);

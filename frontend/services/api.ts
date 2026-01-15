@@ -26,6 +26,11 @@ export const authService = {
     return response.data;
   },
 
+  async guestLogin() {
+    const response = await api.post('/auth/guest');
+    return response.data;
+  },
+
   async loginWithGoogle() {
     const redirectUrl = Platform.OS === 'web'
       ? `${typeof window !== 'undefined' ? window.location.origin : ''}/`

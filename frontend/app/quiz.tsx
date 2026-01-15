@@ -22,10 +22,10 @@ export default function Quiz() {
   
   const [questions, setQuestions] = useState<any[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
+  const [selectedAnswers, setSelectedAnswers] = useState<string[]>([]);
   const [showResult, setShowResult] = useState(false);
   const [score, setScore] = useState(0);
-  const [answers, setAnswers] = useState<{questionId: string, selected: string, correct: boolean}[]>([]);
+  const [answers, setAnswers] = useState<{questionId: string, selected: string[], correct: boolean}[]>([]);
   const [loading, setLoading] = useState(true);
   const [quizComplete, setQuizComplete] = useState(false);
 

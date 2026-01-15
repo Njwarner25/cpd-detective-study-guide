@@ -66,11 +66,14 @@ class Category(BaseModel):
 
 class Question(BaseModel):
     question_id: str
-    type: str  # "flashcard" or "scenario"
+    type: str  # "flashcard", "scenario", or "multiple_choice"
     category_id: str
     category_name: str
-    title: str
-    content: str
+    title: Optional[str] = None  # For flashcards/scenarios
+    content: Optional[str] = None  # For flashcards/scenarios
+    question: Optional[str] = None  # For MCQs
+    options: Optional[list] = None  # For MCQs
+    correct_answers: Optional[list] = None  # For MCQs
     answer: Optional[str] = None
     explanation: Optional[str] = None
     difficulty: str = "medium"  # easy, medium, hard

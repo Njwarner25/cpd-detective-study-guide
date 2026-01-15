@@ -49,17 +49,38 @@ export default function Quiz() {
 
   const handleSelectAnswer = (answer: string) => {
     if (showResult) return;
-    setSelectedAnswer(answer);
+    
+    const currentQuestion = questions[currentIndex];
+    const hasMultipleCorrect = currentQuestion.correct_answers.length > 1;
+    
+    if (hasMultipleCorrect) {
+      // Toggle selection for multi-answer questions
+      setSelectedAnswers(prev => {
+        if (prev.includes(answer)) {
+          return prev.filter(a => a !== answer);
+        } else {
+          return [...prev, answer];
+        }
+      });
+    } else {
+      // Single selection for single-answer questions
+      setSelectedAnswers([answer]);
+    }
   };
 
   const handleSubmitAnswer = () => {
-    if (!selectedAnswer) {
+    if (selectedAnswers.length === 0) {
       Alert.alert('Select an Answer', 'Please select an answer before continuing.');
       return;
     }
 
     const currentQuestion = questions[currentIndex];
-    const isCorrect = currentQuestion.correct_answers.includes(selectedAnswer);
+    const correctAnswers = currentQuestion.correct_answers;
+    
+    // Check if all selected answers are correct and all correct answers are selected
+    const isCorrect = 
+      selectedAnswers.length === correctAnswers.length &&
+      selectedAnswers.every(ans => correctAnswers.includes(ans));
     
     if (isCorrect) {
       setScore(prev => prev + 1);
@@ -67,7 +88,7 @@ export default function Quiz() {
 
     setAnswers(prev => [...prev, {
       questionId: currentQuestion.question_id,
-      selected: selectedAnswer,
+      selected: selectedAnswers,
       correct: isCorrect
     }]);
 

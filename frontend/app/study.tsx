@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Dimensions, Animated, ActivityIndicator } from 'react-native';
+import React, { useEffect, useState, useRef } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, Dimensions, Animated, ActivityIndicator, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../contexts/AuthContext';
@@ -17,8 +17,9 @@ export default function Study() {
   const [flipped, setFlipped] = useState(false);
   const [bookmarked, setBookmarked] = useState(false);
   const [loading, setLoading] = useState(true);
-  const flipAnim = new Animated.Value(0);
-  const translateX = new Animated.Value(0);
+  
+  // Use useRef to persist animation value
+  const flipAnimation = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     loadQuestions();
@@ -27,7 +28,9 @@ export default function Study() {
   useEffect(() => {
     if (questions.length > 0) {
       checkBookmark();
+      // Reset flip state when changing cards
       setFlipped(false);
+      flipAnimation.setValue(0);
     }
   }, [currentIndex]);
 
@@ -55,9 +58,11 @@ export default function Study() {
   };
 
   const handleFlip = () => {
-    Animated.timing(flipAnim, {
-      toValue: flipped ? 0 : 180,
-      duration: 300,
+    const toValue = flipped ? 0 : 1;
+    Animated.spring(flipAnimation, {
+      toValue,
+      friction: 8,
+      tension: 10,
       useNativeDriver: true,
     }).start();
     setFlipped(!flipped);
@@ -65,36 +70,12 @@ export default function Study() {
 
   const handleNext = () => {
     if (currentIndex < questions.length - 1) {
-      Animated.sequence([
-        Animated.timing(translateX, {
-          toValue: -SCREEN_WIDTH,
-          duration: 200,
-          useNativeDriver: true,
-        }),
-        Animated.timing(translateX, {
-          toValue: 0,
-          duration: 0,
-          useNativeDriver: true,
-        }),
-      ]).start();
       setCurrentIndex(currentIndex + 1);
     }
   };
 
   const handlePrevious = () => {
     if (currentIndex > 0) {
-      Animated.sequence([
-        Animated.timing(translateX, {
-          toValue: SCREEN_WIDTH,
-          duration: 200,
-          useNativeDriver: true,
-        }),
-        Animated.timing(translateX, {
-          toValue: 0,
-          duration: 0,
-          useNativeDriver: true,
-        }),
-      ]).start();
       setCurrentIndex(currentIndex - 1);
     }
   };
@@ -126,6 +107,7 @@ export default function Study() {
             <Ionicons name="arrow-back" size={24} color="#fff" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Study</Text>
+          <View style={styles.backButton} />
         </View>
         <View style={styles.emptyContainer}>
           <Ionicons name="layers-outline" size={64} color="#64748b" />
@@ -136,108 +118,145 @@ export default function Study() {
   }
 
   const currentQuestion = questions[currentIndex];
-  const frontInterpolate = flipAnim.interpolate({
-    inputRange: [0, 180],
-    outputRange: ['0deg', '180deg'],
+  
+  // Interpolate for front card (question)
+  const frontOpacity = flipAnimation.interpolate({
+    inputRange: [0, 0.5, 1],
+    outputRange: [1, 0, 0],
   });
-  const backInterpolate = flipAnim.interpolate({
-    inputRange: [0, 180],
-    outputRange: ['180deg', '360deg'],
+  
+  const frontScale = flipAnimation.interpolate({
+    inputRange: [0, 0.5, 1],
+    outputRange: [1, 0.95, 0.9],
+  });
+
+  // Interpolate for back card (answer)
+  const backOpacity = flipAnimation.interpolate({
+    inputRange: [0, 0.5, 1],
+    outputRange: [0, 0, 1],
+  });
+  
+  const backScale = flipAnimation.interpolate({
+    inputRange: [0, 0.5, 1],
+    outputRange: [0.9, 0.95, 1],
   });
 
   return (
     <SafeAreaView style={styles.container}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <Ionicons name="arrow-back" size={24} color="#fff" />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Flashcards</Text>
-          <TouchableOpacity onPress={toggleBookmark} style={styles.bookmarkButton}>
-            <Ionicons 
-              name={bookmarked ? "bookmark" : "bookmark-outline"} 
-              size={24} 
-              color={bookmarked ? "#f59e0b" : "#fff"} 
-            />
-          </TouchableOpacity>
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+          <Ionicons name="arrow-back" size={24} color="#fff" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Flashcards</Text>
+        <TouchableOpacity onPress={toggleBookmark} style={styles.bookmarkButton}>
+          <Ionicons 
+            name={bookmarked ? "bookmark" : "bookmark-outline"} 
+            size={24} 
+            color={bookmarked ? "#f59e0b" : "#fff"} 
+          />
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.progressContainer}>
+        <Text style={styles.progressText}>
+          {currentIndex + 1} / {questions.length}
+        </Text>
+        <View style={styles.progressBar}>
+          <View style={[styles.progressFill, { width: `${((currentIndex + 1) / questions.length) * 100}%` }]} />
         </View>
+      </View>
 
-        <View style={styles.progressContainer}>
-          <Text style={styles.progressText}>
-            {currentIndex + 1} / {questions.length}
-          </Text>
-          <View style={styles.progressBar}>
-            <View style={[styles.progressFill, { width: `${((currentIndex + 1) / questions.length) * 100}%` }]} />
-          </View>
-        </View>
-
-        <View style={styles.cardContainer}>
-          <TouchableOpacity activeOpacity={1} onPress={handleFlip} style={styles.cardTouchable}>
-            <Animated.View style={[styles.card, { transform: [{ translateX }, { rotateY: frontInterpolate }] }]}>
-              {!flipped && (
-                <View style={styles.cardContent}>
-                  <View style={styles.cardHeader}>
-                    <View style={[styles.badge, styles[`badge${currentQuestion.difficulty}`]]}>
-                      <Text style={styles.badgeText}>{currentQuestion.difficulty}</Text>
-                    </View>
-                    <Text style={styles.categoryBadge}>{currentQuestion.category_name}</Text>
-                  </View>
-                  <Text style={styles.questionTitle}>{currentQuestion.title}</Text>
-                  <Text style={styles.questionContent}>{currentQuestion.content}</Text>
-                  {currentQuestion.reference && (
-                    <Text style={styles.reference}>{currentQuestion.reference}</Text>
-                  )}
-                  <View style={styles.flipHint}>
-                    <Ionicons name="refresh" size={20} color="#64748b" />
-                    <Text style={styles.flipHintText}>Tap to see answer</Text>
-                  </View>
-                </View>
-              )}
-            </Animated.View>
-
-            <Animated.View style={[styles.card, styles.cardBack, { transform: [{ translateX }, { rotateY: backInterpolate }] }]}>
-              {flipped && (
-                <View style={styles.cardContent}>
-                  <Text style={styles.answerLabel}>Answer:</Text>
-                  <Text style={styles.answerText}>{currentQuestion.answer}</Text>
-                  {currentQuestion.explanation && (
-                    <>
-                      <Text style={styles.explanationLabel}>Explanation:</Text>
-                      <Text style={styles.explanationText}>{currentQuestion.explanation}</Text>
-                    </>
-                  )}
-                  <View style={styles.flipHint}>
-                    <Ionicons name="refresh" size={20} color="#64748b" />
-                    <Text style={styles.flipHintText}>Tap to see question</Text>
-                  </View>
-                </View>
-              )}
-            </Animated.View>
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.controls}>
-          <TouchableOpacity 
-            style={[styles.controlButton, currentIndex === 0 && styles.controlButtonDisabled]}
-            onPress={handlePrevious}
-            disabled={currentIndex === 0}
+      <View style={styles.cardContainer}>
+        <TouchableOpacity activeOpacity={0.9} onPress={handleFlip} style={styles.cardTouchable}>
+          {/* Front Card - Question */}
+          <Animated.View 
+            style={[
+              styles.card, 
+              { 
+                opacity: frontOpacity,
+                transform: [{ scale: frontScale }],
+                zIndex: flipped ? 0 : 1,
+              }
+            ]}
+            pointerEvents={flipped ? 'none' : 'auto'}
           >
-            <Ionicons name="chevron-back" size={32} color={currentIndex === 0 ? "#334155" : "#fff"} />
-          </TouchableOpacity>
+            <ScrollView style={styles.cardScroll} showsVerticalScrollIndicator={false}>
+              <View style={styles.cardContent}>
+                <View style={styles.cardHeader}>
+                  <View style={[styles.badge, styles[`badge${currentQuestion.difficulty}` as keyof typeof styles] || styles.badgemedium]}>
+                    <Text style={styles.badgeText}>{currentQuestion.difficulty}</Text>
+                  </View>
+                  <Text style={styles.categoryBadge}>{currentQuestion.category_name}</Text>
+                </View>
+                <Text style={styles.questionTitle}>{currentQuestion.title}</Text>
+                <Text style={styles.questionContent}>{currentQuestion.content}</Text>
+                {currentQuestion.reference && (
+                  <Text style={styles.reference}>{currentQuestion.reference}</Text>
+                )}
+              </View>
+            </ScrollView>
+            <View style={styles.flipHint}>
+              <Ionicons name="refresh" size={20} color="#64748b" />
+              <Text style={styles.flipHintText}>Tap to see answer</Text>
+            </View>
+          </Animated.View>
 
-          <TouchableOpacity style={styles.flipButton} onPress={handleFlip}>
-            <Ionicons name="refresh" size={24} color="#fff" />
-            <Text style={styles.flipButtonText}>Flip</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={[styles.controlButton, currentIndex === questions.length - 1 && styles.controlButtonDisabled]}
-            onPress={handleNext}
-            disabled={currentIndex === questions.length - 1}
+          {/* Back Card - Answer */}
+          <Animated.View 
+            style={[
+              styles.card, 
+              styles.cardBack,
+              { 
+                opacity: backOpacity,
+                transform: [{ scale: backScale }],
+                zIndex: flipped ? 1 : 0,
+              }
+            ]}
+            pointerEvents={flipped ? 'auto' : 'none'}
           >
-            <Ionicons name="chevron-forward" size={32} color={currentIndex === questions.length - 1 ? "#334155" : "#fff"} />
-          </TouchableOpacity>
-        </View>
-      </SafeAreaView>
+            <ScrollView style={styles.cardScroll} showsVerticalScrollIndicator={false}>
+              <View style={styles.cardContent}>
+                <Text style={styles.answerLabel}>Answer:</Text>
+                <Text style={styles.answerText}>{currentQuestion.answer}</Text>
+                {currentQuestion.explanation && (
+                  <>
+                    <Text style={styles.explanationLabel}>Explanation:</Text>
+                    <Text style={styles.explanationText}>{currentQuestion.explanation}</Text>
+                  </>
+                )}
+              </View>
+            </ScrollView>
+            <View style={styles.flipHint}>
+              <Ionicons name="refresh" size={20} color="#64748b" />
+              <Text style={styles.flipHintText}>Tap to see question</Text>
+            </View>
+          </Animated.View>
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.controls}>
+        <TouchableOpacity 
+          style={[styles.controlButton, currentIndex === 0 && styles.controlButtonDisabled]}
+          onPress={handlePrevious}
+          disabled={currentIndex === 0}
+        >
+          <Ionicons name="chevron-back" size={32} color={currentIndex === 0 ? "#334155" : "#fff"} />
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.flipButton} onPress={handleFlip}>
+          <Ionicons name="refresh" size={24} color="#fff" />
+          <Text style={styles.flipButtonText}>{flipped ? 'Show Question' : 'Show Answer'}</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity 
+          style={[styles.controlButton, currentIndex === questions.length - 1 && styles.controlButtonDisabled]}
+          onPress={handleNext}
+          disabled={currentIndex === questions.length - 1}
+        >
+          <Ionicons name="chevron-forward" size={32} color={currentIndex === questions.length - 1 ? "#334155" : "#fff"} />
+        </TouchableOpacity>
+      </View>
+    </SafeAreaView>
   );
 }
 
@@ -269,6 +288,7 @@ const styles = StyleSheet.create({
   },
   backButton: {
     padding: 8,
+    width: 40,
   },
   headerTitle: {
     fontSize: 20,
@@ -277,6 +297,8 @@ const styles = StyleSheet.create({
   },
   bookmarkButton: {
     padding: 8,
+    width: 40,
+    alignItems: 'flex-end',
   },
   progressContainer: {
     paddingHorizontal: 24,
@@ -302,7 +324,8 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 24,
+    paddingHorizontal: 24,
+    paddingVertical: 16,
   },
   cardTouchable: {
     width: '100%',
@@ -315,15 +338,16 @@ const styles = StyleSheet.create({
     height: '100%',
     backgroundColor: '#1e293b',
     borderRadius: 16,
-    padding: 24,
-    backfaceVisibility: 'hidden',
+    padding: 20,
   },
   cardBack: {
-    position: 'absolute',
+    backgroundColor: '#1a365d',
+  },
+  cardScroll: {
+    flex: 1,
   },
   cardContent: {
     flex: 1,
-    justifyContent: 'space-between',
   },
   cardHeader: {
     flexDirection: 'row',
@@ -332,7 +356,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   badge: {
-    paddingHorizontal: 8,
+    paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 6,
   },
@@ -365,47 +389,46 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#cbd5e1',
     lineHeight: 24,
-    flex: 1,
   },
   reference: {
     fontSize: 12,
     color: '#94a3b8',
     fontStyle: 'italic',
-    marginTop: 12,
+    marginTop: 16,
   },
   answerLabel: {
-    fontSize: 14,
-    fontWeight: '600',
+    fontSize: 16,
+    fontWeight: '700',
     color: '#10b981',
-    marginBottom: 8,
+    marginBottom: 12,
   },
   answerText: {
-    fontSize: 16,
-    color: '#cbd5e1',
+    fontSize: 15,
+    color: '#e2e8f0',
     lineHeight: 24,
-    marginBottom: 16,
+    marginBottom: 20,
   },
   explanationLabel: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#3b82f6',
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#60a5fa',
     marginBottom: 8,
+    marginTop: 8,
   },
   explanationText: {
     fontSize: 14,
     color: '#94a3b8',
-    lineHeight: 20,
-    flex: 1,
+    lineHeight: 22,
   },
   flipHint: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    marginTop: 16,
     paddingTop: 16,
     borderTopWidth: 1,
     borderTopColor: '#334155',
+    marginTop: 12,
   },
   flipHintText: {
     fontSize: 14,
@@ -419,9 +442,9 @@ const styles = StyleSheet.create({
     paddingBottom: 32,
   },
   controlButton: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
     backgroundColor: '#1e293b',
     justifyContent: 'center',
     alignItems: 'center',
@@ -434,13 +457,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
     backgroundColor: '#2563eb',
-    paddingHorizontal: 32,
-    paddingVertical: 16,
+    paddingHorizontal: 24,
+    paddingVertical: 14,
     borderRadius: 12,
   },
   flipButtonText: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '600',
   },
 });

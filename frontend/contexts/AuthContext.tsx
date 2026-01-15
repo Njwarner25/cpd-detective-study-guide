@@ -95,12 +95,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const userData = await authService.getMe(token);
         setUser(userData);
         setSessionToken(token);
+        setIsGuest(userData.role === 'guest');
       }
     } catch (error) {
       console.error('Auth check failed:', error);
       await AsyncStorage.removeItem('session_token');
       setUser(null);
       setSessionToken(null);
+      setIsGuest(false);
     } finally {
       setLoading(false);
     }

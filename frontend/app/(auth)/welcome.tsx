@@ -1,91 +1,8 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-
-// Chicago Police Star Badge - Simple silver star with navy center
-const ChicagoPoliceStar = () => (
-  <View style={starStyles.container}>
-    <View style={starStyles.starWrapper}>
-      {/* 5-pointed silver star */}
-      <View style={starStyles.starOuter}>
-        <View style={[starStyles.point, starStyles.pointTop]} />
-        <View style={[starStyles.point, starStyles.pointTopRight]} />
-        <View style={[starStyles.point, starStyles.pointBottomRight]} />
-        <View style={[starStyles.point, starStyles.pointBottomLeft]} />
-        <View style={[starStyles.point, starStyles.pointTopLeft]} />
-        
-        {/* Navy blue center */}
-        <View style={starStyles.centerCircle} />
-      </View>
-    </View>
-  </View>
-);
-
-const starStyles = StyleSheet.create({
-  container: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 24,
-  },
-  starWrapper: {
-    width: 140,
-    height: 140,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  starOuter: {
-    width: 130,
-    height: 130,
-    alignItems: 'center',
-    justifyContent: 'center',
-    position: 'relative',
-  },
-  point: {
-    position: 'absolute',
-    width: 0,
-    height: 0,
-    borderLeftWidth: 22,
-    borderRightWidth: 22,
-    borderBottomWidth: 60,
-    borderLeftColor: 'transparent',
-    borderRightColor: 'transparent',
-    borderBottomColor: '#C0C0C0', // Silver
-  },
-  pointTop: {
-    top: -12,
-  },
-  pointTopRight: {
-    top: 25,
-    right: -5,
-    transform: [{ rotate: '72deg' }],
-  },
-  pointBottomRight: {
-    bottom: 2,
-    right: 10,
-    transform: [{ rotate: '144deg' }],
-  },
-  pointBottomLeft: {
-    bottom: 2,
-    left: 10,
-    transform: [{ rotate: '-144deg' }],
-  },
-  pointTopLeft: {
-    top: 25,
-    left: -5,
-    transform: [{ rotate: '-72deg' }],
-  },
-  centerCircle: {
-    width: 70,
-    height: 70,
-    borderRadius: 35,
-    backgroundColor: '#1B3D6D', // Navy blue
-    zIndex: 10,
-    borderWidth: 3,
-    borderColor: '#A8A8A8', // Darker silver border
-  },
-});
 
 export default function Welcome() {
   const router = useRouter();
@@ -94,7 +11,6 @@ export default function Welcome() {
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
         <View style={styles.header}>
-          <ChicagoPoliceStar />
           <Text style={styles.title}>CPD Detective Exam</Text>
           <Text style={styles.subtitle}>Study Guide</Text>
           <Text style={styles.description}>

@@ -57,7 +57,7 @@ export default function Login() {
       } else {
         await login(email, password);
       }
-      router.replace('/(tabs)');
+      router.replace('/(tabs)/home');
     } catch (error: any) {
       console.error('Auth error:', error);
       const errorMessage = error?.message || 'Authentication failed. Please try again.';
@@ -73,7 +73,7 @@ export default function Login() {
 
     try {
       await guestLogin();
-      router.replace('/(tabs)');
+      router.replace('/(tabs)/home');
     } catch (error: any) {
       console.error('Guest login error:', error);
       setError('Guest login failed. Please try again.');

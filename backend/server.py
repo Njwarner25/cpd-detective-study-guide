@@ -393,6 +393,80 @@ async def logout(response: Response, session_token: Optional[str] = Cookie(None)
     response.delete_cookie(key="session_token", path="/")
     return {"message": "Logged out"}
 
+# Password Reset Endpoints
+class PasswordResetRequest(BaseModel):
+    email: str
+
+class PasswordResetConfirm(BaseModel):
+    token: str
+    new_password: str
+
+@api_router.post("/auth/forgot-password")
+async def forgot_password(request: PasswordResetRequest):
+    """Request password reset - generates token"""
+    email = request.email.lower()
+    user = await db.users.find_one({"email": email}, {"_id": 0})
+    
+    if not user:
+        # Don't reveal if email exists for security
+        return {"message": "If an account exists with this email, a reset code has been generated."}
+    
+    # Generate reset token (6 digit code for simplicity)
+    import random
+    reset_code = ''.join([str(random.randint(0, 9)) for _ in range(6)])
+    
+    # Store reset token with expiry
+    await db.password_resets.delete_many({"email": email})  # Remove old tokens
+    await db.password_resets.insert_one({
+        "email": email,
+        "token": reset_code,
+        "expires_at": datetime.now(timezone.utc) + timedelta(hours=1),
+        "created_at": datetime.now(timezone.utc)
+    })
+    
+    # In production, you would send an email here
+    # For now, return the code (in production, this would be sent via email)
+    return {
+        "message": "If an account exists with this email, a reset code has been generated.",
+        "reset_code": reset_code,  # Only for demo - remove in production
+        "note": "In production, this code would be sent to your email"
+    }
+
+@api_router.post("/auth/reset-password")
+async def reset_password(request: PasswordResetConfirm):
+    """Reset password using token"""
+    # Find valid reset token
+    reset_doc = await db.password_resets.find_one({
+        "token": request.token,
+        "expires_at": {"$gt": datetime.now(timezone.utc)}
+    })
+    
+    if not reset_doc:
+        raise HTTPException(status_code=400, detail="Invalid or expired reset code")
+    
+    if len(request.new_password) < 6:
+        raise HTTPException(status_code=400, detail="Password must be at least 6 characters")
+    
+    # Update password
+    new_hash = hash_password(request.new_password)
+    result = await db.users.update_one(
+        {"email": reset_doc["email"]},
+        {"$set": {"password_hash": new_hash}}
+    )
+    
+    if result.modified_count == 0:
+        raise HTTPException(status_code=400, detail="Failed to update password")
+    
+    # Delete the used token
+    await db.password_resets.delete_one({"token": request.token})
+    
+    # Invalidate all existing sessions for this user
+    user = await db.users.find_one({"email": reset_doc["email"]}, {"_id": 0})
+    if user:
+        await db.user_sessions.delete_many({"user_id": user["user_id"]})
+    
+    return {"message": "Password reset successful. Please log in with your new password."}
+
 # ========== CATEGORY ENDPOINTS ==========
 
 @api_router.get("/categories", response_model=List[Category])

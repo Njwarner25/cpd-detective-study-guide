@@ -63,7 +63,7 @@ export default function Flashcards() {
         {/* Category Filter */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Select Category</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoryScroll}>
+          <View style={styles.categoryContainer}>
             <TouchableOpacity
               style={[styles.categoryChip, !selectedCategory && styles.categoryChipActive]}
               onPress={() => setSelectedCategory(null)}
@@ -89,7 +89,7 @@ export default function Flashcards() {
                 </Text>
               </TouchableOpacity>
             ))}
-          </ScrollView>
+          </View>
         </View>
 
         {/* Questions List */}

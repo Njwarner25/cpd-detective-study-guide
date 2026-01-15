@@ -127,6 +127,14 @@ export default function Profile() {
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Account</Text>
             
+            <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/bookmarks')}>
+              <View style={[styles.menuIconContainer, { backgroundColor: '#78350f' }]}>
+                <Ionicons name="bookmark" size={20} color="#f59e0b" />
+              </View>
+              <Text style={styles.menuText}>My Bookmarks</Text>
+              <Ionicons name="chevron-forward" size={20} color="#64748b" />
+            </TouchableOpacity>
+            
             <TouchableOpacity style={styles.menuItem}>
               <View style={styles.menuIconContainer}>
                 <Ionicons name="person-outline" size={20} color="#fff" />

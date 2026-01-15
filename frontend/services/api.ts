@@ -3,11 +3,19 @@ import * as WebBrowser from 'expo-web-browser';
 import * as Linking from 'expo-linking';
 import { Platform } from 'react-native';
 
-const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || '';
+// For web, use relative URL since proxy handles routing
+// For native, use the full backend URL
+const getBaseUrl = () => {
+  if (Platform.OS === 'web') {
+    return '/api';
+  }
+  const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || '';
+  return `${BACKEND_URL}/api`;
+};
 
 const api = axios.create({
-  baseURL: `${BACKEND_URL}/api`,
-  withCredentials: true,
+  baseURL: getBaseUrl(),
+  withCredentials: false, // Use token-based auth instead of cookies
   headers: {
     'Content-Type': 'application/json',
   },

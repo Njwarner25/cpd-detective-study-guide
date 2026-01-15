@@ -31,9 +31,18 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="flashcards"
         options={{
-          title: 'Flashcards',
+          title: 'Cards',
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="layers" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="tests"
+        options={{
+          title: 'Tests',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="clipboard" size={size} color={color} />
           ),
         }}
       />
@@ -49,7 +58,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="bookmarks"
         options={{
-          title: 'Bookmarks',
+          title: 'Saved',
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="bookmark" size={size} color={color} />
           ),

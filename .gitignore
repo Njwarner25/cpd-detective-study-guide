@@ -79,3 +79,7 @@ agenthub/agents/youtube/db
 # Mobile development
 android-sdk/
 # Environment files are required for Emergent deployment - do not ignore
+-e 
+# Environment files
+*.env
+*.env.*

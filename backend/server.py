@@ -226,28 +226,18 @@ async def register(user_data: UserCreate):
 
 @api_router.post("/auth/login")
 async def login(credentials: UserLogin):
-    # Universal login credentials
-    UNIVERSAL_USERNAME = "Detective2026"
-    UNIVERSAL_PASSWORD = "Exam2026"
+    # Check if this is a registered email user
+    user_doc = await db.users.find_one({"email": credentials.email.lower()}, {"_id": 0})
     
-    # Check universal credentials
-    if credentials.email != UNIVERSAL_USERNAME or credentials.password != UNIVERSAL_PASSWORD:
-        raise HTTPException(status_code=401, detail="Invalid credentials")
-    
-    # Check if universal user exists, create if not
-    user_doc = await db.users.find_one({"email": UNIVERSAL_USERNAME}, {"_id": 0})
-    
-    if not user_doc:
-        # Create universal user
-        user_id = "user_universal_detective"
-        user_doc = {
-            "user_id": user_id,
-            "email": UNIVERSAL_USERNAME,
-            "name": "Detective 2026",
-            "role": "user",
-            "created_at": datetime.now(timezone.utc)
-        }
-        await db.users.insert_one(user_doc)
+    if user_doc:
+        # Verify password for registered users
+        if not user_doc.get("password_hash"):
+            raise HTTPException(status_code=401, detail="Invalid credentials")
+        if not verify_password(credentials.password, user_doc["password_hash"]):
+            raise HTTPException(status_code=401, detail="Invalid credentials")
+    else:
+        # No registered user found
+        raise HTTPException(status_code=401, detail="Invalid credentials. Please register first or use Guest login.")
     
     # Create session
     session_token = f"session_{uuid.uuid4().hex}"
@@ -261,8 +251,9 @@ async def login(credentials: UserLogin):
     response = JSONResponse(content={
         "user_id": user_doc["user_id"],
         "email": user_doc["email"],
-        "name": user_doc.get("name", "Detective 2026"),
+        "name": user_doc.get("name", "User"),
         "role": user_doc.get("role", "user"),
+        "is_guest": False,
         "session_token": session_token
     })
     
@@ -273,6 +264,56 @@ async def login(credentials: UserLogin):
         secure=True,
         samesite="none",
         max_age=30*24*60*60,
+        path="/"
+    )
+    
+    return response
+
+@api_router.post("/auth/guest")
+async def guest_login():
+    """Login as a guest user - progress is shared among all guests"""
+    GUEST_USER_ID = "user_guest_detective"
+    GUEST_EMAIL = "guest@cpd-study.app"
+    GUEST_NAME = "Guest User"
+    
+    # Check if guest user exists, create if not
+    user_doc = await db.users.find_one({"user_id": GUEST_USER_ID}, {"_id": 0})
+    
+    if not user_doc:
+        user_doc = {
+            "user_id": GUEST_USER_ID,
+            "email": GUEST_EMAIL,
+            "name": GUEST_NAME,
+            "role": "guest",
+            "created_at": datetime.now(timezone.utc)
+        }
+        await db.users.insert_one(user_doc)
+    
+    # Create session
+    session_token = f"session_{uuid.uuid4().hex}"
+    await db.user_sessions.insert_one({
+        "user_id": GUEST_USER_ID,
+        "session_token": session_token,
+        "expires_at": datetime.now(timezone.utc) + timedelta(days=7),
+        "created_at": datetime.now(timezone.utc)
+    })
+    
+    response = JSONResponse(content={
+        "user_id": GUEST_USER_ID,
+        "email": GUEST_EMAIL,
+        "name": GUEST_NAME,
+        "role": "guest",
+        "is_guest": True,
+        "session_token": session_token
+    })
+    
+    response.set_cookie(
+        key="session_token",
+        value=session_token,
+        httponly=True,
+        secure=True,
+        samesite="none",
+        max_age=7*24*60*60,
         path="/"
     )
     

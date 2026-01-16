@@ -17,7 +17,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { questionService, scenarioService } from '../services/api';
 
-const TOTAL_TIME = 7 * 60; // 7 minutes in seconds
+const TOTAL_TIME = 7 * 60; // Default 7 minutes in seconds
 
 export default function PracticeScenario() {
   const { sessionToken } = useAuth();
@@ -27,6 +27,7 @@ export default function PracticeScenario() {
   const [loading, setLoading] = useState(true);
   const [response, setResponse] = useState('');
   const [timeRemaining, setTimeRemaining] = useState(TOTAL_TIME);
+  const [totalTime, setTotalTime] = useState(TOTAL_TIME);
   const [isStarted, setIsStarted] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);

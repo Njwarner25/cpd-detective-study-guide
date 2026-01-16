@@ -197,7 +197,7 @@ export default function PracticeScenario() {
             <View style={styles.divider} />
             
             <Text style={styles.feedbackLabel}>Model Answer:</Text>
-            <Text style={styles.modelAnswer}>{scenario.answer}</Text>
+            <Text style={styles.modelAnswer}>{scenario.model_answer || scenario.answer}</Text>
           </View>
 
           <TouchableOpacity 

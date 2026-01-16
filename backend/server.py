@@ -83,6 +83,7 @@ class Question(BaseModel):
     time_limit: Optional[int] = None  # For scenarios (in seconds)
     is_complex: Optional[bool] = False  # For multi-part scenarios
     parts: Optional[int] = 1  # Number of parts in scenario
+    study_tip: Optional[str] = None  # Study tips/frameworks for scenarios
     created_at: datetime
     updated_at: datetime
 

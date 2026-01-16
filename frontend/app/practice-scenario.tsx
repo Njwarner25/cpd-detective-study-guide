@@ -253,6 +253,86 @@ export default function PracticeScenario() {
               <Text style={styles.timerPreviewText}>{formatTime(totalTime)}</Text>
             </View>
 
+            {/* Study Tip - R.E.A.C.T.I.O.N. Framework */}
+            {scenario.study_tip && (
+              <View style={styles.studyTipContainer}>
+                <TouchableOpacity 
+                  style={styles.studyTipHeader}
+                  onPress={() => setShowStudyTip(!showStudyTip)}
+                >
+                  <View style={styles.studyTipHeaderLeft}>
+                    <Ionicons name="bulb" size={20} color="#f59e0b" />
+                    <Text style={styles.studyTipHeaderText}>R.E.A.C.T.I.O.N. Framework</Text>
+                  </View>
+                  <Ionicons 
+                    name={showStudyTip ? "chevron-up" : "chevron-down"} 
+                    size={20} 
+                    color="#64748b" 
+                  />
+                </TouchableOpacity>
+                {showStudyTip && (
+                  <View style={styles.studyTipContent}>
+                    <View style={styles.reactionItem}>
+                      <Text style={styles.reactionLetter}>R</Text>
+                      <View style={styles.reactionText}>
+                        <Text style={styles.reactionTitle}>Respond & Render Aid</Text>
+                        <Text style={styles.reactionDesc}>Arrive safely, ensure safety, provide medical aid</Text>
+                      </View>
+                    </View>
+                    <View style={styles.reactionItem}>
+                      <Text style={styles.reactionLetter}>E</Text>
+                      <View style={styles.reactionText}>
+                        <Text style={styles.reactionTitle}>Establish the Scene</Text>
+                        <Text style={styles.reactionDesc}>Secure perimeters, control entry/exit points</Text>
+                      </View>
+                    </View>
+                    <View style={styles.reactionItem}>
+                      <Text style={styles.reactionLetter}>A</Text>
+                      <View style={styles.reactionText}>
+                        <Text style={styles.reactionTitle}>Arrest/Detain & Advise</Text>
+                        <Text style={styles.reactionDesc}>Locate suspects, advise Miranda if custodial</Text>
+                      </View>
+                    </View>
+                    <View style={styles.reactionItem}>
+                      <Text style={styles.reactionLetter}>C</Text>
+                      <View style={styles.reactionText}>
+                        <Text style={styles.reactionTitle}>Collect/Identify Witnesses</Text>
+                        <Text style={styles.reactionDesc}>Separate witnesses, conduct interviews</Text>
+                      </View>
+                    </View>
+                    <View style={styles.reactionItem}>
+                      <Text style={styles.reactionLetter}>T</Text>
+                      <View style={styles.reactionText}>
+                        <Text style={styles.reactionTitle}>Take Notes & Document</Text>
+                        <Text style={styles.reactionDesc}>Photos, video (BWC), sketches, notes</Text>
+                      </View>
+                    </View>
+                    <View style={styles.reactionItem}>
+                      <Text style={styles.reactionLetter}>I</Text>
+                      <View style={styles.reactionText}>
+                        <Text style={styles.reactionTitle}>Inventory & Process Evidence</Text>
+                        <Text style={styles.reactionDesc}>Collect, package, maintain chain of custody</Text>
+                      </View>
+                    </View>
+                    <View style={styles.reactionItem}>
+                      <Text style={styles.reactionLetter}>O</Text>
+                      <View style={styles.reactionText}>
+                        <Text style={styles.reactionTitle}>Obtain Legal/Consult</Text>
+                        <Text style={styles.reactionDesc}>Search warrants, Felony Review consultation</Text>
+                      </View>
+                    </View>
+                    <View style={styles.reactionItem}>
+                      <Text style={styles.reactionLetter}>N</Text>
+                      <View style={styles.reactionText}>
+                        <Text style={styles.reactionTitle}>Next Steps & Notification</Text>
+                        <Text style={styles.reactionDesc}>Case reports, notify supervisors, plan follow-up</Text>
+                      </View>
+                    </View>
+                  </View>
+                )}
+              </View>
+            )}
+
             <TouchableOpacity style={styles.startButton} onPress={handleStart}>
               <Ionicons name="play" size={24} color="#fff" />
               <Text style={styles.startButtonText}>Start Scenario</Text>

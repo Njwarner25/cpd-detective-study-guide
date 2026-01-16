@@ -283,7 +283,7 @@ export default function PracticeScenario() {
         <ScrollView style={styles.scrollView} contentContainerStyle={styles.practiceContent}>
           <View style={styles.scenarioBox}>
             <Text style={styles.scenarioLabel}>SCENARIO</Text>
-            <Text style={styles.scenarioContent}>{scenario.content}</Text>
+            <Text style={styles.scenarioContent}>{scenario.description || scenario.content}</Text>
             {scenario.reference && (
               <Text style={styles.reference}>{scenario.reference}</Text>
             )}

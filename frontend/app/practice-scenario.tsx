@@ -238,17 +238,18 @@ export default function PracticeScenario() {
               <View style={styles.infoContent}>
                 <Text style={styles.infoTitle}>Instructions</Text>
                 <Text style={styles.infoText}>
-                  • You will have 7 minutes to respond{'\n'}
+                  • You will have {Math.floor(totalTime / 60)} minutes to respond{'\n'}
                   • Read the scenario carefully{'\n'}
                   • Provide a detailed, professional response{'\n'}
                   • Your response will be graded by AI
+                  {scenario.is_complex && '\n• This is a complex multi-part scenario'}
                 </Text>
               </View>
             </View>
 
             <View style={styles.timerPreview}>
               <Ionicons name="time" size={32} color="#f59e0b" />
-              <Text style={styles.timerPreviewText}>7:00</Text>
+              <Text style={styles.timerPreviewText}>{formatTime(totalTime)}</Text>
             </View>
 
             <TouchableOpacity style={styles.startButton} onPress={handleStart}>

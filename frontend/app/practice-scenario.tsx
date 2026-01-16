@@ -68,6 +68,10 @@ export default function PracticeScenario() {
       const scenarioId = params.scenarioId as string;
       const data = await questionService.getQuestion(scenarioId, sessionToken || undefined);
       setScenario(data);
+      // Set time limit from scenario data, default to 7 minutes
+      const scenarioTime = data.time_limit || TOTAL_TIME;
+      setTimeRemaining(scenarioTime);
+      setTotalTime(scenarioTime);
     } catch (error) {
       console.error('Failed to load scenario:', error);
       Alert.alert('Error', 'Failed to load scenario');

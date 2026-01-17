@@ -155,11 +155,31 @@ export default function Profile() {
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Account</Text>
             
+            <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/leaderboard')}>
+              <View style={[styles.menuIconContainer, { backgroundColor: '#1e3a5f' }]}>
+                <Ionicons name="trophy" size={20} color="#fbbf24" />
+              </View>
+              <Text style={styles.menuText}>Leaderboard</Text>
+              <Ionicons name="chevron-forward" size={20} color="#64748b" />
+            </TouchableOpacity>
+            
             <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/bookmarks')}>
               <View style={[styles.menuIconContainer, { backgroundColor: '#78350f' }]}>
                 <Ionicons name="bookmark" size={20} color="#f59e0b" />
               </View>
               <Text style={styles.menuText}>My Bookmarks</Text>
+              <Ionicons name="chevron-forward" size={20} color="#64748b" />
+            </TouchableOpacity>
+            
+            <TouchableOpacity style={styles.menuItem} onPress={handleResetScores} disabled={resetting}>
+              <View style={[styles.menuIconContainer, { backgroundColor: '#7f1d1d' }]}>
+                {resetting ? (
+                  <ActivityIndicator size="small" color="#ef4444" />
+                ) : (
+                  <Ionicons name="refresh" size={20} color="#ef4444" />
+                )}
+              </View>
+              <Text style={styles.menuText}>Reset All Scores</Text>
               <Ionicons name="chevron-forward" size={20} color="#64748b" />
             </TouchableOpacity>
             

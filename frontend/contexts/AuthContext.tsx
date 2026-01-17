@@ -99,10 +99,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
     } catch (error) {
       console.error('Auth check failed:', error);
+      // Clear invalid token
       await AsyncStorage.removeItem('session_token');
       setUser(null);
       setSessionToken(null);
       setIsGuest(false);
+      
+      // Check if this was a guest session and auto-re-login
+      const wasGuest = await AsyncStorage.getItem('was_guest');
+      if (wasGuest === 'true') {
+        console.log('Re-authenticating as guest...');
+        try {
+          const userData = await authService.guestLogin();
+          if (userData.session_token) {
+            await AsyncStorage.setItem('session_token', userData.session_token);
+            setSessionToken(userData.session_token);
+          }
+          setUser(userData);
+          setIsGuest(true);
+        } catch (guestError) {
+          console.error('Guest re-auth failed:', guestError);
+        }
+      }
     } finally {
       setLoading(false);
     }

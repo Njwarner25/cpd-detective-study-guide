@@ -1,13 +1,15 @@
-import React from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert, Image } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert, Image, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../contexts/AuthContext';
 import { useRouter } from 'expo-router';
+import { statsService } from '../../services/api';
 
 export default function Profile() {
-  const { user, logout, isGuest } = useAuth();
+  const { user, logout, isGuest, sessionToken } = useAuth();
   const router = useRouter();
+  const [resetting, setResetting] = useState(false);
 
   const handleLogout = () => {
     Alert.alert(

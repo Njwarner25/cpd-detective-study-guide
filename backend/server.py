@@ -734,8 +734,11 @@ async def get_stats(user: User = Depends(require_user)):
     total_flashcards = await db.questions.count_documents({"type": "flashcard"})
     total_scenarios = await db.questions.count_documents({"type": "scenario"})
     
-    # Get user progress
-    progress = await db.user_progress.find({"user_id": user.user_id}, {"_id": 0}).to_list(1000)
+    # Get user progress - only fetch needed fields for performance
+    progress = await db.user_progress.find(
+        {"user_id": user.user_id}, 
+        {"_id": 0, "attempts": 1, "last_score": 1}
+    ).to_list(500)
     
     attempted_flashcards = len([p for p in progress if p.get("attempts", 0) > 0])
     attempted_scenarios = len([p for p in progress if p.get("last_score") is not None])
@@ -748,7 +751,7 @@ async def get_stats(user: User = Depends(require_user)):
     responses = await db.scenario_responses.find(
         {"user_id": user.user_id, "ai_grade": {"$ne": None}},
         {"_id": 0, "ai_grade": 1}
-    ).to_list(1000)
+    ).to_list(500)
     
     avg_score = None
     if responses:

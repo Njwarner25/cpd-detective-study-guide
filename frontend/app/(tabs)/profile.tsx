@@ -221,6 +221,17 @@ export default function Profile() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Support</Text>
           
+          <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/updates')}>
+            <View style={[styles.menuIconContainer, { backgroundColor: '#1e3a8a' }]}>
+              <Ionicons name="sparkles" size={20} color="#60a5fa" />
+            </View>
+            <Text style={styles.menuText}>What's New</Text>
+            <View style={styles.newBadge}>
+              <Text style={styles.newBadgeText}>NEW</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color="#64748b" />
+          </TouchableOpacity>
+          
           <TouchableOpacity style={styles.menuItem}>
             <View style={styles.menuIconContainer}>
               <Ionicons name="help-circle-outline" size={20} color="#fff" />

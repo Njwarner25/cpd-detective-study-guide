@@ -179,6 +179,16 @@ export const statsService = {
     const response = await api.get('/stats', { headers });
     return response.data;
   },
+  async getLeaderboard(token?: string) {
+    const headers = token ? { Authorization: `Bearer ${token}` } : {};
+    const response = await api.get('/leaderboard', { headers });
+    return response.data;
+  },
+  async resetScores(token?: string) {
+    const headers = token ? { Authorization: `Bearer ${token}` } : {};
+    const response = await api.post('/reset-scores', {}, { headers });
+    return response.data;
+  },
 };
 
 export default api;

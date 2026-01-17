@@ -147,6 +147,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       // Store session token from response
       if (userData.session_token) {
         await AsyncStorage.setItem('session_token', userData.session_token);
+        await AsyncStorage.setItem('was_guest', 'true');
         setSessionToken(userData.session_token);
       }
       setUser(userData);

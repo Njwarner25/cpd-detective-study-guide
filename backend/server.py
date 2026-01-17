@@ -589,11 +589,11 @@ async def toggle_bookmark(data: BookmarkToggle, user: User = Depends(require_use
 
 @api_router.get("/bookmarks", response_model=List[Question])
 async def get_bookmarks(user: User = Depends(require_user)):
-    # Get bookmarked question IDs
+    # Get bookmarked question IDs - only fetch question_id field for performance
     bookmarks = await db.user_progress.find(
         {"user_id": user.user_id, "bookmarked": True},
-        {"_id": 0}
-    ).to_list(1000)
+        {"_id": 0, "question_id": 1}
+    ).to_list(500)
     
     question_ids = [b["question_id"] for b in bookmarks]
     
@@ -604,7 +604,7 @@ async def get_bookmarks(user: User = Depends(require_user)):
     questions = await db.questions.find(
         {"question_id": {"$in": question_ids}},
         {"_id": 0}
-    ).to_list(1000)
+    ).to_list(500)
     
     return questions
 

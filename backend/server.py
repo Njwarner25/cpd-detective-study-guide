@@ -502,7 +502,8 @@ async def get_questions(
     if category_id:
         query["category_id"] = category_id
     
-    questions = await db.questions.find(query, {"_id": 0}).to_list(1000)
+    # Limit results for production performance
+    questions = await db.questions.find(query, {"_id": 0}).to_list(500)
     return questions
 
 @api_router.get("/questions/{question_id}", response_model=Question)

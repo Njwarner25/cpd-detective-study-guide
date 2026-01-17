@@ -190,8 +190,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       console.error('Logout error:', error);
     } finally {
       await AsyncStorage.removeItem('session_token');
+      await AsyncStorage.removeItem('was_guest');
       setUser(null);
       setSessionToken(null);
+      setIsGuest(false);
     }
   };
 

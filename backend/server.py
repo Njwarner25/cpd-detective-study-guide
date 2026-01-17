@@ -769,6 +769,92 @@ async def get_stats(user: User = Depends(require_user)):
         "total_responses": len(responses)
     }
 
+# Leaderboard endpoint - shows ranking for registered users
+@api_router.get("/leaderboard")
+async def get_leaderboard(user: User = Depends(require_user)):
+    # Only show leaderboard for registered users (not guests)
+    if user.role == "guest":
+        return {
+            "leaderboard": [],
+            "user_rank": None,
+            "user_stats": None,
+            "message": "Register to see your ranking compared to other users!"
+        }
+    
+    # Aggregate scores for all registered users
+    pipeline = [
+        {"$match": {"ai_grade": {"$ne": None}}},
+        {"$group": {
+            "_id": "$user_id",
+            "avg_score": {"$avg": "$ai_grade"},
+            "total_attempts": {"$sum": 1},
+            "best_score": {"$max": "$ai_grade"}
+        }},
+        {"$sort": {"avg_score": -1}}
+    ]
+    
+    all_scores = await db.scenario_responses.aggregate(pipeline).to_list(100)
+    
+    # Get user info for each entry
+    leaderboard = []
+    user_rank = None
+    user_stats = None
+    
+    for idx, entry in enumerate(all_scores):
+        user_info = await db.users.find_one(
+            {"user_id": entry["_id"]},
+            {"_id": 0, "full_name": 1, "role": 1}
+        )
+        
+        # Skip guest users in leaderboard
+        if user_info and user_info.get("role") == "guest":
+            continue
+        
+        rank = len(leaderboard) + 1
+        display_name = user_info.get("full_name", "Anonymous") if user_info else "Anonymous"
+        
+        leaderboard_entry = {
+            "rank": rank,
+            "name": display_name,
+            "avg_score": round(entry["avg_score"], 1),
+            "best_score": round(entry["best_score"], 1),
+            "total_attempts": entry["total_attempts"],
+            "is_current_user": entry["_id"] == user.user_id
+        }
+        leaderboard.append(leaderboard_entry)
+        
+        if entry["_id"] == user.user_id:
+            user_rank = rank
+            user_stats = leaderboard_entry
+    
+    return {
+        "leaderboard": leaderboard[:20],  # Top 20
+        "user_rank": user_rank,
+        "user_stats": user_stats,
+        "total_participants": len(leaderboard)
+    }
+
+# Reset scores endpoint - allows users to reset their progress
+@api_router.post("/reset-scores")
+async def reset_scores(user: User = Depends(require_user)):
+    if user.role == "guest":
+        return {"message": "Guest users cannot reset scores. Please register to track progress."}
+    
+    # Delete all scenario responses for this user
+    responses_result = await db.scenario_responses.delete_many({"user_id": user.user_id})
+    
+    # Reset progress records (but keep bookmarks)
+    progress_result = await db.user_progress.update_many(
+        {"user_id": user.user_id},
+        {"$set": {"attempts": 0, "last_score": None}}
+    )
+    
+    return {
+        "message": "Your scores have been reset successfully!",
+        "responses_deleted": responses_result.deleted_count,
+        "progress_reset": progress_result.modified_count
+    }
+
 # Include the router in the main app
 app.include_router(api_router)
 

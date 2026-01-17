@@ -33,6 +33,32 @@ export default function Profile() {
     router.push('/(auth)/login');
   };
 
+  const handleResetScores = () => {
+    Alert.alert(
+      'Reset All Scores',
+      'Are you sure you want to reset all your scenario scores? This action cannot be undone.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Reset',
+          style: 'destructive',
+          onPress: async () => {
+            setResetting(true);
+            try {
+              const result = await statsService.resetScores(sessionToken || undefined);
+              Alert.alert('Success', result.message);
+            } catch (error) {
+              console.error('Reset failed:', error);
+              Alert.alert('Error', 'Failed to reset scores. Please try again.');
+            } finally {
+              setResetting(false);
+            }
+          },
+        },
+      ]
+    );
+  };
+
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <ScrollView style={styles.scrollView}>

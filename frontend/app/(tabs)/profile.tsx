@@ -482,4 +482,17 @@ const styles = StyleSheet.create({
     paddingBottom: 24,
     fontStyle: 'italic',
   },
+  newBadge: {
+    backgroundColor: '#2563eb',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 6,
+    marginLeft: 'auto',
+    marginRight: 8,
+  },
+  newBadgeText: {
+    color: '#fff',
+    fontSize: 10,
+    fontWeight: 'bold',
+  },
 });

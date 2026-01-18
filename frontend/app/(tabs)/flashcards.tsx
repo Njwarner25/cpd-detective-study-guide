@@ -281,5 +281,21 @@ const styles = StyleSheet.create({
   emptySubtext: {
     fontSize: 14,
     color: '#64748b',
+    textAlign: 'center',
+    marginBottom: 16,
+  },
+  retryButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#2563eb',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 8,
+    gap: 8,
+  },
+  retryButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });

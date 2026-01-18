@@ -2,6 +2,7 @@ import axios from 'axios';
 import * as WebBrowser from 'expo-web-browser';
 import * as Linking from 'expo-linking';
 import { Platform } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Get the backend URL - always use the full URL for API calls
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || '';
@@ -12,7 +13,49 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  timeout: 15000, // 15 second timeout
 });
+
+// Flag to prevent infinite retry loops
+let isRefreshing = false;
+
+// Response interceptor to handle 401 errors
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+    
+    // If 401 and not already retrying
+    if (error.response?.status === 401 && !originalRequest._retry && !isRefreshing) {
+      originalRequest._retry = true;
+      isRefreshing = true;
+      
+      try {
+        // Try to get a new guest session
+        console.log('Session expired, getting new guest session...');
+        const response = await axios.post(`${BACKEND_URL}/api/auth/guest`);
+        const newToken = response.data.session_token;
+        
+        if (newToken) {
+          await AsyncStorage.setItem('session_token', newToken);
+          await AsyncStorage.setItem('was_guest', 'true');
+          
+          // Update the failed request with new token
+          originalRequest.headers['Authorization'] = `Bearer ${newToken}`;
+          
+          isRefreshing = false;
+          return api(originalRequest);
+        }
+      } catch (refreshError) {
+        console.error('Failed to refresh session:', refreshError);
+        isRefreshing = false;
+      }
+    }
+    
+    isRefreshing = false;
+    return Promise.reject(error);
+  }
+);
 
 // Auth Service
 export const authService = {

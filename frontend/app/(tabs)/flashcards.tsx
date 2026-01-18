@@ -16,7 +16,7 @@ export default function Flashcards() {
 
   useEffect(() => {
     loadData();
-  }, [selectedCategory]);
+  }, [selectedCategory, sessionToken]);
 
   const loadData = async () => {
     try {

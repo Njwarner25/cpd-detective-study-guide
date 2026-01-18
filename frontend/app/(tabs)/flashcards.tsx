@@ -127,7 +127,13 @@ export default function Flashcards() {
             <View style={styles.emptyState}>
               <Ionicons name="layers-outline" size={64} color="#64748b" />
               <Text style={styles.emptyText}>No flashcards found</Text>
-              <Text style={styles.emptySubtext}>Try selecting a different category</Text>
+              <Text style={styles.emptySubtext}>
+                {sessionToken ? 'Try selecting a different category' : 'Please log in to view flashcards'}
+              </Text>
+              <TouchableOpacity style={styles.retryButton} onPress={loadData}>
+                <Ionicons name="refresh" size={20} color="#fff" />
+                <Text style={styles.retryButtonText}>Tap to Retry</Text>
+              </TouchableOpacity>
             </View>
           )}
         </View>

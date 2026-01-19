@@ -182,6 +182,23 @@ const styles = StyleSheet.create({
     color: '#94a3b8',
     lineHeight: 20,
   },
+  practiceTestBadge: {
+    backgroundColor: '#422006',
+    borderRadius: 8,
+    padding: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 24,
+    borderWidth: 1,
+    borderColor: '#fbbf24',
+  },
+  practiceTestText: {
+    color: '#fcd34d',
+    fontSize: 14,
+    fontWeight: '600',
+    flex: 1,
+  },
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600',

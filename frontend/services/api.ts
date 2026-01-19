@@ -234,4 +234,13 @@ export const statsService = {
   },
 };
 
+// Admin Service
+export const adminService = {
+  async getAnalytics(token?: string) {
+    const headers = token ? { Authorization: `Bearer ${token}` } : {};
+    const response = await api.get('/admin/analytics', { headers });
+    return response.data;
+  },
+};
+
 export default api;

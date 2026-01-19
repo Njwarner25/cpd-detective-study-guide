@@ -81,7 +81,7 @@ export default function Updates() {
         {/* Current Version Banner */}
         <View style={styles.currentVersionBanner}>
           <View style={styles.versionBadge}>
-            <Text style={styles.versionBadgeText}>v1.2.0</Text>
+            <Text style={styles.versionBadgeText}>v1.3.0</Text>
           </View>
           <Text style={styles.currentVersionText}>CPD Detective Exam Study Guide</Text>
           <Text style={styles.currentVersionSubtext}>Latest Version</Text>

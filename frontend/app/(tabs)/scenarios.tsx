@@ -95,7 +95,7 @@ export default function Scenarios() {
         </View>
 
         {/* Gold Scenarios Section */}
-        {scenarios.filter(s => s.is_gold).length > 0 && (
+        {scenarios.filter(s => s.is_gold || s.category_id === 'cat_gold_scenarios').length > 0 && (
           <View style={styles.goldSection}>
             <View style={styles.goldHeader}>
               <Ionicons name="star" size={24} color="#fbbf24" />
@@ -104,7 +104,7 @@ export default function Scenarios() {
             <Text style={styles.goldSubtitle}>
               Based on previous practice scenarios from the testing company
             </Text>
-            {scenarios.filter(s => s.is_gold).map((scenario) => (
+            {scenarios.filter(s => s.is_gold || s.category_id === 'cat_gold_scenarios').map((scenario) => (
               <TouchableOpacity
                 key={scenario.question_id}
                 style={styles.goldScenarioCard}

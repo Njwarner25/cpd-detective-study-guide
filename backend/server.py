@@ -855,6 +855,143 @@ async def reset_scores(user: User = Depends(require_user)):
         "progress_reset": progress_result.modified_count
     }
 
+# ========== ADMIN ANALYTICS ENDPOINTS ==========
+
+async def require_admin(user: User = Depends(require_user)):
+    """Dependency to check if user is admin"""
+    if user.role != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    return user
+
+@api_router.get("/admin/analytics")
+async def get_admin_analytics(user: User = Depends(require_admin)):
+    """Get comprehensive analytics for admin dashboard"""
+    now = datetime.now(timezone.utc)
+    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    week_ago = now - timedelta(days=7)
+    month_ago = now - timedelta(days=30)
+    
+    # User Statistics
+    total_registered_users = await db.users.count_documents({"role": {"$ne": "guest"}})
+    total_guest_sessions = await db.user_sessions.count_documents({"is_guest": True})
+    
+    # Active users (users with sessions in last 24 hours)
+    active_today = await db.user_sessions.count_documents({
+        "last_activity": {"$gte": today_start}
+    })
+    
+    # Active users this week
+    active_this_week = await db.user_sessions.count_documents({
+        "last_activity": {"$gte": week_ago}
+    })
+    
+    # Active users this month
+    active_this_month = await db.user_sessions.count_documents({
+        "last_activity": {"$gte": month_ago}
+    })
+    
+    # New registrations this week
+    new_users_week = await db.users.count_documents({
+        "role": {"$ne": "guest"},
+        "created_at": {"$gte": week_ago}
+    })
+    
+    # Content Statistics
+    total_flashcards = await db.questions.count_documents({"type": "flashcard"})
+    total_scenarios = await db.questions.count_documents({"type": "scenario"})
+    total_mcqs = await db.questions.count_documents({"type": "multiple_choice"})
+    
+    # Quiz/Activity Statistics
+    total_scenario_responses = await db.scenario_responses.count_documents({})
+    total_quiz_attempts = await db.user_progress.count_documents({"attempts": {"$gte": 1}})
+    
+    # Average scores
+    score_pipeline = [
+        {"$match": {"ai_grade": {"$ne": None}}},
+        {"$group": {
+            "_id": None,
+            "avg_score": {"$avg": "$ai_grade"},
+            "total_graded": {"$sum": 1}
+        }}
+    ]
+    score_result = await db.scenario_responses.aggregate(score_pipeline).to_list(1)
+    avg_scenario_score = score_result[0]["avg_score"] if score_result else None
+    
+    # Most popular categories (by question attempts)
+    category_pipeline = [
+        {"$lookup": {
+            "from": "questions",
+            "localField": "question_id",
+            "foreignField": "question_id",
+            "as": "question"
+        }},
+        {"$unwind": "$question"},
+        {"$group": {
+            "_id": "$question.category_name",
+            "attempts": {"$sum": "$attempts"}
+        }},
+        {"$sort": {"attempts": -1}},
+        {"$limit": 5}
+    ]
+    popular_categories = await db.user_progress.aggregate(category_pipeline).to_list(5)
+    
+    # Recent activity (last 10 scenario submissions)
+    recent_activity = await db.scenario_responses.find(
+        {},
+        {"_id": 0, "user_id": 1, "question_id": 1, "ai_grade": 1, "submitted_at": 1}
+    ).sort("submitted_at", -1).limit(10).to_list(10)
+    
+    # Get user names for recent activity
+    for activity in recent_activity:
+        user_doc = await db.users.find_one(
+            {"user_id": activity["user_id"]},
+            {"_id": 0, "name": 1, "email": 1}
+        )
+        activity["user_name"] = user_doc.get("name", "Guest") if user_doc else "Guest"
+    
+    # Daily active users for the past 7 days
+    daily_stats = []
+    for i in range(7):
+        day_start = (now - timedelta(days=i)).replace(hour=0, minute=0, second=0, microsecond=0)
+        day_end = day_start + timedelta(days=1)
+        day_count = await db.user_sessions.count_documents({
+            "last_activity": {"$gte": day_start, "$lt": day_end}
+        })
+        daily_stats.append({
+            "date": day_start.strftime("%Y-%m-%d"),
+            "day": day_start.strftime("%a"),
+            "active_users": day_count
+        })
+    daily_stats.reverse()
+    
+    return {
+        "users": {
+            "total_registered": total_registered_users,
+            "total_guest_sessions": total_guest_sessions,
+            "active_today": active_today,
+            "active_this_week": active_this_week,
+            "active_this_month": active_this_month,
+            "new_registrations_week": new_users_week
+        },
+        "content": {
+            "total_flashcards": total_flashcards,
+            "total_scenarios": total_scenarios,
+            "total_mcqs": total_mcqs,
+            "total_questions": total_flashcards + total_scenarios + total_mcqs
+        },
+        "activity": {
+            "total_scenario_responses": total_scenario_responses,
+            "total_quiz_attempts": total_quiz_attempts,
+            "average_scenario_score": round(avg_scenario_score, 1) if avg_scenario_score else None
+        },
+        "popular_categories": [
+            {"category": cat["_id"] or "Unknown", "attempts": cat["attempts"]}
+            for cat in popular_categories
+        ],
+        "recent_activity": recent_activity,
+        "daily_active_users": daily_stats
+    }
+
 # Include the router in the main app
 app.include_router(api_router)
 

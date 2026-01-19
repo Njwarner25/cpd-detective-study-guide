@@ -260,6 +260,27 @@ export default function Profile() {
           </TouchableOpacity>
         </View>
 
+        {/* Share with Friend Section */}
+        <View style={styles.shareSection}>
+          <View style={styles.shareCard}>
+            <View style={styles.shareIconContainer}>
+              <Ionicons name="share-social" size={28} color="#10b981" />
+            </View>
+            <Text style={styles.shareTitle}>Share with a Friend</Text>
+            <Text style={styles.shareText}>
+              Know someone preparing for the detective test? Share this app with them!
+            </Text>
+            <View style={styles.comingSoonBadge}>
+              <Ionicons name="storefront-outline" size={14} color="#94a3b8" />
+              <Text style={styles.comingSoonText}>Not yet on app stores - Coming soon!</Text>
+            </View>
+            <TouchableOpacity style={styles.shareButton} onPress={handleShare}>
+              <Ionicons name="share-outline" size={20} color="#fff" />
+              <Text style={styles.shareButtonText}>Share App</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
         <View style={styles.section}>
           <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
             <Ionicons name="log-out-outline" size={20} color="#ef4444" />

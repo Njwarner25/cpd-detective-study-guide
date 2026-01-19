@@ -135,8 +135,8 @@ export default function Scenarios() {
         {/* Regular Scenarios List */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>All Scenarios</Text>
-          {scenarios.filter(s => !s.is_gold).length > 0 ? (
-            scenarios.filter(s => !s.is_gold).map((scenario) => (
+          {scenarios.filter(s => !s.is_gold && s.category_id !== 'cat_gold_scenarios').length > 0 ? (
+            scenarios.filter(s => !s.is_gold && s.category_id !== 'cat_gold_scenarios').map((scenario) => (
               <TouchableOpacity
                 key={scenario.question_id}
                 style={styles.scenarioCard}

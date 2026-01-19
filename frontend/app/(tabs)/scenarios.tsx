@@ -94,10 +94,49 @@ export default function Scenarios() {
           </ScrollView>
         </View>
 
-        {/* Scenarios List */}
+        {/* Gold Scenarios Section */}
+        {scenarios.filter(s => s.is_gold).length > 0 && (
+          <View style={styles.goldSection}>
+            <View style={styles.goldHeader}>
+              <Ionicons name="star" size={24} color="#fbbf24" />
+              <Text style={styles.goldTitle}>Gold Scenarios</Text>
+            </View>
+            <Text style={styles.goldSubtitle}>
+              Based on previous practice scenarios from the testing company
+            </Text>
+            {scenarios.filter(s => s.is_gold).map((scenario) => (
+              <TouchableOpacity
+                key={scenario.question_id}
+                style={styles.goldScenarioCard}
+                onPress={() => startScenario(scenario.question_id)}
+              >
+                <View style={styles.scenarioHeader}>
+                  <View style={styles.goldBadge}>
+                    <Ionicons name="star" size={12} color="#78350f" />
+                    <Text style={styles.goldBadgeText}>GOLD</Text>
+                  </View>
+                  <View style={[styles.badge, styles[`badge${scenario.difficulty}`]]}>
+                    <Text style={styles.badgeText}>{scenario.difficulty}</Text>
+                  </View>
+                </View>
+                <Text style={styles.goldScenarioTitle}>{scenario.title}</Text>
+                <Text style={styles.scenarioPreview} numberOfLines={3}>
+                  {scenario.content}
+                </Text>
+                <View style={styles.goldStartButton}>
+                  <Text style={styles.goldStartButtonText}>Start Scenario</Text>
+                  <Ionicons name="arrow-forward" size={16} color="#fbbf24" />
+                </View>
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
+
+        {/* Regular Scenarios List */}
         <View style={styles.section}>
-          {scenarios.length > 0 ? (
-            scenarios.map((scenario) => (
+          <Text style={styles.sectionTitle}>All Scenarios</Text>
+          {scenarios.filter(s => !s.is_gold).length > 0 ? (
+            scenarios.filter(s => !s.is_gold).map((scenario) => (
               <TouchableOpacity
                 key={scenario.question_id}
                 style={styles.scenarioCard}

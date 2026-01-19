@@ -220,10 +220,10 @@ export default function Profile() {
               style={styles.menuItem}
               onPress={() => router.push('/admin')}
             >
-              <View style={styles.menuIconContainer}>
-                <Ionicons name="settings-outline" size={20} color="#fff" />
+              <View style={[styles.menuIconContainer, { backgroundColor: '#7c2d12' }]}>
+                <Ionicons name="analytics" size={20} color="#f97316" />
               </View>
-              <Text style={styles.menuText}>Manage Questions</Text>
+              <Text style={styles.menuText}>Analytics Dashboard</Text>
               <Ionicons name="chevron-forward" size={20} color="#64748b" />
             </TouchableOpacity>
           </View>

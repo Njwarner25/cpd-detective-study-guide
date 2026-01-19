@@ -12,6 +12,17 @@ import { useRouter } from 'expo-router';
 
 const updates = [
   {
+    version: '1.3.0',
+    date: 'January 2025',
+    title: 'Practice Test Content & Gold Scenarios',
+    features: [
+      { icon: 'star', color: '#fbbf24', text: '100 Practice MCQs - Based on previous questions that test administrators have used' },
+      { icon: 'diamond', color: '#fbbf24', text: '5 Gold Scenarios - Premium practice scenarios including lineups, domestic violence, and more' },
+      { icon: 'search', color: '#60a5fa', text: 'Lineup Questions - 10+ questions covering live lineups, photo lineups, and showups' },
+      { icon: 'documents', color: '#10b981', text: 'Total content now: 163 MCQs, 20 Scenarios, 138 Flashcards' },
+    ],
+  },
+  {
     version: '1.2.0',
     date: 'January 2025',
     title: 'Leaderboard & Score Reset',

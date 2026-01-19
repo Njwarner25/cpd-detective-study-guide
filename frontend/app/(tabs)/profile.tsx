@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert, Image, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert, Image, ActivityIndicator, Share } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../contexts/AuthContext';
@@ -10,6 +10,17 @@ export default function Profile() {
   const { user, logout, isGuest, sessionToken } = useAuth();
   const router = useRouter();
   const [resetting, setResetting] = useState(false);
+
+  const handleShare = async () => {
+    try {
+      await Share.share({
+        message: `Check out the CPD Detective Exam Study Guide app! It has 160+ practice questions, scenarios, and flashcards to help you prepare for the Chicago Police Department Detective Test. 📚👮‍♂️\n\n🚀 Coming soon to App Store & Google Play!`,
+        title: 'CPD Detective Exam Study Guide',
+      });
+    } catch (error) {
+      console.error('Error sharing:', error);
+    }
+  };
 
   const handleLogout = () => {
     Alert.alert(

@@ -288,7 +288,7 @@ export default function Profile() {
           </TouchableOpacity>
         </View>
 
-        <Text style={styles.version}>Version 1.0.0</Text>
+        <Text style={styles.version}>Version 1.3.0</Text>
         <Text style={styles.credits}>Created by Nathaniel Warner</Text>
       </ScrollView>
     </SafeAreaView>

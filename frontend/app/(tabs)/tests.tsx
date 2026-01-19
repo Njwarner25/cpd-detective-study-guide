@@ -60,7 +60,7 @@ export default function Tests() {
           <View style={styles.infoContent}>
             <Text style={styles.infoTitle}>About These Tests</Text>
             <Text style={styles.infoText}>
-              Each test pulls random questions from our database of 160+ multiple choice questions covering Illinois criminal law, constitutional law, and CPD procedures. Includes 100 questions based on previous practice from the testing company. Some questions may have multiple correct answers.
+              Each test pulls random questions from our database of 160+ multiple choice questions covering Illinois criminal law, constitutional law, and CPD procedures. Includes 100 questions based on previous questions that test administrators have used. Some questions may have multiple correct answers.
             </Text>
           </View>
         </View>
@@ -69,7 +69,7 @@ export default function Tests() {
         <View style={styles.practiceTestBadge}>
           <Ionicons name="star" size={18} color="#fbbf24" />
           <Text style={styles.practiceTestText}>
-            100 Practice Test Questions from the testing company included!
+            100 Practice Questions based on previous test administrator questions!
           </Text>
         </View>
 

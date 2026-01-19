@@ -102,7 +102,7 @@ export default function Scenarios() {
               <Text style={styles.goldTitle}>Gold Scenarios</Text>
             </View>
             <Text style={styles.goldSubtitle}>
-              Based on previous practice scenarios from the testing company
+              Based on previous questions that test administrators have used
             </Text>
             {scenarios.filter(s => s.is_gold || s.category_id === 'cat_gold_scenarios').map((scenario) => (
               <TouchableOpacity

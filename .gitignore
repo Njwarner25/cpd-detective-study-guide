@@ -80,7 +80,4 @@ agenthub/agents/youtube/db
 android-sdk/
 # Environment files are required for Emergent deployment - do not ignore
 # .env files are NOT ignored to ensure deployment works correctly
--e 
-# Environment files
-*.env
-*.env.*
+# DO NOT add .env to gitignore - required for deployment

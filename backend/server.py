@@ -795,23 +795,28 @@ async def get_leaderboard(user: User = Depends(require_user)):
     
     all_scores = await db.scenario_responses.aggregate(pipeline).to_list(100)
     
+    # Batch fetch all user info to avoid N+1 queries
+    user_ids = [entry["_id"] for entry in all_scores]
+    users_cursor = db.users.find(
+        {"user_id": {"$in": user_ids}},
+        {"_id": 0, "user_id": 1, "full_name": 1, "name": 1, "role": 1}
+    )
+    users_map = {u["user_id"]: u async for u in users_cursor}
+    
     # Get user info for each entry
     leaderboard = []
     user_rank = None
     user_stats = None
     
     for idx, entry in enumerate(all_scores):
-        user_info = await db.users.find_one(
-            {"user_id": entry["_id"]},
-            {"_id": 0, "full_name": 1, "role": 1}
-        )
+        user_info = users_map.get(entry["_id"])
         
         # Skip guest users in leaderboard
         if user_info and user_info.get("role") == "guest":
             continue
         
         rank = len(leaderboard) + 1
-        display_name = user_info.get("full_name", "Anonymous") if user_info else "Anonymous"
+        display_name = user_info.get("full_name") or user_info.get("name", "Anonymous") if user_info else "Anonymous"
         
         leaderboard_entry = {
             "rank": rank,

@@ -668,7 +668,7 @@ FEEDBACK: [detailed feedback explaining the grade, what was correct, what was mi
                 try:
                     grade = float(parts[0].strip())
                     feedback = parts[1].strip()
-                except:
+                except (ValueError, IndexError):
                     pass
         
     except Exception as e:

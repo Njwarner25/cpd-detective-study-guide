@@ -946,12 +946,16 @@ async def get_admin_analytics(user: User = Depends(require_admin)):
         {"_id": 0, "user_id": 1, "question_id": 1, "ai_grade": 1, "submitted_at": 1}
     ).sort("submitted_at", -1).limit(10).to_list(10)
     
-    # Get user names for recent activity
+    # Batch fetch user names for recent activity to avoid N+1 queries
+    activity_user_ids = list(set(a["user_id"] for a in recent_activity))
+    activity_users_cursor = db.users.find(
+        {"user_id": {"$in": activity_user_ids}},
+        {"_id": 0, "user_id": 1, "name": 1, "email": 1}
+    )
+    activity_users_map = {u["user_id"]: u async for u in activity_users_cursor}
+    
     for activity in recent_activity:
-        user_doc = await db.users.find_one(
-            {"user_id": activity["user_id"]},
-            {"_id": 0, "name": 1, "email": 1}
-        )
+        user_doc = activity_users_map.get(activity["user_id"])
         activity["user_name"] = user_doc.get("name", "Guest") if user_doc else "Guest"
     
     # Daily active users for the past 7 days

@@ -811,12 +811,12 @@ async def get_leaderboard(user: User = Depends(require_user)):
     for idx, entry in enumerate(all_scores):
         user_info = users_map.get(entry["_id"])
         
-        # Skip guest and admin users from leaderboard
-        if user_info and user_info.get("role") in ["guest", "admin"]:
+        # Skip only admin users from leaderboard (show registered and guests)
+        if user_info and user_info.get("role") == "admin":
             continue
         
         rank = len(leaderboard) + 1
-        display_name = user_info.get("full_name") or user_info.get("name", "Anonymous") if user_info else "Anonymous"
+        display_name = user_info.get("full_name") or user_info.get("name", "Anonymous") if user_info else "Guest"
         
         leaderboard_entry = {
             "rank": rank,

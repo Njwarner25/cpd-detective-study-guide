@@ -291,7 +291,6 @@ export default function Profile() {
         </View>
 
         <Text style={styles.version}>Version 1.3.0</Text>
-        <Text style={styles.credits}>Created by Nathaniel Warner</Text>
       </ScrollView>
     </SafeAreaView>
   );

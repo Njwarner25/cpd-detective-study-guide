@@ -13,7 +13,7 @@ export default function Profile() {
 
   const handleShare = async () => {
     try {
-      const appUrl = 'https://cpd-study.preview.emergentagent.com';
+      const appUrl = 'https://cpd-study.emergent.app';
       await Share.share({
         message: `Check out the CPD Detective Exam Study Guide app! It has 160+ practice questions, scenarios, and flashcards to help you prepare for the Chicago Police Department Detective Test. 📚👮‍♂️\n\n🔗 Try it here: ${appUrl}\n\n🚀 Coming soon to App Store & Google Play!`,
         title: 'CPD Detective Exam Study Guide',

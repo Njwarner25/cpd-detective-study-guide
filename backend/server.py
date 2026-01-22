@@ -28,6 +28,10 @@ app = FastAPI()
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
 
+# Current app version - UPDATE THIS WHEN RELEASING NEW VERSIONS
+CURRENT_APP_VERSION = "1.3.0"
+MINIMUM_REQUIRED_VERSION = "1.3.0"
+
 # LLM Key
 EMERGENT_LLM_KEY = os.environ.get('EMERGENT_LLM_KEY')
 

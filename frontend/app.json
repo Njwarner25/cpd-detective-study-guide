@@ -7,7 +7,7 @@
     "icon": "./assets/images/icon.png",
     "scheme": "cpd-study",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
+    "newArchEnabled": false,
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.cpdstudyguide.app"
@@ -17,7 +17,6 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#0c0c0c"
       },
-      "edgeToEdgeEnabled": true,
       "package": "com.cpdstudyguide.app"
     },
     "web": {

@@ -15,7 +15,7 @@ import * as WebBrowser from 'expo-web-browser';
 import api from '../services/api';
 
 // This must match the version in the backend
-export const APP_VERSION = '1.4.0';
+export const APP_VERSION = '1.4.1';
 
 // APK Download URL - Update this when building new APK
 const APK_DOWNLOAD_URL = 'https://expo.dev/artifacts/eas/5PYYLUQ9hX8bE9a4sfdXCo.apk';

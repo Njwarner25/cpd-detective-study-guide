@@ -76,7 +76,7 @@ export const authService = {
 
   async loginWithGoogle() {
     const redirectUrl = Platform.OS === 'web'
-      ? `${typeof window !== 'undefined' ? window.location.origin : ''}/`
+      ? window.location.origin + '/'
       : Linking.createURL('/');
 
     const authUrl = `https://auth.emergentagent.com/?redirect=${encodeURIComponent(redirectUrl)}`;

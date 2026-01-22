@@ -8,8 +8,10 @@ import {
   Platform,
   Linking,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import * as WebBrowser from 'expo-web-browser';
 import api from '../services/api';
 
 // This must match the version in the backend

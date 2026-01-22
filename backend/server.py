@@ -406,6 +406,38 @@ async def logout(response: Response, session_token: Optional[str] = Cookie(None)
     response.delete_cookie(key="session_token", path="/")
     return {"message": "Logged out"}
 
+# ========== VERSION CHECK ENDPOINT ==========
+def compare_versions(v1: str, v2: str) -> int:
+    """Compare two version strings. Returns: -1 if v1 < v2, 0 if equal, 1 if v1 > v2"""
+    v1_parts = [int(x) for x in v1.split('.')]
+    v2_parts = [int(x) for x in v2.split('.')]
+    
+    for i in range(max(len(v1_parts), len(v2_parts))):
+        v1_val = v1_parts[i] if i < len(v1_parts) else 0
+        v2_val = v2_parts[i] if i < len(v2_parts) else 0
+        if v1_val < v2_val:
+            return -1
+        elif v1_val > v2_val:
+            return 1
+    return 0
+
+@api_router.get("/version")
+async def check_version(client_version: Optional[str] = None):
+    """Check if client version is up to date"""
+    response = {
+        "current_version": CURRENT_APP_VERSION,
+        "minimum_version": MINIMUM_REQUIRED_VERSION,
+        "update_required": False,
+        "update_message": None
+    }
+    
+    if client_version:
+        if compare_versions(client_version, MINIMUM_REQUIRED_VERSION) < 0:
+            response["update_required"] = True
+            response["update_message"] = f"A new version ({CURRENT_APP_VERSION}) is required. Please refresh your browser to get the latest updates."
+    
+    return response
+
 # Password Reset Endpoints
 class PasswordResetRequest(BaseModel):
     email: str

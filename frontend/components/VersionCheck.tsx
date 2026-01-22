@@ -13,7 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 import api from '../services/api';
 
 // This must match the version in the backend
-export const APP_VERSION = '1.3.0';
+export const APP_VERSION = '1.4.0';
 
 // APK Download URL - Update this when building new APK
 const APK_DOWNLOAD_URL = 'https://expo.dev/artifacts/eas/uenTVWQTrqczsMvjEWsuxJ.apk';

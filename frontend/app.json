@@ -39,11 +39,6 @@
     ],
     "experiments": {
       "typedRoutes": true
-    },
-    "extra": {
-      "eas": {
-        "projectId": "cpd-detective-study-guide"
-      }
     }
   }
 }

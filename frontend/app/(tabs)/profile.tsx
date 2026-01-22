@@ -610,4 +610,39 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
+  installSection: {
+    paddingHorizontal: 24,
+    paddingBottom: 16,
+  },
+  installCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#1e3a8a',
+    borderRadius: 16,
+    padding: 16,
+    borderWidth: 2,
+    borderColor: '#3b82f6',
+  },
+  installIconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 12,
+    backgroundColor: '#1e293b',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  installContent: {
+    flex: 1,
+  },
+  installTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#fff',
+    marginBottom: 4,
+  },
+  installSubtitle: {
+    fontSize: 13,
+    color: '#93c5fd',
+  },
 });

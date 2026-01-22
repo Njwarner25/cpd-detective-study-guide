@@ -5,26 +5,34 @@ import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
 
-// Get the backend URL - use expo config for native builds, env for web
+// Backend URL - hardcoded for reliability in native builds
+// This is the preview URL that the APK will use
+const NATIVE_BACKEND_URL = 'https://police-study.preview.emergentagent.com';
+
+// Get the backend URL
 const getBackendUrl = () => {
-  // For native builds, use the URL from app.json extra config
-  if (Platform.OS !== 'web' && Constants.expoConfig?.extra?.backendUrl) {
-    return Constants.expoConfig.extra.backendUrl;
+  // For native builds (Android/iOS APK), always use the hardcoded URL
+  if (Platform.OS !== 'web') {
+    console.log('Native build - using hardcoded URL:', NATIVE_BACKEND_URL);
+    return NATIVE_BACKEND_URL;
   }
   // For web/development, use environment variable
-  return process.env.EXPO_PUBLIC_BACKEND_URL || '';
+  const envUrl = process.env.EXPO_PUBLIC_BACKEND_URL || '';
+  console.log('Web build - using env URL:', envUrl);
+  return envUrl;
 };
 
 const BACKEND_URL = getBackendUrl();
-console.log('Using backend URL:', BACKEND_URL);
+console.log('Final backend URL:', BACKEND_URL);
 
 const api = axios.create({
   baseURL: `${BACKEND_URL}/api`,
   withCredentials: false, // Use token-based auth instead of cookies for mobile
   headers: {
     'Content-Type': 'application/json',
+    'Accept': 'application/json',
   },
-  timeout: 30000, // 30 second timeout for slow connections
+  timeout: 45000, // 45 second timeout for slow connections/cold starts
 });
 
 // Flag to prevent infinite retry loops

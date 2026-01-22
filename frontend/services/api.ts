@@ -3,9 +3,20 @@ import * as WebBrowser from 'expo-web-browser';
 import * as Linking from 'expo-linking';
 import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Constants from 'expo-constants';
 
-// Get the backend URL - always use the full URL for API calls
-const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || '';
+// Get the backend URL - use expo config for native builds, env for web
+const getBackendUrl = () => {
+  // For native builds, use the URL from app.json extra config
+  if (Platform.OS !== 'web' && Constants.expoConfig?.extra?.backendUrl) {
+    return Constants.expoConfig.extra.backendUrl;
+  }
+  // For web/development, use environment variable
+  return process.env.EXPO_PUBLIC_BACKEND_URL || '';
+};
+
+const BACKEND_URL = getBackendUrl();
+console.log('Using backend URL:', BACKEND_URL);
 
 const api = axios.create({
   baseURL: `${BACKEND_URL}/api`,
@@ -13,7 +24,7 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 15000, // 15 second timeout
+  timeout: 30000, // 30 second timeout for slow connections
 });
 
 // Flag to prevent infinite retry loops

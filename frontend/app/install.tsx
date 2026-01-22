@@ -12,38 +12,34 @@ export default function InstallApp() {
     Platform.OS === 'ios' ? 'ios' : 'android'
   );
 
-  const appUrl = 'https://cpd-study.emergent.app';
+  // Direct APK download URL from EAS Build
+  const apkDownloadUrl = 'https://expo.dev/artifacts/eas/uBHgCGJu9EXM8Sdg5hcaQb.apk';
 
-  const androidSteps = [
+  const androidApkSteps = [
     {
-      icon: 'logo-chrome' as const,
-      title: 'Open Chrome Browser',
-      description: 'Launch Google Chrome on your Android device',
+      icon: 'download-outline' as const,
+      title: 'Download the APK',
+      description: 'Tap the download button below to get the APK file',
     },
     {
-      icon: 'globe-outline' as const,
-      title: 'Visit the App URL',
-      description: `Go to ${appUrl}`,
+      icon: 'folder-outline' as const,
+      title: 'Open Downloads',
+      description: 'Go to your Downloads folder or notification panel',
     },
     {
-      icon: 'ellipsis-vertical' as const,
-      title: 'Tap the Menu (⋮)',
-      description: 'Tap the three dots in the top-right corner of Chrome',
-    },
-    {
-      icon: 'add-circle-outline' as const,
-      title: 'Select "Add to Home screen"',
-      description: 'Find and tap "Add to Home screen" in the menu',
+      icon: 'shield-checkmark-outline' as const,
+      title: 'Allow Installation',
+      description: 'If prompted, allow installation from unknown sources in Settings',
     },
     {
       icon: 'checkmark-circle' as const,
-      title: 'Confirm Installation',
-      description: 'Tap "Add" to place the app on your home screen',
+      title: 'Install the App',
+      description: 'Tap the APK file and select "Install"',
     },
     {
       icon: 'apps-outline' as const,
       title: 'Launch the App',
-      description: 'Find the CPD Study Guide icon on your home screen and tap to open!',
+      description: 'Find the CPD Study Guide icon in your app drawer and tap to open!',
     },
   ];
 
@@ -55,8 +51,8 @@ export default function InstallApp() {
     },
     {
       icon: 'globe-outline' as const,
-      title: 'Visit the App URL',
-      description: `Go to ${appUrl}`,
+      title: 'Visit the Web App',
+      description: 'Open this app in Safari on your device',
     },
     {
       icon: 'share-outline' as const,
@@ -80,10 +76,10 @@ export default function InstallApp() {
     },
   ];
 
-  const steps = selectedDevice === 'android' ? androidSteps : iosSteps;
+  const steps = selectedDevice === 'android' ? androidApkSteps : iosSteps;
 
-  const handleOpenInBrowser = () => {
-    Linking.openURL(appUrl);
+  const handleDownloadAPK = () => {
+    Linking.openURL(apkDownloadUrl);
   };
 
   return (
@@ -105,7 +101,7 @@ export default function InstallApp() {
           </View>
           <Text style={styles.heroTitle}>Install on Your Device</Text>
           <Text style={styles.heroSubtitle}>
-            Add the CPD Detective Study Guide to your home screen for quick access - works just like a native app!
+            Get the CPD Detective Study Guide app on your phone for the best experience!
           </Text>
         </View>
 
@@ -113,15 +109,15 @@ export default function InstallApp() {
         <View style={styles.benefitsContainer}>
           <View style={styles.benefitItem}>
             <Ionicons name="flash" size={20} color="#10b981" />
-            <Text style={styles.benefitText}>Instant access from home screen</Text>
+            <Text style={styles.benefitText}>Instant access</Text>
           </View>
           <View style={styles.benefitItem}>
-            <Ionicons name="cellular" size={20} color="#10b981" />
-            <Text style={styles.benefitText}>Works offline after first load</Text>
+            <Ionicons name="notifications" size={20} color="#10b981" />
+            <Text style={styles.benefitText}>Native experience</Text>
           </View>
           <View style={styles.benefitItem}>
             <Ionicons name="resize" size={20} color="#10b981" />
-            <Text style={styles.benefitText}>Full-screen experience</Text>
+            <Text style={styles.benefitText}>Full-screen</Text>
           </View>
         </View>
 
@@ -168,19 +164,36 @@ export default function InstallApp() {
           </TouchableOpacity>
         </View>
 
-        {/* Browser Note */}
-        <View style={styles.browserNote}>
-          <Ionicons 
-            name={selectedDevice === 'android' ? 'logo-chrome' : 'compass-outline'} 
-            size={18} 
-            color="#f59e0b" 
-          />
-          <Text style={styles.browserNoteText}>
-            {selectedDevice === 'android' 
-              ? 'Use Chrome browser for best results' 
-              : 'Important: This only works in Safari browser'}
-          </Text>
-        </View>
+        {/* Android APK Download Section */}
+        {selectedDevice === 'android' && (
+          <View style={styles.apkSection}>
+            <View style={styles.apkCard}>
+              <View style={styles.apkIconRow}>
+                <View style={styles.apkIconContainer}>
+                  <Ionicons name="logo-android" size={32} color="#3ddc84" />
+                </View>
+                <View style={styles.apkInfo}>
+                  <Text style={styles.apkTitle}>Android APK</Text>
+                  <Text style={styles.apkVersion}>Version 1.3.0 • ~50MB</Text>
+                </View>
+              </View>
+              <TouchableOpacity style={styles.downloadButton} onPress={handleDownloadAPK}>
+                <Ionicons name="download" size={24} color="#fff" />
+                <Text style={styles.downloadButtonText}>Download APK</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
+
+        {/* iOS Note */}
+        {selectedDevice === 'ios' && (
+          <View style={styles.browserNote}>
+            <Ionicons name="information-circle" size={18} color="#f59e0b" />
+            <Text style={styles.browserNoteText}>
+              iOS apps require App Store distribution. For now, add to home screen from Safari for the best experience.
+            </Text>
+          </View>
+        )}
 
         {/* Steps */}
         <View style={styles.stepsContainer}>
@@ -202,31 +215,24 @@ export default function InstallApp() {
           ))}
         </View>
 
-        {/* Copy URL Section */}
-        <View style={styles.urlSection}>
-          <Text style={styles.urlLabel}>App URL:</Text>
-          <View style={styles.urlContainer}>
-            <Text style={styles.urlText}>{appUrl}</Text>
+        {/* Android Security Note */}
+        {selectedDevice === 'android' && (
+          <View style={styles.securityNote}>
+            <Ionicons name="shield-checkmark" size={24} color="#10b981" />
+            <View style={styles.securityNoteContent}>
+              <Text style={styles.securityNoteTitle}>Safe & Secure</Text>
+              <Text style={styles.securityNoteText}>
+                This APK is built directly from our source code using Expo Application Services (EAS). It's the same app that will be on Google Play Store.
+              </Text>
+            </View>
           </View>
-          <TouchableOpacity style={styles.openButton} onPress={handleOpenInBrowser}>
-            <Ionicons name="open-outline" size={20} color="#fff" />
-            <Text style={styles.openButtonText}>Open in Browser</Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Help Note */}
-        <View style={styles.helpNote}>
-          <Ionicons name="information-circle" size={24} color="#64748b" />
-          <Text style={styles.helpNoteText}>
-            The installed app works exactly like a native app - it opens in full screen and can be accessed from your home screen anytime!
-          </Text>
-        </View>
+        )}
 
         {/* App Store Coming Soon */}
         <View style={styles.comingSoonSection}>
           <View style={styles.comingSoonBadge}>
             <Ionicons name="storefront-outline" size={20} color="#94a3b8" />
-            <Text style={styles.comingSoonText}>App Store & Play Store versions coming soon!</Text>
+            <Text style={styles.comingSoonText}>Google Play & App Store versions coming soon!</Text>
           </View>
         </View>
 
@@ -344,20 +350,73 @@ const styles = StyleSheet.create({
   deviceButtonTextActive: {
     color: '#fff',
   },
-  browserNote: {
+  apkSection: {
+    paddingHorizontal: 24,
+    marginBottom: 20,
+  },
+  apkCard: {
+    backgroundColor: '#14532d',
+    borderRadius: 16,
+    padding: 20,
+    borderWidth: 2,
+    borderColor: '#22c55e',
+  },
+  apkIconRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginBottom: 16,
+  },
+  apkIconContainer: {
+    width: 56,
+    height: 56,
+    borderRadius: 12,
+    backgroundColor: '#1e293b',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  apkInfo: {
+    flex: 1,
+  },
+  apkTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#fff',
+  },
+  apkVersion: {
+    fontSize: 14,
+    color: '#86efac',
+    marginTop: 2,
+  },
+  downloadButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+    backgroundColor: '#22c55e',
+    paddingVertical: 14,
+    borderRadius: 12,
+  },
+  downloadButtonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  browserNote: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
     gap: 8,
     backgroundColor: '#78350f',
     marginHorizontal: 24,
     padding: 12,
     borderRadius: 10,
-    marginBottom: 24,
+    marginBottom: 20,
   },
   browserNoteText: {
     flex: 1,
     color: '#fcd34d',
     fontSize: 14,
+    lineHeight: 20,
   },
   stepsContainer: {
     paddingHorizontal: 24,
@@ -407,59 +466,29 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     marginLeft: 28,
   },
-  urlSection: {
-    backgroundColor: '#1e293b',
-    marginHorizontal: 24,
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 16,
-  },
-  urlLabel: {
-    fontSize: 12,
-    color: '#64748b',
-    textTransform: 'uppercase',
-    marginBottom: 8,
-  },
-  urlContainer: {
-    backgroundColor: '#0f172a',
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 12,
-  },
-  urlText: {
-    color: '#3b82f6',
-    fontSize: 14,
-    fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
-  },
-  openButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    backgroundColor: '#3b82f6',
-    paddingVertical: 12,
-    borderRadius: 10,
-  },
-  openButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  helpNote: {
+  securityNote: {
     flexDirection: 'row',
     alignItems: 'flex-start',
     gap: 12,
-    backgroundColor: '#1e293b',
+    backgroundColor: '#064e3b',
     marginHorizontal: 24,
     padding: 16,
     borderRadius: 12,
     marginBottom: 16,
   },
-  helpNoteText: {
+  securityNoteContent: {
     flex: 1,
-    color: '#94a3b8',
-    fontSize: 14,
-    lineHeight: 20,
+  },
+  securityNoteTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#10b981',
+    marginBottom: 4,
+  },
+  securityNoteText: {
+    color: '#86efac',
+    fontSize: 13,
+    lineHeight: 18,
   },
   comingSoonSection: {
     alignItems: 'center',

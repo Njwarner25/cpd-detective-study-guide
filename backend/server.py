@@ -342,9 +342,11 @@ async def get_session_data(x_session_id: str = Header(None)):
     if not x_session_id:
         raise HTTPException(status_code=422, detail="X-Session-ID header required")
     
+    oauth_session_url = os.getenv("OAUTH_SESSION_DATA_URL", "https://demobackend.emergentagent.com/auth/v1/env/oauth/session-data")
+    
     async with httpx.AsyncClient() as client:
         response = await client.get(
-            "https://demobackend.emergentagent.com/auth/v1/env/oauth/session-data",
+            oauth_session_url,
             headers={"X-Session-ID": x_session_id}
         )
         

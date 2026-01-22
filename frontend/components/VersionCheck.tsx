@@ -18,7 +18,7 @@ import api from '../services/api';
 export const APP_VERSION = '1.4.1';
 
 // APK Download URL - Update this when building new APK
-const APK_DOWNLOAD_URL = 'https://expo.dev/artifacts/eas/5PYYLUQ9hX8bE9a4sfdXCo.apk';
+const APK_DOWNLOAD_URL = 'https://expo.dev/artifacts/eas/QjyBscnWucWMiptU35iFb.apk';
 
 interface VersionCheckProps {
   children: React.ReactNode;

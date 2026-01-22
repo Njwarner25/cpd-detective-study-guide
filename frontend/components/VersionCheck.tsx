@@ -79,8 +79,28 @@ export default function VersionCheck({ children }: VersionCheckProps) {
     }
   };
 
-  const handleDownloadAPK = () => {
-    Linking.openURL(APK_DOWNLOAD_URL);
+  const handleDownloadAPK = async () => {
+    try {
+      // First try to open in browser which will trigger download
+      const canOpen = await Linking.canOpenURL(APK_DOWNLOAD_URL);
+      
+      if (canOpen) {
+        await Linking.openURL(APK_DOWNLOAD_URL);
+      } else {
+        // Fallback to WebBrowser
+        await WebBrowser.openBrowserAsync(APK_DOWNLOAD_URL);
+      }
+    } catch (error) {
+      console.error('Failed to open download URL:', error);
+      // Show alert with manual URL
+      Alert.alert(
+        'Download Link',
+        `Please copy this URL and open in your browser:\n\n${APK_DOWNLOAD_URL}`,
+        [
+          { text: 'OK' }
+        ]
+      );
+    }
   };
 
   // Show error state with retry

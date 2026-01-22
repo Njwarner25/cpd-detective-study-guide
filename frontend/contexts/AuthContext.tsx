@@ -137,7 +137,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setUser(userData);
       setIsGuest(userData.is_guest || false);
     } catch (error: any) {
-      throw new Error(error.response?.data?.detail || 'Login failed');
+      console.error('Login error details:', error);
+      if (error.code === 'ECONNABORTED' || error.message?.includes('timeout')) {
+        throw new Error('Connection timed out. Please check your internet and try again.');
+      }
+      if (error.code === 'ERR_NETWORK' || error.message?.includes('Network Error')) {
+        throw new Error('Network error. Please check your internet connection.');
+      }
+      throw new Error(error.response?.data?.detail || 'Login failed. Please try again.');
     }
   };
 
@@ -153,7 +160,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setUser(userData);
       setIsGuest(true);
     } catch (error: any) {
-      throw new Error(error.response?.data?.detail || 'Guest login failed');
+      console.error('Guest login error details:', error);
+      if (error.code === 'ECONNABORTED' || error.message?.includes('timeout')) {
+        throw new Error('Connection timed out. Please check your internet and try again.');
+      }
+      if (error.code === 'ERR_NETWORK' || error.message?.includes('Network Error')) {
+        throw new Error('Network error. Please check your internet connection.');
+      }
+      throw new Error(error.response?.data?.detail || 'Guest login failed. Please try again.');
     }
   };
 
@@ -168,7 +182,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setUser(userData);
       setIsGuest(false);
     } catch (error: any) {
-      throw new Error(error.response?.data?.detail || 'Registration failed');
+      console.error('Register error details:', error);
+      if (error.code === 'ECONNABORTED' || error.message?.includes('timeout')) {
+        throw new Error('Connection timed out. Please check your internet and try again.');
+      }
+      if (error.code === 'ERR_NETWORK' || error.message?.includes('Network Error')) {
+        throw new Error('Network error. Please check your internet connection.');
+      }
+      throw new Error(error.response?.data?.detail || 'Registration failed. Please try again.');
     }
   };
 

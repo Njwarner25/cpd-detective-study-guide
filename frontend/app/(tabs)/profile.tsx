@@ -231,6 +231,25 @@ export default function Profile() {
           </View>
         )}
 
+        {/* Install App Section */}
+        <View style={styles.installSection}>
+          <TouchableOpacity 
+            style={styles.installCard}
+            onPress={() => router.push('/install')}
+          >
+            <View style={styles.installIconContainer}>
+              <Ionicons name="download-outline" size={28} color="#3b82f6" />
+            </View>
+            <View style={styles.installContent}>
+              <Text style={styles.installTitle}>Install App on Your Device</Text>
+              <Text style={styles.installSubtitle}>
+                Add to home screen for quick access
+              </Text>
+            </View>
+            <Ionicons name="chevron-forward" size={24} color="#3b82f6" />
+          </TouchableOpacity>
+        </View>
+
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Support</Text>
           

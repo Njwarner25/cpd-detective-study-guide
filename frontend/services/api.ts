@@ -38,6 +38,27 @@ const api = axios.create({
 // Flag to prevent infinite retry loops
 let isRefreshing = false;
 
+// Request interceptor to add auth token to all requests
+api.interceptors.request.use(
+  async (config) => {
+    try {
+      const token = await AsyncStorage.getItem('session_token');
+      if (token) {
+        config.headers['Authorization'] = `Bearer ${token}`;
+        console.log('Added auth token to request:', config.url);
+      } else {
+        console.log('No auth token found for request:', config.url);
+      }
+    } catch (error) {
+      console.error('Error getting token from storage:', error);
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
 // Response interceptor to handle 401 errors
 api.interceptors.response.use(
   (response) => response,

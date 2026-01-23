@@ -2,7 +2,7 @@
   "expo": {
     "name": "CPD Detective Study Guide",
     "slug": "cpd-detective-study-guide",
-    "version": "1.4.1",
+    "version": "1.4.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "cpd-study",

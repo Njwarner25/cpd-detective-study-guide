@@ -13,7 +13,7 @@ export default function InstallApp() {
   );
 
   // Direct APK download URL from EAS Build
-  const apkDownloadUrl = 'https://expo.dev/artifacts/eas/QjyBscnWucWMiptU35iFb.apk';
+  const apkDownloadUrl = 'https://expo.dev/artifacts/eas/dmiwTTj8S7f1tq8wnXhZDP.apk';
 
   const androidApkSteps = [
     {

@@ -97,21 +97,54 @@ api.interceptors.response.use(
   }
 );
 
-// Auth Service
+// Auth Service with retry logic for cold starts
+const MAX_RETRIES = 3;
+const RETRY_DELAY = 5000; // 5 seconds between retries
+
+const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+const withRetry = async <T>(fn: () => Promise<T>, retries = MAX_RETRIES): Promise<T> => {
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      console.log(`Attempt ${attempt}/${retries}...`);
+      return await fn();
+    } catch (error: any) {
+      const isNetworkError = error.code === 'ERR_NETWORK' || 
+                            error.code === 'ECONNABORTED' ||
+                            error.message?.includes('Network Error') ||
+                            error.message?.includes('timeout');
+      
+      if (isNetworkError && attempt < retries) {
+        console.log(`Network error on attempt ${attempt}, retrying in ${RETRY_DELAY/1000}s...`);
+        await sleep(RETRY_DELAY);
+        continue;
+      }
+      throw error;
+    }
+  }
+  throw new Error('Max retries exceeded');
+};
+
 export const authService = {
   async register(email: string, password: string, name: string) {
-    const response = await api.post('/auth/register', { email, password, name });
-    return response.data;
+    return withRetry(async () => {
+      const response = await api.post('/auth/register', { email, password, name });
+      return response.data;
+    });
   },
 
   async login(email: string, password: string) {
-    const response = await api.post('/auth/login', { email, password });
-    return response.data;
+    return withRetry(async () => {
+      const response = await api.post('/auth/login', { email, password });
+      return response.data;
+    });
   },
 
   async guestLogin() {
-    const response = await api.post('/auth/guest');
-    return response.data;
+    return withRetry(async () => {
+      const response = await api.post('/auth/guest');
+      return response.data;
+    });
   },
 
   async loginWithGoogle() {

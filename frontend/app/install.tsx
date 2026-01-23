@@ -164,22 +164,45 @@ export default function InstallApp() {
           </TouchableOpacity>
         </View>
 
-        {/* Android APK Download Section */}
+        {/* Android APK Section - Under Construction Notice */}
         {selectedDevice === 'android' && (
           <View style={styles.apkSection}>
-            <View style={styles.apkCard}>
+            <View style={styles.underConstructionCard}>
+              <View style={styles.constructionHeader}>
+                <Ionicons name="construct" size={32} color="#f59e0b" />
+                <Text style={styles.constructionTitle}>APK Under Construction</Text>
+              </View>
+              <Text style={styles.constructionText}>
+                The Android APK version is currently being optimized for better reliability. 
+                For the best experience right now, please use our web app:
+              </Text>
+              <TouchableOpacity 
+                style={styles.webAppButton} 
+                onPress={() => Linking.openURL('https://police-study.preview.emergentagent.com')}
+              >
+                <Ionicons name="globe" size={24} color="#fff" />
+                <Text style={styles.webAppButtonText}>Open Web App</Text>
+              </TouchableOpacity>
+              <Text style={styles.webAppNote}>
+                The web app works perfectly on your phone's browser and can be added to your home screen for quick access!
+              </Text>
+            </View>
+            
+            {/* Still show APK download as secondary option */}
+            <View style={[styles.apkCard, styles.apkCardSecondary]}>
+              <Text style={styles.betaLabel}>BETA - May have issues</Text>
               <View style={styles.apkIconRow}>
                 <View style={styles.apkIconContainer}>
                   <Ionicons name="logo-android" size={32} color="#3ddc84" />
                 </View>
                 <View style={styles.apkInfo}>
-                  <Text style={styles.apkTitle}>Android APK</Text>
+                  <Text style={styles.apkTitle}>Android APK (Beta)</Text>
                   <Text style={styles.apkVersion}>Version 1.3.0 • ~50MB</Text>
                 </View>
               </View>
-              <TouchableOpacity style={styles.downloadButton} onPress={handleDownloadAPK}>
-                <Ionicons name="download" size={24} color="#fff" />
-                <Text style={styles.downloadButtonText}>Download APK</Text>
+              <TouchableOpacity style={styles.downloadButtonSecondary} onPress={handleDownloadAPK}>
+                <Ionicons name="download" size={20} color="#94a3b8" />
+                <Text style={styles.downloadButtonTextSecondary}>Download APK Anyway</Text>
               </TouchableOpacity>
             </View>
           </View>

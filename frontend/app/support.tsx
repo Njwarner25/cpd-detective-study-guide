@@ -93,16 +93,43 @@ export default function Support() {
           </TouchableOpacity>
 
           {/* Zelle */}
-          <View style={styles.donationCard}>
+          <TouchableOpacity style={styles.donationCard} onPress={() => setShowZelleQR(true)}>
             <View style={[styles.donationIcon, { backgroundColor: '#6D1ED4' }]}>
               <Text style={styles.donationIconText}>Z</Text>
             </View>
             <View style={styles.donationInfo}>
               <Text style={styles.donationName}>Zelle</Text>
-              <Text style={styles.donationHandle}>Search "Jakari Jones" in your bank app</Text>
+              <Text style={styles.donationHandle}>Tap to view QR code</Text>
+            </View>
+            <Ionicons name="qr-code-outline" size={24} color="#64748b" />
+          </TouchableOpacity>
+        </View>
+
+        {/* Zelle QR Code Modal */}
+        <Modal
+          visible={showZelleQR}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => setShowZelleQR(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>Scan with Zelle</Text>
+              <Text style={styles.modalSubtitle}>Open your bank app and scan this QR code</Text>
+              <Image
+                source={require('../assets/images/zelle-qr.jpg')}
+                style={styles.qrImage}
+                resizeMode="contain"
+              />
+              <TouchableOpacity 
+                style={styles.closeButton} 
+                onPress={() => setShowZelleQR(false)}
+              >
+                <Text style={styles.closeButtonText}>Close</Text>
+              </TouchableOpacity>
             </View>
           </View>
-        </View>
+        </Modal>
 
         {/* Thank You Message */}
         <View style={styles.thankYouCard}>

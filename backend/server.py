@@ -408,6 +408,17 @@ async def logout(response: Response, session_token: Optional[str] = Cookie(None)
     response.delete_cookie(key="session_token", path="/")
     return {"message": "Logged out"}
 
+# ========== HEALTH CHECK ENDPOINT ==========
+@api_router.get("/health")
+async def health_check():
+    """Health check endpoint for Railway/monitoring"""
+    try:
+        # Test database connection
+        await db.command("ping")
+        return {"status": "healthy", "database": "connected"}
+    except Exception as e:
+        return {"status": "unhealthy", "database": str(e)}
+
 # ========== VERSION CHECK ENDPOINT ==========
 def compare_versions(v1: str, v2: str) -> int:
     """Compare two version strings. Returns: -1 if v1 < v2, 0 if equal, 1 if v1 > v2"""

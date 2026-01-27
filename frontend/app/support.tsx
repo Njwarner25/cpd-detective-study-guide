@@ -360,4 +360,50 @@ const styles = StyleSheet.create({
   bottomPadding: {
     height: 40,
   },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.9)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+  },
+  modalContent: {
+    backgroundColor: '#1e293b',
+    borderRadius: 20,
+    padding: 24,
+    alignItems: 'center',
+    width: '100%',
+    maxWidth: 350,
+  },
+  modalTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#fff',
+    marginBottom: 8,
+  },
+  modalSubtitle: {
+    fontSize: 14,
+    color: '#94a3b8',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  qrImage: {
+    width: 280,
+    height: 350,
+    borderRadius: 12,
+    marginBottom: 20,
+  },
+  closeButton: {
+    backgroundColor: '#6D1ED4',
+    paddingHorizontal: 32,
+    paddingVertical: 14,
+    borderRadius: 10,
+    width: '100%',
+  },
+  closeButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
 });

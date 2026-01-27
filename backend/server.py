@@ -682,7 +682,16 @@ async def submit_scenario(data: ScenarioSubmit, user: User = Depends(require_use
     if not question:
         raise HTTPException(status_code=404, detail="Question not found")
     
-    # Grade with AI
+    # Grade with AI (if available)
+    if not HAS_EMERGENT:
+        # Fallback when emergentintegrations is not available (e.g., on Railway)
+        return {
+            "grade": 75,
+            "feedback": "AI grading is not available in this deployment. Your response has been recorded. Please review the model answer below for self-assessment.",
+            "model_answer": question.get('answer', 'Model answer not available'),
+            "ai_graded": False
+        }
+    
     try:
         chat = LlmChat(
             api_key=EMERGENT_LLM_KEY,

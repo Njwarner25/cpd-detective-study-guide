@@ -302,6 +302,25 @@ export default function Profile() {
           </View>
         </View>
 
+        {/* Support/Donate Section */}
+        <View style={styles.supportSection}>
+          <TouchableOpacity 
+            style={styles.supportCard}
+            onPress={() => router.push('/support')}
+          >
+            <View style={styles.supportIconContainer}>
+              <Ionicons name="heart" size={28} color="#ef4444" />
+            </View>
+            <View style={styles.supportContent}>
+              <Text style={styles.supportTitle}>Support the App</Text>
+              <Text style={styles.supportSubtitle}>
+                Optional donations to help keep it free
+              </Text>
+            </View>
+            <Ionicons name="chevron-forward" size={24} color="#ef4444" />
+          </TouchableOpacity>
+        </View>
+
         <View style={styles.section}>
           <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
             <Ionicons name="log-out-outline" size={20} color="#ef4444" />
@@ -309,7 +328,7 @@ export default function Profile() {
           </TouchableOpacity>
         </View>
 
-        <Text style={styles.version}>Version 1.3.0</Text>
+        <Text style={styles.version}>Version 1.4.0</Text>
       </ScrollView>
     </SafeAreaView>
   );

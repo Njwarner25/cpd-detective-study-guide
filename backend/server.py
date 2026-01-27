@@ -12,7 +12,15 @@ import uuid
 from datetime import datetime, timezone, timedelta
 import bcrypt
 import httpx
-from emergentintegrations.llm.chat import LlmChat, UserMessage
+
+# Try to import emergentintegrations (only available on Emergent platform)
+try:
+    from emergentintegrations.llm.chat import LlmChat, UserMessage
+    HAS_EMERGENT = True
+except ImportError:
+    HAS_EMERGENT = False
+    LlmChat = None
+    UserMessage = None
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')

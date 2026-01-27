@@ -1,11 +1,12 @@
-import React from 'react';
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Linking, Image } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Linking, Image, Modal } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 
 export default function Support() {
   const router = useRouter();
+  const [showZelleQR, setShowZelleQR] = useState(false);
 
   const handleOpenVenmo = () => {
     Linking.openURL('https://venmo.com/Jakari-Jones-8');

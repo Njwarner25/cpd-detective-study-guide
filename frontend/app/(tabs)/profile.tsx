@@ -629,6 +629,41 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
+  supportSection: {
+    paddingHorizontal: 24,
+    paddingBottom: 16,
+  },
+  supportCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#1e293b',
+    borderRadius: 16,
+    padding: 16,
+    borderWidth: 2,
+    borderColor: '#ef4444',
+  },
+  supportIconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 12,
+    backgroundColor: '#450a0a',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  supportContent: {
+    flex: 1,
+  },
+  supportTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#fff',
+    marginBottom: 4,
+  },
+  supportSubtitle: {
+    fontSize: 13,
+    color: '#94a3b8',
+  },
   installSection: {
     paddingHorizontal: 24,
     paddingBottom: 16,

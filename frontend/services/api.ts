@@ -7,7 +7,7 @@ import Constants from 'expo-constants';
 
 // Backend URL - hardcoded for reliability in native builds
 // This is the preview URL that the APK will use
-const NATIVE_BACKEND_URL = 'https://police-study.preview.emergentagent.com';
+const NATIVE_BACKEND_URL = 'https://detective-trainer.preview.emergentagent.com';
 
 // Get the backend URL
 const getBackendUrl = () => {

@@ -1,129 +1,168 @@
 <analysis>
-
-**original_problem_statement**: The user wants to create a mobile study guide application for the Chicago Police Department's (CPD) detective test.
+<original_problem_statement>
+The user wants to enhance a mobile study guide application for the Chicago Police Department's (CPD) detective test. The primary goals for this session were to provide a downloadable Android APK for the app, fix various bugs reported by the user (including login failures and incorrect answer highlighting), and resolve the persistent waking up servers (cold start) issue. After numerous failed attempts to create a stable APK that works with the preview environment, the user decided to migrate the entire application to the Railway hosting platform to eliminate cold starts and achieve a stable production environment.
 
 **PRODUCT REQUIREMENTS**:
-- The app should source content from official CPD directives and Illinois compiled statutes.
-- **Key Features**:
-    - **Authentication**: The user requested a full email/password registration and login system. The previous universal login should be repurposed as a Guest login option.
-    - **Flashcard Mode**: For quick review of questions.
-    - **Scenario Mode**: Present a scenario and allow the user 7 minutes to respond and submit their answer.
-    - **Multiple Choice Quizzes**: A dedicated test section with options for 25, 50, and 75 question quizzes. Some questions should support multiple correct answers.
-    - **Password Reset**: A Forgot Password functionality for registered users.
-    - **Bookmarking**: Allow users to save favorite or difficult questions.
-    - **Profile Page**: Should show different information for guest vs. registered users.
-    - **UI Polish**: Add a Created by Nathaniel Warner credit to the welcome page. The logo on the welcome page was iterated upon and finally removed at the user's request.
-- **Future/Implied Features**:
-    - **AI-Powered Grading**: Use AI to grade the scenario responses.
-    - **Admin Panel**: A way for the user to add and edit questions.
-
+1.  **Generate a downloadable APK**: The user needs a working Android application file that can be installed on devices.
+2.  **Fix Login/Content Loading Issues**: Users, including guest users, were experiencing login failures or were unable to see content (flashcards, scenarios) after logging into the APK. This was a recurring problem.
+3.  **Fix MCQ Highlighting**: Some multiple-choice questions were not correctly highlighting the user's wrong answer in red and the correct answer in green.
+4.  **Implement Forced Updates**: Add a feature that checks the app version and forces the user to update to the latest version if they are using an outdated one.
+5.  **Eliminate Wake Up Servers Screen**: The user wants to get rid of the cold start loading screen that appears after periods of inactivity. This led to the decision to deploy the application to a personal server on Railway.
+6.  **Add Donation/Support Feature**: The user requested a page where other users can make donations via Cash App, Venmo, and Zelle (using a QR code).
+7.  **Deploy to Railway**: Migrate the entire full-stack application (FastAPI backend, MongoDB, and Expo frontend) to Railway to create a stable, always-on production environment.
+</original_problem_statement>
 **User's preferred language**: English
 
 **what currently exists?**
-The project is a full-stack application with an Expo (React Native) frontend and a FastAPI backend connected to a MongoDB database. All major user-requested features have been implemented at a functional level.
-- **Authentication**: A robust authentication system is in place, supporting **email/password registration**, **email/password login**, and a **guest login**.
-- **Content**: The database has been seeded with **99 flashcards**, **12 scenarios**, and **60 multiple-choice questions (MCQs)**.
-- **Frontend**: All primary screens are built and functional:
-    - Welcome/Login/Register/Forgot Password flow.
-    - Tab navigation for Home, Flashcards, Scenarios, Tests, and Profile.
-    - A working Flashcard study screen with a functional flip animation.
-    - A working Scenario practice screen with a 7-minute timer and submission form.
-    - A working Multiple-Choice Quiz screen that can generate quizzes of different lengths.
-    - A Profile screen that correctly displays different content for Guest vs. Registered users.
-- **Backend**: API endpoints for authentication, content fetching (flashcards, scenarios, MCQs), and scenario submission are implemented and working. Skeleton endpoints for password reset have been created.
+The project is a full-stack Expo/FastAPI application.
+- **Backend**: The FastAPI backend code has been deployed to a service on Railway. However, its stability and configuration are not fully verified. It includes a health check endpoint () and has been modified to conditionally disable the  library, which is not available in the public Railway environment.
+- **Frontend**: The Expo (React Native) frontend code exists in the repository and has been pushed to the user's GitHub account. It has not yet been deployed to Railway. It includes a new Support Us page with donation links and a Zelle QR code modal.
+- **Database**: A MongoDB database has been provisioned on Railway, but the backend service still needs to be correctly configured to connect to it using environment variables.
+- **Source Control**: The entire application codebase is in a private GitHub repository owned by the user ().
 
 **Last working item**:
-    - **Last item agent was working**: The agent was preparing the application for deployment to provide the user with a permanent, shareable link. It ran a deployment check, which identified that  files were being ignored by git, and the agent considered this a deployment blocker.
-    - **Agent's Action**: To resolve the perceived blocker, the agent edited the  file and removed the lines (, ) that prevent environment files from being committed to version control.
-    - **Status**: IN PROGRESS
-    - **Agent Testing Done**: N/A (This was a configuration change, not a code feature).
-    - **Which testing method agent to use?**: The next step is to proceed with the deployment process. The agent should use the platform's deployment tools.
-    - **User Testing Done**: N/A
+- **Last item agent was working**: The agent was in the process of guiding the user to deploy the full application to Railway. The immediate task was to verify that the backend was running correctly on Railway before proceeding to deploy the frontend. The agent was trying to get the public URL of the deployed backend service from the user to test it.
+- **Status**: BLOCKED
+- **Agent Testing Done**: N
+- **Which testing method agent to use?**: Manual testing by accessing the public Railway URL once the user provides it.
+- **User Testing Done**: N
 
 **All Pending/In progress Issue list**:
-There are no outstanding bugs reported by the user or identified by the agent. All previously reported issues (login, content loading, missing pages, broken animations, connection errors) have been resolved.
+- **Issue 1: Finalize Railway Backend Deployment & Verification (P0)**
+  - **Description**: The backend has been deployed to Railway, but it was crashing due to a missing  module. The agent pushed a fix to conditionally import this module. However, it's not confirmed if the deployment is now stable and running. The user has been unable to locate the public URL for the service.
+  - **Attempted fixes**: Created  and , removed private dependencies from , conditionally imported missing modules in , moved  to root, and instructed the user on how to configure the Root Directory and environment variables in the Railway UI.
+  - **Next debug checklist**:
+    1.  Guide the user to find the public URL for their backend service in the Railway dashboard (under the Settings tab in the Networking section or on the main service page).
+    2.  Once the URL is obtained (e.g., ), access the  endpoint to confirm the service is running.
+    3.  Guide the user to add the  environment variable by referencing the MongoDB service in Railway, ensuring the backend can connect to the database.
+    4.  Verify the leaderboard and other data-driven endpoints are working.
+  - **Why fix this issue and what will be achieved with the fix?**: This is the foundational step for migrating the app to a stable environment. A working backend is required before the frontend can be deployed and connected.
+  - **Status**: BLOCKED
+  - **Is recurring issue?**: Y
+  - **Should Test frontend/backend/both after fix?**: Backend
+  - **Blocked on other issue**: User action is required to provide the Railway URL.
+
+- **Issue 2: Persistent APK Instability (Login & Content Loading) (P1)**
+  - **Description**: The generated Android APKs have been consistently plagued with issues, primarily login failures and content (flashcards/scenarios) not loading. The user reports this happens even after a successful login, or after a period of app inactivity.
+  - **Attempted fixes**:
+    - Hardcoding the backend URL directly into .
+    - Adding an Axios request interceptor to attach the auth token to all requests.
+    - Implementing  to handle server cold start timeouts.
+    - Building over 7 different versions of the APK with these incremental fixes.
+  - **Next debug checklist**:
+    1.  **DO NOT** build another APK until the entire application is stable on Railway.
+    2.  The root cause is the unreliability of the preview environment a native app is trying to connect to.
+    3.  The real fix is to deploy both frontend and backend to Railway and then build a final APK that points to the stable production Railway frontend URL.
+  - **Why fix this issue and what will be achieved with the fix?**: This will finally provide the user with a stable, usable Android application, which was one of the primary original requests.
+  - **Status**: NOT STARTED (pending Railway deployment)
+  - **Is recurring issue?**: Y
+  - **Should Test frontend/backend/both after fix?**: Both
+  - **Blocked on other issue**: Issue 1: Finalize Railway Backend Deployment & Verification
 
 **In progress Task List**:
-  - **Task 1: Deploy the Application (P0)**
-     - **Where to resume**: The agent has just modified the  file to unblock deployment. The next step is to execute the deployment command or follow the platform's deployment procedure to generate a permanent URL for the user.
-     - **What will be achieved with this?**: Fulfill the user's request for a shareable link to the application.
-     - **Status**: IN PROGRESS
-     - **Should Test frontend/backend/both after fix?**: Both, by accessing the final deployment URL.
-     - **Blocked on something**: No.
+- **Task 1: Deploy Frontend to Railway (P0)**
+  - **Description**: The user has requested to deploy the frontend to Railway to complete the migration and eliminate all cold starts.
+  - **Where to resume**:
+    1.  The agent has already created a  in . This approach should be re-evaluated in favor of Railway's Nixpacks builder which is generally more reliable for web apps.
+    2.  Guide the user to create a **new service** in their Railway project from the same GitHub repo.
+    3.  Instruct the user to set the **Root Directory** for this new service to .
+    4.  Guide the user to add an environment variable  and set its value to the public URL of the deployed backend service.
+  - **What will be achieved with this?**: A publicly accessible, always-on web version of the app with no cold starts. This will also serve as the stable endpoint for a future, final APK build.
+  - **Status**: IN PROGRESS
+  - **Should Test frontend/backend/both after fix?**: Both
+  - **Blocked on something**: Issue 1: Finalize Railway Backend Deployment & Verification. The backend URL is needed for the frontend's environment variable.
 
 **Upcoming and Future Tasks**
 - **Upcoming Tasks**:
-    - **(P0) Complete Password Reset Functionality**: The backend endpoints (, ) and frontend screens exist, but the mechanism to actually *send* the password reset email (e.g., via an SMTP service or other email API) is missing. This is a critical gap to make the feature usable.
-    - **(P1) Implement Bookmarking Logic**: The UI contains bookmark icons, but the full backend logic to save/retrieve a user's bookmarked questions and the frontend state management need to be implemented and tested.
-    - **(P2) Implement Multi-Answer MCQ Support**: The user requested that some MCQs have multiple correct answers. This requires updating the  database schema (e.g., changing  from a string to an array) and modifying the Quiz UI () to handle checkbox inputs and multi-answer evaluation.
+    - **(P1) Build Final Production APK**: Once the entire application is stable on Railway, build one final APK that points to the production Railway frontend URL.
+    - **(P2) Complete Password Reset Functionality**: Integrate an email service (e.g., SendGrid) to enable the Forgot Password flow.
+    - **(P3) Implement Full Bookmarking Logic**: The UI and skeleton page exist, but the logic to save/retrieve a user's bookmarked questions needs to be implemented.
 - **Future Tasks**:
-    - **(P3) Implement AI-Powered Scenario Grading**: This was part of the original product requirements. It involves integrating an LLM via the  library into the  endpoint to grade the user's text response and return feedback.
-    - **(P3) Build Admin Panel**: A separate interface for the user to perform CRUD operations on flashcards, scenarios, and MCQs.
+    - **(P3) Implement and Test AI-Powered Scenario Grading**: The LLM integration was removed for the Railway deployment. This can be re-added once the core application is stable, potentially using a different public LLM API provider.
+    - **(P3) Build full Admin CRUD Panel**: A more robust interface for the user to manage content and users.
+    - **(P4) App Store Submission**: Guide the user through submitting the app to Google Play Store / Apple App Store.
 
 **Completed work in this session**
-- **Authentication System Overhaul**: Replaced the initial universal-only login with a full-featured system including email/password registration, login, and a Guest mode.
-- **Content Seeding**: Successfully created and executed scripts to populate the database with 99 flashcards, 12 scenarios, and 60 MCQs.
-- **Multiple-Choice Quiz Feature**: Built the backend and frontend for a dedicated test section with 25, 50, and 75-question quiz options.
-- **Scenario Practice Feature**: Created the  screen, implementing a 7-minute timer, text area for responses, and a submission button.
-- **Password Reset Skeleton**: Implemented the backend endpoints and frontend screens for a password reset flow (pending email integration).
-- **Critical Bug Fixes**:
-    - **Broken Study Screen**: Fixed the disabled flashcard study screen () and resolved a non-functional flip animation on web.
-    - **Authentication/Authorization**: Debugged and fixed several backend issues related to token handling and data model validation (Pydantic errors) that prevented content from loading.
-    - **Environment/Connection**: Resolved a critical Expo Go connection issue by correcting an outdated ngrok tunnel URL in the  file.
-- **UI/UX Enhancements**:
-    - Created a dynamic profile page that displays different information for guest vs. registered users.
-    - Added creator credit (Created by Nathaniel Warner) to the welcome page.
-    - Iterated on and ultimately removed the welcome page logo per user's specific feedback.
+- **Railway Deployment Initiated**:
+  - Pushed the entire application to the user's private GitHub repository.
+  - Debugged and successfully deployed the backend service to Railway (pending final verification).
+  - Created necessary config files (, , ) to handle Railway's build process.
+- **APK Generation Success**:
+  - Successfully debugged and built multiple Android APKs using EAS after resolving a critical New Architecture requirement for .
+- **Bug Fixes & Stability**:
+  - **MCQ Highlighting**: Found and fixed 2 questions with mismatched answers in the database, resolving the UI highlighting bug.
+  - **Authentication**: Added a global Axios request interceptor to  to ensure the authentication token is sent with every request.
+  - **Cold Start Handling**: Implemented  in  to automatically retry API calls that fail due to server timeouts, making the app more resilient to cold starts.
+- **New Features**:
+  - **Donation Page**: Created a new  page with links for Cash App, Venmo, and a functional Zelle QR code modal. Added a link to this page from the user's profile.
+  - **Forced Update Check**: Implemented and refined a  component that forces users to update to the latest version.
+  - **PWA Install Page**: Created a user-friendly  page guiding users on how to add the web app to their home screen, and later updated it to manage expectations about the beta status of the APK.
 
 **Earlier issues found/mentioned but not fixed**
-   - **Issue 1: Incomplete Password Reset**: The password reset feature is not fully functional.
-     - **Debug checklist**:
-        1. Choose an email sending service (e.g., SendGrid, Mailgun, or a basic SMTP library).
-        2. Add credentials for the service to the backend  file.
-        3. Implement the email sending logic within the  endpoint in . The email should contain a unique link with the reset token.
-        4. Ensure the frontend  page correctly extracts the token from the URL to submit it with the new password.
-     - **Why to solve this issue and what will be achieved with this?**: This will complete a core, user-requested feature, allowing registered users to recover their accounts.
-     - **Should Test frontend/backend/both after fix**: Both.
-     - **Is recurring issue?**: N/A
+- **Issue 1: Incomplete Password Reset**
+  - **Debug checklist**:
+    1. Choose and integrate an email sending service (e.g., SendGrid, Mailgun).
+    2. Add the necessary API keys/credentials to the backend environment variables on Railway.
+    3. Implement the email sending logic in the  endpoint in .
+  - **Why to solve this issue and what will be achieved with this?**: Completes a core self-service feature for users to recover their accounts.
+  - **Should Test frontend/backend/both after fix**: Both.
+  - **Is recurring issue?**: N
 
 **Known issue recurrence from previous fork**
-- The Metro bundler caching issue, while not explicitly encountered in this session, was a major problem in the previous one. The agent fixed the underlying JSX error in  which was the original trigger, so the issue did not resurface.
+- **Issue recurrence**: APK build failures and user login/authentication failures were the dominant recurring issues throughout this entire session. The agent spent the majority of its time in a loop of building APKs and debugging why they failed to work in the preview environment.
+- **Recurrence count**: High.
+- **Status**: BLOCKED (The root cause is the environment, which is now being addressed by the Railway migration).
 
 **Code Architecture**
 
 
 **Key Technical Concepts**
-- **Frontend**: React Native, Expo, Expo Router, Zustand (via AuthContext), Axios.
-- **Backend**: FastAPI, MongoDB (via Pymongo), Pydantic, python-jose for JWT, **Passlib** for password hashing.
-- **Authentication**: Dual system with email/password (hashed) for registered users and a guest mode (using the original universal credentials). Session tokens stored in AsyncStorage.
+- **Frontend**: React Native, Expo, Expo Router, Axios, .
+- **Backend**: FastAPI, MongoDB (Pymongo), Pydantic, JWT.
+- **Build/Deployment**: Expo Application Services (EAS), **Docker**, **Railway**, GitHub.
+- **Key Libraries**:  for handling network timeouts.
 
 **key DB schema**
-- **users**: 
-- **categories**: 
-- **flashcards**: 
-- **scenarios**: 
-- **multiple_choice_questions**: 
+- No changes to schema. Data was corrected in the  collection.
 
 **changes in tech stack**
-- Added  to the backend for password hashing to support the new registration system.
+- **Target Deployment**: Shifted from Emergent's preview environment to **Railway**.
+- **Build System**: Added **Docker** as the primary build method for Railway.
+- **Dependencies**: Removed the private  package from the backend.
 
 **All files of reference**
-- : Heavily modified to add registration, guest login, password reset endpoints, and to fix several data model/auth bugs.
-- : Updated to handle the new auth flows (register, login, guest login, logout).
-- : Completely rewritten to provide UI for Sign In, Registration, and Guest Login.
-- : New file for the MCQ test feature.
-- : New file for the scenario practice feature.
-- : Overwritten to provide different views for guests vs. registered users.
-- : Updated with creator credit and logo changes.
-- : Modified to remove  from the ignore list. **This is a critical change to be aware of.**
+- ****: New file at the root, configured to build and run the backend service for Railway.
+- ****: Modified to add a  endpoint and to conditionally import  to prevent crashes on Railway.
+- ****: The most heavily modified file. An auth interceptor was added,  was implemented, and the  was hardcoded and re-configured multiple times.
+- ****: Significantly enhanced to handle forced updates, check versions, and provide APK download links.
+- ****: New file for the donation page.
+- ****: New file for installation instructions, later modified to manage user expectations about the APK.
+- ****: Modified to remove the private  package.
+
+**Areas that need refactoring**:
+- : This file has a hardcoded URL: . This needs to be replaced with an environment variable () once the frontend is deployed to Railway.
+- The repository contains multiple now-obsolete build configuration files (, old s, , ). For cleanliness, these could be removed, leaving only the single root  for the backend.
+
+**key api endpoints**
+- : (NEW) A simple health check endpoint for Railway to monitor the service.
+- : Used by the  component to enforce updates.
+- , : Endpoints for user authentication.
+- , : Endpoints to fetch content.
 
 **Critical Info for New Agent**
-- **Auth System is New**: The authentication logic was completely refactored. The primary flow is now email/password registration and login. The original universal credentials (/) are now used *only* for the Continue as Guest button.
-- **User's Immediate Goal is Deployment**: The user's last request was to get a shareable link, which means deployment is the highest priority task.
-- **CRITICAL  CHANGE**: The previous agent **removed**  from the  file. This was a deliberate decision to unblock a perceived deployment issue. While unconventional and a potential security risk, you must be aware that this change was made. Do not revert it without understanding the deployment system's requirements.
-- **Incomplete Features to Note**: The password reset flow needs an email-sending mechanism to be functional. Support for MCQs with multiple correct answers has not been built.
+- **PRIMARY GOAL**: Complete the full application migration to Railway. **Do not get sidetracked with building more APKs or debugging the preview environment.** The user's core problem is the Wake up servers screen, and Railway is the chosen solution.
+- **IMMEDIATE NEXT STEP**: Guide the user to find their public backend URL in the Railway dashboard. It is essential for testing the backend and for configuring the frontend deployment. Be very clear and patient in your instructions.
+- **DEPLOY THE FRONTEND**: Once the backend is verified, the next task is to deploy the frontend as a second service on Railway. You will need to guide the user to:
+    1. Create a new service from the same GitHub repo.
+    2. Set its **Root Directory** to .
+    3. Add an environment variable  pointing to the verified backend URL.
+- **USER GUIDANCE**: The user has shown confusion with technical UIs like GitHub and Railway. Use extremely simple, step-by-step instructions. Ask for screenshots frequently to see what the user sees.
+- **CLEANUP**: After the full deployment is successful, the hardcoded URL in  must be changed to use the environment variable.
 
 **documents created in this job**
+- 
+- 
+-  (later deleted/replaced)
 - 
 - 
 - 
@@ -132,36 +171,40 @@ There are no outstanding bugs reported by the user or identified by the agent. A
 - 
 
 **Last 10 User Messages and any pending HUMAN messages**
-- User asked for email registration, guest login, password reset, MCQ tests, and UI updates (creator credit, logo). (All Implemented at a base level)
-- User provided feedback on the logo design, iterating from a 6-point star to a 5-point star, changing its color, and finally requesting its removal. (Completed)
-- User asked for a shareable link for the app. (In Progress)
-- User confirmed they want to proceed with deployment. (Pending)
+10. : Asks how to find the Railway URL. (Pending)
+9.  : Asks if they need to deploy the frontend on Railway as well. (Answered: Yes)
+8.  : Asks to check if the app is running on Railway to prevent cold starts. (Blocked on getting URL)
+7.  : Asks Is this emergent pro. (Answered: No, this is Railway)
+6.  : Confirms to continue deploying the frontend to Railway. (In Progress)
+5.  : Shares a screenshot of the Railway site error, showing the API health check response. (Acknowledged)
+4.  : Asks to ensure the leaderboard is working. (Agent found no data, but endpoint works)
+3.  : Asks for their Railway URL. (Agent guided them on how to find it)
+2.  : Reports the Railway build crashed due to missing . (Fixed)
+1.  : Shared a screenshot of their Railway  tab. (Acknowledged)
 
 **Project Health Check:**
 - **Broken**:
-    - The password reset feature is non-functional as it cannot send emails.
-- **Mocked/Placeholder**:
-    - AI Grading for scenarios.
-    - Admin Panel.
-    - Bookmarking logic is not fully implemented.
+  - The full application deployment is incomplete. The frontend is on Emergent Preview (with cold starts) and the backend is on Railway (status unverified). They are not yet connected.
+  - All previously built APKs are unreliable due to their connection to the unstable preview environment.
+- **Mocked**:
+  - The AI Scenario Grading feature is now disabled in the  code to allow deployment on Railway, as it relied on a private  package.
 
 **3rd Party Integrations**
-- : Installed in the backend for future use with LLMs (e.g., AI scenario grading). It would use the Emergent LLM Key.
+- **Expo Application Services (EAS)**: Used for building APKs.
+- **GitHub**: Used for source control and as the deployment source for Railway.
+- **Railway**: The new target hosting platform for the backend, database, and (soon) frontend.
 
 **Testing status**
-- **Testing agent used after significant changes**: NO. The agent used manual testing () and visual verification () extensively.
-- **Troubleshoot agent used after agent stuck in loop**: NO. The agent successfully debugged all issues independently.
+- **Testing agent used after significant changes**: NO
+- **Troubleshoot agent used after agent stuck in loop**: YES (Used once for APK build failures, identified missing ).
 - **Test files created**: None.
-- **Known regressions**: None. All features are additive or direct fixes.
+- **Known regressions**: None.
 
 **Credentials to test flow:**
-- **Guest Login**: Use the Continue as Guest button. (Backend uses /).
-- **Registered User**: You can create a new account via the Register screen or use a previously created test account if it persists in the database.
+- **GitHub PAT**: A token with  scope is required to push changes. The last provided one might have expired.
+- **Railway Account**: User has an account, but the agent cannot access it.
 
 **What agent forgot to execute**
-- The agent did not implement the email-sending part of the password reset feature, leaving it incomplete.
-- The agent did not implement the user's requirement for some multiple-choice questions to have more than one correct answer.
-- The agent did not implement the AI Grading or Admin Panel features from the original PRD.
-- The bookmarking feature was not fully implemented beyond UI icons.
-
+- The agent did not push the final  changes (disabling ) to GitHub before the user reported the crash. This caused a failed deployment that the agent then had to debug. This highlights the need to push all local changes before asking the user to check a deployment.
+- The agent did not fully resolve the leaderboard issue (it's empty because no users have points), but moved on to the more critical deployment tasks. This should be re-verified after the deployment is stable.
 </analysis>

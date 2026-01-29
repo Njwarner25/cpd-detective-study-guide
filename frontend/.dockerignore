@@ -1,0 +1,12 @@
+.env
+.env.*
+.env.local
+node_modules
+.expo
+.metro-cache
+dist
+.git
+.gitignore
+README.md
+*.log
+.DS_Store

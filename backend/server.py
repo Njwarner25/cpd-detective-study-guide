@@ -37,8 +37,8 @@ app = FastAPI()
 api_router = APIRouter(prefix="/api")
 
 # Current app version - UPDATE THIS WHEN RELEASING NEW VERSIONS
-CURRENT_APP_VERSION = "1.4.0"
-MINIMUM_REQUIRED_VERSION = "1.4.0"
+CURRENT_APP_VERSION = "1.5.0"
+MINIMUM_REQUIRED_VERSION = "1.5.0"
 
 # LLM Key
 EMERGENT_LLM_KEY = os.environ.get('EMERGENT_LLM_KEY')

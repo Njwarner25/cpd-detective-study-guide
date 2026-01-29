@@ -148,13 +148,18 @@ export default function Study() {
           <Ionicons name="arrow-back" size={24} color="#fff" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Flashcards</Text>
-        <TouchableOpacity onPress={toggleBookmark} style={styles.bookmarkButton}>
-          <Ionicons 
-            name={bookmarked ? "bookmark" : "bookmark-outline"} 
-            size={24} 
-            color={bookmarked ? "#f59e0b" : "#fff"} 
-          />
-        </TouchableOpacity>
+        <View style={styles.headerActions}>
+          <TouchableOpacity onPress={() => router.push('/support')} style={styles.donateButton}>
+            <Ionicons name="heart" size={22} color="#ff6b6b" />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={toggleBookmark} style={styles.bookmarkButton}>
+            <Ionicons 
+              name={bookmarked ? "bookmark" : "bookmark-outline"} 
+              size={24} 
+              color={bookmarked ? "#f59e0b" : "#fff"} 
+            />
+          </TouchableOpacity>
+        </View>
       </View>
 
       <View style={styles.progressContainer}>

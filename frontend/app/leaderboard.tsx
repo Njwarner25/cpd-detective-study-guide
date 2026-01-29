@@ -112,31 +112,43 @@ export default function Leaderboard() {
         >
           {/* User's Current Rank */}
           {userStats && (
-            <View style={styles.userRankCard}>
-              <View style={styles.userRankHeader}>
-                <Ionicons name="person-circle" size={40} color="#2563eb" />
-                <View style={styles.userRankInfo}>
-                  <Text style={styles.userRankLabel}>Your Ranking</Text>
-                  <Text style={styles.userRankText}>
-                    #{userRank} of {totalParticipants} participants
+            <>
+              <View style={styles.motivationalBanner}>
+                <Ionicons name="trophy" size={32} color="#f59e0b" />
+                <View style={styles.motivationalContent}>
+                  <Text style={styles.motivationalTitle}>Stay Competitive!</Text>
+                  <Text style={styles.motivationalText}>
+                    3,727 officers applied for the test. To guarantee promotion, you need to score in the top 250 - that's approximately the top 8%.
                   </Text>
                 </View>
               </View>
-              <View style={styles.userStatsRow}>
-                <View style={styles.userStatItem}>
-                  <Text style={styles.userStatValue}>{userStats.avg_score}%</Text>
-                  <Text style={styles.userStatLabel}>Avg Score</Text>
+              
+              <View style={styles.userRankCard}>
+                <View style={styles.userRankHeader}>
+                  <Ionicons name="person-circle" size={40} color="#2563eb" />
+                  <View style={styles.userRankInfo}>
+                    <Text style={styles.userRankLabel}>Your Ranking</Text>
+                    <Text style={styles.userRankText}>
+                      #{userRank} of {totalParticipants} participants
+                    </Text>
+                  </View>
                 </View>
-                <View style={styles.userStatItem}>
-                  <Text style={styles.userStatValue}>{userStats.best_score}%</Text>
-                  <Text style={styles.userStatLabel}>Best Score</Text>
-                </View>
-                <View style={styles.userStatItem}>
-                  <Text style={styles.userStatValue}>{userStats.total_attempts}</Text>
-                  <Text style={styles.userStatLabel}>Attempts</Text>
+                <View style={styles.userStatsRow}>
+                  <View style={styles.userStatItem}>
+                    <Text style={styles.userStatValue}>{userStats.avg_score}%</Text>
+                    <Text style={styles.userStatLabel}>Avg Score</Text>
+                  </View>
+                  <View style={styles.userStatItem}>
+                    <Text style={styles.userStatValue}>{userStats.best_score}%</Text>
+                    <Text style={styles.userStatLabel}>Best Score</Text>
+                  </View>
+                  <View style={styles.userStatItem}>
+                    <Text style={styles.userStatValue}>{userStats.total_attempts}</Text>
+                    <Text style={styles.userStatLabel}>Attempts</Text>
+                  </View>
                 </View>
               </View>
-            </View>
+            </>
           )}
 
           {/* Leaderboard Table */}

@@ -16,8 +16,8 @@ const getBackendUrl = () => {
     console.log('Native build - using hardcoded URL:', NATIVE_BACKEND_URL);
     return NATIVE_BACKEND_URL;
   }
-  // For web/development, use environment variable
-  const envUrl = process.env.EXPO_PUBLIC_BACKEND_URL || '';
+  // For web/development, use environment variable or Railway backend
+  const envUrl = process.env.EXPO_PUBLIC_BACKEND_URL || Constants.expoConfig?.extra?.backendUrl || 'https://serene-nature-production-7818.up.railway.app';
   console.log('Web build - using env URL:', envUrl);
   return envUrl;
 };

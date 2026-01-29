@@ -6,8 +6,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
 
 // Backend URL - hardcoded for reliability in native builds
-// This is the preview URL that the APK will use
-const NATIVE_BACKEND_URL = 'https://detective-trainer.preview.emergentagent.com';
+// This points to the production Railway backend (no cold starts!)
+const NATIVE_BACKEND_URL = 'https://serene-nature-production-7818.up.railway.app';
 
 // Get the backend URL
 const getBackendUrl = () => {

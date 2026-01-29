@@ -42,6 +42,12 @@ export default function VersionCheck({ children }: VersionCheckProps) {
   }, []);
 
   const checkVersion = async () => {
+    // Skip version check on web - only enforce on native apps
+    if (Platform.OS === 'web') {
+      setChecking(false);
+      return;
+    }
+    
     setError(null);
     setChecking(true);
     try {

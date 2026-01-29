@@ -305,6 +305,16 @@ const styles = StyleSheet.create({
     width: 40,
     alignItems: 'flex-end',
   },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  donateButton: {
+    padding: 8,
+    width: 40,
+    alignItems: 'center',
+  },
   progressContainer: {
     paddingHorizontal: 24,
     paddingBottom: 16,

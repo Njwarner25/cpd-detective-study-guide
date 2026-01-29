@@ -385,6 +385,19 @@ const styles = StyleSheet.create({
     fontSize: 12,
     textAlign: 'center',
   },
+  helpLink: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    paddingVertical: 12,
+    marginTop: 8,
+  },
+  helpLinkText: {
+    color: '#2563eb',
+    fontSize: 14,
+    fontWeight: '500',
+  },
   forgotPassword: {
     alignItems: 'center',
     paddingVertical: 8,

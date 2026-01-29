@@ -273,6 +273,30 @@ const styles = StyleSheet.create({
     padding: 16,
     paddingBottom: 32,
   },
+  motivationalBanner: {
+    backgroundColor: '#1e3a8a',
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 20,
+    flexDirection: 'row',
+    gap: 16,
+    borderWidth: 2,
+    borderColor: '#f59e0b',
+  },
+  motivationalContent: {
+    flex: 1,
+  },
+  motivationalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#fff',
+    marginBottom: 8,
+  },
+  motivationalText: {
+    fontSize: 14,
+    color: '#cbd5e1',
+    lineHeight: 20,
+  },
   userRankCard: {
     backgroundColor: '#1e293b',
     borderRadius: 16,

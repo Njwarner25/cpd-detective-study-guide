@@ -239,6 +239,15 @@ export default function Login() {
             <Text style={styles.guestNote}>
               Guest progress is not saved to your account
             </Text>
+
+            {/* Troubleshooting Link */}
+            <TouchableOpacity 
+              style={styles.helpLink}
+              onPress={() => router.push('/troubleshoot')}
+            >
+              <Ionicons name="help-circle-outline" size={18} color="#2563eb" />
+              <Text style={styles.helpLinkText}>Having trouble logging in?</Text>
+            </TouchableOpacity>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>

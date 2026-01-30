@@ -683,12 +683,17 @@ async def submit_scenario(data: ScenarioSubmit, user: User = Depends(require_use
     if not question:
         raise HTTPException(status_code=404, detail="Question not found")
     
-    # Grade with OpenAI using Emergent Universal Key
+    # Grade with OpenAI using your API Key
     try:
         from openai import AsyncOpenAI
         
+        # Use OpenAI API key (user's own key, not Emergent key)
+        api_key = OPENAI_API_KEY or EMERGENT_LLM_KEY
+        if not api_key:
+            raise Exception("No API key configured")
+        
         client = AsyncOpenAI(
-            api_key=EMERGENT_LLM_KEY,
+            api_key=api_key,
             base_url="https://api.openai.com/v1"
         )
         

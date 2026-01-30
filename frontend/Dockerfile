@@ -6,10 +6,14 @@ WORKDIR /app
 COPY package.json yarn.lock ./
 RUN yarn install --frozen-lockfile
 
-# Copy source code
+# Copy source code (excluding .env files via .dockerignore)
 COPY . .
 
-# Build the web app
+# Set environment variable for build
+ARG EXPO_PUBLIC_BACKEND_URL
+ENV EXPO_PUBLIC_BACKEND_URL=${EXPO_PUBLIC_BACKEND_URL}
+
+# Build the web app with environment variables
 RUN npx expo export --platform web
 
 # Install serve to host the static files

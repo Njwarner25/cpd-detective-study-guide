@@ -1137,6 +1137,12 @@ async def promote_to_admin(email: str):
     result = await db.users.update_one(
         {"email": email.lower()},
         {"$set": {"role": "admin"}}
+    )
+    
+    if result.modified_count > 0:
+        return {"status": "success", "message": f"User {email} promoted to admin"}
+    else:
+        raise HTTPException(status_code=404, detail="User not found")
 
 
 @api_router.get("/admin/check-config")
@@ -1148,13 +1154,6 @@ async def check_config():
         "emergent_key_prefix": EMERGENT_LLM_KEY[:15] if EMERGENT_LLM_KEY else None,
         "openai_key_prefix": OPENAI_API_KEY[:15] if OPENAI_API_KEY else None,
     }
-
-    )
-    
-    if result.modified_count > 0:
-        return {"status": "success", "message": f"User {email} promoted to admin"}
-    else:
-        raise HTTPException(status_code=404, detail="User not found")
 
 # Include the router in the main app
 app.include_router(api_router)

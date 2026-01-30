@@ -1105,6 +1105,10 @@ async def import_data(data: Dict[str, List[Dict[str, Any]]]):
                     await db.users.insert_one(user)
             results["users"] = "imported (duplicates skipped)"
         
+        return {"status": "success", "imported": results}
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Import failed: {str(e)}")
 
 
 @api_router.get("/admin/data-counts")
@@ -1116,6 +1120,8 @@ async def get_data_counts():
         "users": await db.users.count_documents({}),
         "flashcards": await db.questions.count_documents({"type": "flashcard"}),
         "scenarios": await db.questions.count_documents({"type": "scenario"}),
+        "multiple_choice": await db.questions.count_documents({"type": "multiple_choice"}),
+    }
 
 
 @api_router.post("/admin/promote-to-admin")

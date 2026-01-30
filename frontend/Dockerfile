@@ -19,10 +19,9 @@ RUN npx expo export --platform web
 # Install serve to host the static files
 RUN npm install -g serve
 
-# Expose port
+# Expose port (Railway dynamically assigns PORT)
 EXPOSE 3000
 
-# Serve the web build on 0.0.0.0 (Railway compatible)
-CMD ["serve", "-s", "dist", "-l", "tcp://0.0.0.0:3000"]
-# Force rebuild 1769739844
-# Deploy 1769749486
+# Serve the web build - use Railway's PORT env var or default to 3000
+CMD sh -c "serve -s dist -l tcp://0.0.0.0:${PORT:-3000}"
+# Force rebuild 1738202342

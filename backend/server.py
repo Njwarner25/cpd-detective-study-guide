@@ -682,29 +682,14 @@ async def submit_scenario(data: ScenarioSubmit, user: User = Depends(require_use
     if not question:
         raise HTTPException(status_code=404, detail="Question not found")
     
-    # Grade with AI (if available)
-    if not HAS_EMERGENT:
-        # Fallback when emergentintegrations is not available (e.g., on Railway)
-        return {
-            "grade": 75,
-            "feedback": "AI grading is not available in this deployment. Your response has been recorded. Please review the model answer below for self-assessment.",
-            "model_answer": question.get('answer', 'Model answer not available'),
-            "ai_graded": False
-        }
-    
+    # Grade with OpenAI using Emergent Universal Key
     try:
-        chat = LlmChat(
+        from openai import AsyncOpenAI
+        
+        client = AsyncOpenAI(
             api_key=EMERGENT_LLM_KEY,
-            session_id=f"grading_{uuid.uuid4().hex[:8]}",
-            system_message="""You are an expert grader for Chicago Police Department detective exam scenarios. 
-Your job is to evaluate responses based on:
-- Knowledge of relevant laws and procedures
-- Proper application of Chicago PD directives
-- Logical reasoning and decision-making
-- Clarity and completeness of response
-
-Provide a grade from 0-100 and detailed feedback."""
-        ).with_model("openai", "gpt-5.2")
+            base_url="https://api.openai.com/v1"
+        )
         
         prompt = f"""Grade this detective exam scenario response:
 
@@ -721,8 +706,24 @@ Provide your response in this exact format:
 GRADE: [number 0-100]
 FEEDBACK: [detailed feedback explaining the grade, what was correct, what was missing, and how to improve]"""
         
-        message = UserMessage(text=prompt)
-        ai_response = await chat.send_message(message)
+        response = await client.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {"role": "system", "content": """You are an expert grader for Chicago Police Department detective exam scenarios. 
+Your job is to evaluate responses based on:
+- Knowledge of relevant laws and procedures
+- Proper application of Chicago PD directives
+- Logical reasoning and decision-making
+- Clarity and completeness of response
+
+Provide a grade from 0-100 and detailed feedback."""},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.3,
+            max_tokens=500
+        )
+        
+        ai_response = response.choices[0].message.content
         
         # Parse AI response
         grade = None

@@ -1068,6 +1068,48 @@ async def get_admin_analytics(user: User = Depends(require_admin)):
     }
 
 # Include the router in the main app
+
+
+# ========== ADMIN DATA MIGRATION ENDPOINT ==========
+@api_router.post("/admin/import-data")
+async def import_data(data: Dict[str, List[Dict[str, Any]]]):
+    """
+    Import bulk data into the database
+    Expected format: {
+        "questions": [...],
+        "categories": [...],
+        "users": [...]
+    }
+    """
+    try:
+        results = {}
+        
+        # Import questions
+        if "questions" in data and data["questions"]:
+            await db.questions.delete_many({})
+            result = await db.questions.insert_many(data["questions"])
+            results["questions"] = len(result.inserted_ids)
+        
+        # Import categories
+        if "categories" in data and data["categories"]:
+            await db.categories.delete_many({})
+            result = await db.categories.insert_many(data["categories"])
+            results["categories"] = len(result.inserted_ids)
+        
+        # Import users (optional - might want to skip to preserve Railway users)
+        if "users" in data and data["users"]:
+            # Don't delete all users, just insert if not exists
+            for user in data["users"]:
+                existing = await db.users.find_one({"email": user.get("email")})
+                if not existing:
+                    await db.users.insert_one(user)
+            results["users"] = "imported (duplicates skipped)"
+        
+        return {"status": "success", "imported": results}
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Import failed: {str(e)}")
+
 app.include_router(api_router)
 
 app.add_middleware(

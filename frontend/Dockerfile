@@ -22,6 +22,6 @@ RUN npm install -g serve
 # Expose port
 EXPOSE 3000
 
-# Serve the web build
-CMD ["serve", "-s", "dist", "-l", "3000"]
+# Serve the web build on 0.0.0.0 (Railway compatible)
+CMD ["serve", "-s", "dist", "-l", "tcp://0.0.0.0:3000"]
 # Force rebuild 1769739844

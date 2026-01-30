@@ -40,8 +40,9 @@ api_router = APIRouter(prefix="/api")
 CURRENT_APP_VERSION = "1.5.0"
 MINIMUM_REQUIRED_VERSION = "1.5.0"
 
-# LLM Key
+# LLM Keys
 EMERGENT_LLM_KEY = os.environ.get('EMERGENT_LLM_KEY')
+OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
 
 # ========== MODELS ==========
 

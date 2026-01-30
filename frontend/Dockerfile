@@ -24,3 +24,4 @@ EXPOSE 3000
 
 # Serve the web build
 CMD ["serve", "-s", "dist", "-l", "3000"]
+# Force rebuild 1769739844

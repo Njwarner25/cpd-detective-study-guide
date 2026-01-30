@@ -1137,6 +1137,18 @@ async def promote_to_admin(email: str):
     result = await db.users.update_one(
         {"email": email.lower()},
         {"$set": {"role": "admin"}}
+
+
+@api_router.get("/admin/check-config")
+async def check_config():
+    """Check if API keys are configured"""
+    return {
+        "has_emergent_key": bool(EMERGENT_LLM_KEY),
+        "has_openai_key": bool(OPENAI_API_KEY),
+        "emergent_key_prefix": EMERGENT_LLM_KEY[:15] if EMERGENT_LLM_KEY else None,
+        "openai_key_prefix": OPENAI_API_KEY[:15] if OPENAI_API_KEY else None,
+    }
+
     )
     
     if result.modified_count > 0:

@@ -1137,14 +1137,7 @@ async def promote_to_admin(email: str):
     else:
         raise HTTPException(status_code=404, detail="User not found")
 
-        "multiple_choice": await db.questions.count_documents({"type": "multiple_choice"}),
-    }
-
-        return {"status": "success", "imported": results}
-    
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Import failed: {str(e)}")
-
+# Include the router in the main app
 app.include_router(api_router)
 
 app.add_middleware(

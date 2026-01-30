@@ -1116,6 +1116,21 @@ async def get_data_counts():
         "users": await db.users.count_documents({}),
         "flashcards": await db.questions.count_documents({"type": "flashcard"}),
         "scenarios": await db.questions.count_documents({"type": "scenario"}),
+
+
+@api_router.post("/admin/promote-to-admin")
+async def promote_to_admin(email: str):
+    """Promote a user to admin role"""
+    result = await db.users.update_one(
+        {"email": email.lower()},
+        {"$set": {"role": "admin"}}
+    )
+    
+    if result.modified_count > 0:
+        return {"status": "success", "message": f"User {email} promoted to admin"}
+    else:
+        raise HTTPException(status_code=404, detail="User not found")
+
         "multiple_choice": await db.questions.count_documents({"type": "multiple_choice"}),
     }
 

@@ -1174,6 +1174,17 @@ async def fix_drowning_question():
         "status": "success",
         "question_id": question["question_id"],
         "old_answer": question.get("answer"),
+
+
+@api_router.get("/admin/search-question")
+async def search_question(search: str):
+    """Search for questions by content"""
+    questions = await db.questions.find(
+        {"content": {"$regex": search, "$options": "i"}},
+        {"_id": 0, "question_id": 1, "content": 1, "answer": 1, "type": 1}
+    ).to_list(20)
+    return questions
+
         "new_answer": "Hospitalization Case Report (CPD-11.406)",
         "updated": result.modified_count > 0
     }

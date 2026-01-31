@@ -1148,6 +1148,33 @@ async def promote_to_admin(email: str):
 @api_router.get("/admin/check-config")
 async def check_config():
     """Check if API keys are configured"""
+
+
+@api_router.post("/admin/fix-drowning-question")
+async def fix_drowning_question():
+    """Fix the drowning victim question answer"""
+    # Find the question
+    question = await db.questions.find_one({
+        "content": {"$regex": "apparent drowning victim is recovered", "$options": "i"}
+    })
+    
+    if not question:
+        raise HTTPException(status_code=404, detail="Question not found")
+    
+    # Update the correct answer to "Hospitalization Case Report"
+    result = await db.questions.update_one(
+        {"question_id": question["question_id"]},
+        {"$set": {"answer": "Hospitalization Case Report (CPD-11.406)"}}
+    )
+    
+    return {
+        "status": "success",
+        "question_id": question["question_id"],
+        "old_answer": question.get("answer"),
+        "new_answer": "Hospitalization Case Report (CPD-11.406)",
+        "updated": result.modified_count > 0
+    }
+
     return {
         "has_emergent_key": bool(EMERGENT_LLM_KEY),
         "has_openai_key": bool(OPENAI_API_KEY),

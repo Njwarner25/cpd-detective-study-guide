@@ -1153,23 +1153,21 @@ async def check_config():
 @api_router.post("/admin/fix-drowning-question")
 async def fix_drowning_question():
     """Fix the drowning victim question answer"""
-    # Find the question with more flexible search
+    # Search for the exact question
     question = await db.questions.find_one({
-        "$or": [
-            {"content": {"$regex": "drowning victim", "$options": "i"}},
-            {"content": {"$regex": "apparent drowning", "$options": "i"}}
-        ]
+        "content": "Whenever the body of an apparent drowning victim is recovered, the assigned officer will prepare a:"
     })
     
     if not question:
-        # List all questions with "drowning" for debugging
-        all_questions = await db.questions.find({"content": {"$regex": "drown", "$options": "i"}}, {"_id": 0, "question_id": 1, "content": 1}).to_list(10)
-        raise HTTPException(status_code=404, detail=f"Question not found. Found {len(all_questions)} questions with 'drown': {all_questions}")
+        raise HTTPException(status_code=404, detail="Question not found with exact text")
     
-    # Update the correct answer to "Hospitalization Case Report"
+    # The correct answer is Hospitalization Case Report, not Death Case Report
     result = await db.questions.update_one(
         {"question_id": question["question_id"]},
-        {"$set": {"answer": "Hospitalization Case Report (CPD-11.406)"}}
+        {"$set": {
+            "answer": "Hospitalization Case Report (CPD-11.406)",
+            "explanation": "When a drowning victim's body is recovered, the officer notifies OEMC and prepares a Hospitalization Case Report (CPD-11.406). This is the proper procedure per CPD General Orders for drowning incidents."
+        }}
     )
     
     return {

@@ -1153,13 +1153,18 @@ async def check_config():
 @api_router.post("/admin/fix-drowning-question")
 async def fix_drowning_question():
     """Fix the drowning victim question answer"""
-    # Find the question
+    # Find the question with more flexible search
     question = await db.questions.find_one({
-        "content": {"$regex": "apparent drowning victim is recovered", "$options": "i"}
+        "$or": [
+            {"content": {"$regex": "drowning victim", "$options": "i"}},
+            {"content": {"$regex": "apparent drowning", "$options": "i"}}
+        ]
     })
     
     if not question:
-        raise HTTPException(status_code=404, detail="Question not found")
+        # List all questions with "drowning" for debugging
+        all_questions = await db.questions.find({"content": {"$regex": "drown", "$options": "i"}}, {"_id": 0, "question_id": 1, "content": 1}).to_list(10)
+        raise HTTPException(status_code=404, detail=f"Question not found. Found {len(all_questions)} questions with 'drown': {all_questions}")
     
     # Update the correct answer to "Hospitalization Case Report"
     result = await db.questions.update_one(

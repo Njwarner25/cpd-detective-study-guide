@@ -1182,6 +1182,29 @@ async def search_question(search: str):
     questions = await db.questions.find(
         {"content": {"$regex": search, "$options": "i"}},
         {"_id": 0, "question_id": 1, "content": 1, "answer": 1, "type": 1}
+
+
+@api_router.get("/admin/users")
+async def get_all_users(user: User = Depends(require_admin)):
+    """Get all registered users (admin only)"""
+    users = await db.users.find(
+        {},
+        {
+            "_id": 0,
+            "user_id": 1,
+            "email": 1,
+            "name": 1,
+            "role": 1,
+            "is_guest": 1,
+            "created_at": 1
+        }
+    ).sort("created_at", -1).to_list(1000)
+    
+    return {
+        "total_users": len(users),
+        "users": users
+    }
+
     ).to_list(20)
     return questions
 

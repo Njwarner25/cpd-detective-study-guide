@@ -1197,6 +1197,36 @@ async def get_all_users(user: User = Depends(require_admin)):
             "role": 1,
             "is_guest": 1,
             "created_at": 1
+
+
+@api_router.post("/admin/fix-juvenile-fingerprint-question")
+async def fix_juvenile_fingerprint():
+    """Fix the juvenile fingerprinting age question"""
+    # Search for the question
+    question = await db.questions.find_one({
+        "content": {"$regex": "Juveniles under the age of.*will not be fingerprinted", "$options": "i"}
+    })
+    
+    if not question:
+        raise HTTPException(status_code=404, detail="Juvenile fingerprint question not found")
+    
+    # Update to correct answer: 10 (not 17)
+    result = await db.questions.update_one(
+        {"question_id": question["question_id"]},
+        {"$set": {
+            "answer": "10",
+            "explanation": "Juveniles under the age of 10 will not be fingerprinted unless the arrest is a felony offense and the watch operations lieutenant approves the processing. Per CPD General Orders on Processing Juveniles and Minors."
+        }}
+    )
+    
+    return {
+        "status": "success",
+        "question_id": question["question_id"],
+        "old_answer": question.get("answer"),
+        "new_answer": "10",
+        "updated": result.modified_count > 0
+    }
+
         }
     ).sort("created_at", -1).to_list(1000)
     

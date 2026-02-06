@@ -417,6 +417,29 @@ const styles = StyleSheet.create({
     padding: 16,
     marginBottom: 16,
   },
+  actionCard: {
+    backgroundColor: '#0f172a',
+    borderRadius: 12,
+    padding: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+    borderWidth: 1,
+    borderColor: '#2563eb',
+  },
+  actionContent: {
+    flex: 1,
+  },
+  actionTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#fff',
+    marginBottom: 4,
+  },
+  actionDescription: {
+    fontSize: 13,
+    color: '#94a3b8',
+  },
   sectionHeader: {
     flexDirection: 'row',
     alignItems: 'center',

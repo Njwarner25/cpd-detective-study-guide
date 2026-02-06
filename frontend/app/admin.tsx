@@ -132,6 +132,26 @@ export default function AdminDashboard() {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#2563eb" />
         }
       >
+        {/* Quick Actions */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Ionicons name="flash" size={20} color="#2563eb" />
+            <Text style={styles.sectionTitle}>Quick Actions</Text>
+          </View>
+          
+          <TouchableOpacity 
+            style={styles.actionCard}
+            onPress={() => router.push('/admin-questions')}
+          >
+            <Ionicons name="create" size={32} color="#2563eb" />
+            <View style={styles.actionContent}>
+              <Text style={styles.actionTitle}>Manage Questions</Text>
+              <Text style={styles.actionDescription}>Edit, delete, or add questions</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={24} color="#64748b" />
+          </TouchableOpacity>
+        </View>
+
         {/* User Stats Section */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>

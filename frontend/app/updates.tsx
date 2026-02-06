@@ -78,6 +78,52 @@ export default function Updates() {
       </View>
 
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
+        {/* Known Corrections Banner */}
+        <View style={styles.correctionsCard}>
+          <View style={styles.correctionsHeader}>
+            <Ionicons name="alert-circle" size={24} color="#f59e0b" />
+            <Text style={styles.correctionsTitle}>📌 Known Answer Corrections</Text>
+          </View>
+          
+          <Text style={styles.correctionsSubtitle}>
+            The following questions have incorrect answers marked in the database. Please note the correct answers below:
+          </Text>
+
+          <View style={styles.correctionItem}>
+            <Text style={styles.correctionNumber}>1.</Text>
+            <View style={styles.correctionContent}>
+              <Text style={styles.correctionQuestion}>
+                "Whenever the body of an apparent drowning victim is recovered, the assigned officer will prepare a:"
+              </Text>
+              <View style={styles.correctionAnswer}>
+                <Text style={styles.wrongAnswer}>❌ Wrong: Death Case Report</Text>
+                <Text style={styles.correctAnswer}>✅ Correct: Hospitalization Case Report (CPD-11.406)</Text>
+              </View>
+            </View>
+          </View>
+
+          <View style={styles.correctionItem}>
+            <Text style={styles.correctionNumber}>2.</Text>
+            <View style={styles.correctionContent}>
+              <Text style={styles.correctionQuestion}>
+                "Juveniles under the age of _____ will not be fingerprinted unless the arrest is a felony offense:"
+              </Text>
+              <View style={styles.correctionAnswer}>
+                <Text style={styles.wrongAnswer}>❌ Wrong: 17</Text>
+                <Text style={styles.correctAnswer}>✅ Correct: 10</Text>
+              </View>
+              <Text style={styles.correctionNote}>
+                Per CPD General Orders on Processing Juveniles - Section B
+              </Text>
+            </View>
+          </View>
+
+          <Text style={styles.correctionsFooter}>
+            These will be fixed in the next update. Please make note of the correct answers for your exam preparation.
+          </Text>
+        </View>
+
+        {/* Version History */}
         {/* Current Version Banner */}
         <View style={styles.currentVersionBanner}>
           <View style={styles.versionBadge}>

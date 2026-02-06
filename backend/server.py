@@ -1148,100 +1148,6 @@ async def promote_to_admin(email: str):
 @api_router.get("/admin/check-config")
 async def check_config():
     """Check if API keys are configured"""
-
-
-@api_router.post("/admin/fix-drowning-question")
-async def fix_drowning_question():
-    """Fix the drowning victim question answer"""
-    # Search for the exact question
-    question = await db.questions.find_one({
-        "content": "Whenever the body of an apparent drowning victim is recovered, the assigned officer will prepare a:"
-    })
-    
-    if not question:
-        raise HTTPException(status_code=404, detail="Question not found with exact text")
-    
-    # The correct answer is Hospitalization Case Report, not Death Case Report
-    result = await db.questions.update_one(
-        {"question_id": question["question_id"]},
-        {"$set": {
-            "answer": "Hospitalization Case Report (CPD-11.406)",
-            "explanation": "When a drowning victim's body is recovered, the officer notifies OEMC and prepares a Hospitalization Case Report (CPD-11.406). This is the proper procedure per CPD General Orders for drowning incidents."
-        }}
-    )
-    
-    return {
-        "status": "success",
-        "question_id": question["question_id"],
-        "old_answer": question.get("answer"),
-
-
-@api_router.get("/admin/search-question")
-async def search_question(search: str):
-    """Search for questions by content"""
-    questions = await db.questions.find(
-        {"content": {"$regex": search, "$options": "i"}},
-        {"_id": 0, "question_id": 1, "content": 1, "answer": 1, "type": 1}
-
-
-@api_router.get("/admin/users")
-async def get_all_users(user: User = Depends(require_admin)):
-    """Get all registered users (admin only)"""
-    users = await db.users.find(
-        {},
-        {
-            "_id": 0,
-            "user_id": 1,
-            "email": 1,
-            "name": 1,
-            "role": 1,
-            "is_guest": 1,
-            "created_at": 1
-
-
-@api_router.post("/admin/fix-juvenile-fingerprint-question")
-async def fix_juvenile_fingerprint():
-    """Fix the juvenile fingerprinting age question"""
-    # Search for the question
-    question = await db.questions.find_one({
-        "content": {"$regex": "Juveniles under the age of.*will not be fingerprinted", "$options": "i"}
-    })
-    
-    if not question:
-        raise HTTPException(status_code=404, detail="Juvenile fingerprint question not found")
-    
-    # Update to correct answer: 10 (not 17)
-    result = await db.questions.update_one(
-        {"question_id": question["question_id"]},
-        {"$set": {
-            "answer": "10",
-            "explanation": "Juveniles under the age of 10 will not be fingerprinted unless the arrest is a felony offense and the watch operations lieutenant approves the processing. Per CPD General Orders on Processing Juveniles and Minors."
-        }}
-    )
-    
-    return {
-        "status": "success",
-        "question_id": question["question_id"],
-        "old_answer": question.get("answer"),
-        "new_answer": "10",
-        "updated": result.modified_count > 0
-    }
-
-        }
-    ).sort("created_at", -1).to_list(1000)
-    
-    return {
-        "total_users": len(users),
-        "users": users
-    }
-
-    ).to_list(20)
-    return questions
-
-        "new_answer": "Hospitalization Case Report (CPD-11.406)",
-        "updated": result.modified_count > 0
-    }
-
     return {
         "has_emergent_key": bool(EMERGENT_LLM_KEY),
         "has_openai_key": bool(OPENAI_API_KEY),
@@ -1275,6 +1181,4 @@ async def shutdown_db_client():
 # OpenAI 1769754675
 # OpenAI key 1769756527
 #
-
-
 

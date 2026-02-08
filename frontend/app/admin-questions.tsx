@@ -18,6 +18,7 @@ import { questionService } from '../services/api';
 
 interface Question {
   question_id: string;
+  question_number?: number;
   content: string;
   answer: string;
   type: string;

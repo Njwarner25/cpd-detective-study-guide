@@ -1144,6 +1144,32 @@ async def promote_to_admin(email: str):
     else:
         raise HTTPException(status_code=404, detail="User not found")
 
+@api_router.post("/admin/add-sequential-numbers")
+async def add_sequential_numbers():
+    """Add sequential numbers to all questions for easier admin reference"""
+    try:
+        # Get all questions sorted by creation date
+        questions = await db.questions.find({}).sort("created_at", 1).to_list(1000)
+        
+        updated_count = 0
+        # Add sequential number to each question
+        for index, question in enumerate(questions, start=1):
+            result = await db.questions.update_one(
+                {"question_id": question["question_id"]},
+                {"$set": {"question_number": index}}
+            )
+            if result.modified_count > 0:
+                updated_count += 1
+        
+        return {
+            "status": "success",
+            "total_questions": len(questions),
+            "numbered": updated_count,
+            "message": f"Successfully added numbers 1-{len(questions)} to all questions"
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to number questions: {str(e)}")
+
 # Include the router in the main app
 app.include_router(api_router)
 

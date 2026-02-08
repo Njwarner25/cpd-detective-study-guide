@@ -118,6 +118,22 @@ export default function Updates() {
             </View>
           </View>
 
+          <View style={styles.correctionItem}>
+            <Text style={styles.correctionNumber}>3.</Text>
+            <View style={styles.correctionContent}>
+              <Text style={styles.correctionQuestion}>
+                "In digitally recorded interrogations where no charge is placed, the detective must verify recordings have been retained within _____ days:"
+              </Text>
+              <View style={styles.correctionAnswer}>
+                <Text style={styles.wrongAnswer}>❌ Wrong: 75</Text>
+                <Text style={styles.correctAnswer}>✅ Correct: 21</Text>
+              </View>
+              <Text style={styles.correctionNote}>
+                Per CPD General Order - Digital Recording System
+              </Text>
+            </View>
+          </View>
+
           <Text style={styles.correctionsFooter}>
             These will be fixed in the next update. Please make note of the correct answers for your exam preparation.
           </Text>

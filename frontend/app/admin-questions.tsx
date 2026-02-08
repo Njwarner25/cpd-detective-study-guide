@@ -211,7 +211,9 @@ export default function AdminQuestions() {
           <View key={question.question_id} style={styles.questionCard}>
             <View style={styles.questionHeader}>
               <TypeBadge type={question.type} />
-              <Text style={styles.questionNumber}>#{index + 1}</Text>
+              <Text style={styles.questionNumber}>
+                #{question.question_number || index + 1}
+              </Text>
             </View>
 
             <Text style={styles.questionContent} numberOfLines={3}>

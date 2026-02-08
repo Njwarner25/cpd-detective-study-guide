@@ -1155,6 +1155,25 @@ async def check_config():
         "openai_key_prefix": OPENAI_API_KEY[:15] if OPENAI_API_KEY else None,
     }
 
+
+@api_router.post("/admin/fix-interrogation-retention")
+async def fix_interrogation_retention():
+    """Fix the interrogation recording retention question - answer should be 21 not 75"""
+    result = await db.questions.update_one(
+        {"content": {"$regex": "digitally recorded interrogations.*no charge.*detective must verify.*retained within", "$options": "i"}},
+        {"$set": {
+            "answer": "21",
+            "explanation": "Per CPD General Order on Digital Recording System, detectives must verify that digital recordings of interrogations where no charge is placed have been retained within 21 days to ensure compliance with department policy and evidence preservation requirements.",
+            "reference": "CPD General Order - Digital Recording System, Section on Retention Requirements"
+        }}
+    )
+    
+    if result.modified_count > 0:
+        return {"status": "success", "message": "Updated interrogation retention question to 21 days", "updated": True}
+    else:
+        return {"status": "not_found", "message": "Question not found - may need different search pattern", "updated": False}
+
+
 # Include the router in the main app
 app.include_router(api_router)
 

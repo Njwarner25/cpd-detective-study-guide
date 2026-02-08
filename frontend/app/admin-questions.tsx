@@ -71,9 +71,16 @@ export default function AdminQuestions() {
     // Filter by search query
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
+      const numQuery = parseInt(searchQuery);
+      
       filtered = filtered.filter(q =>
+        // Search by question number
+        (q.question_number && q.question_number === numQuery) ||
+        // Search by content
         q.content.toLowerCase().includes(query) ||
+        // Search by answer
         q.answer.toLowerCase().includes(query) ||
+        // Search by category
         (q.category_name || '').toLowerCase().includes(query)
       );
     }

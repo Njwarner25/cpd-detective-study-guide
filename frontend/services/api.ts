@@ -5,21 +5,12 @@ import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
 
-// Backend URL - hardcoded for reliability in native builds
-// This points to the production Railway backend (no cold starts!)
-const NATIVE_BACKEND_URL = 'https://serene-nature-production-7818.up.railway.app';
-
-// Get the backend URL
+// Backend URL - use environment variable for all platforms
 const getBackendUrl = () => {
-  // For native builds (Android/iOS APK), always use the hardcoded URL
-  if (Platform.OS !== 'web') {
-    console.log('Native build - using hardcoded URL:', NATIVE_BACKEND_URL);
-    return NATIVE_BACKEND_URL;
-  }
-  // For web/development, use environment variable or Railway backend
-  const envUrl = process.env.EXPO_PUBLIC_BACKEND_URL || Constants.expoConfig?.extra?.backendUrl || 'https://serene-nature-production-7818.up.railway.app';
-  console.log('Web build - using env URL:', envUrl);
-  return envUrl;
+  // Always use environment variable or app.json config
+  const envUrl = process.env.EXPO_PUBLIC_BACKEND_URL || Constants.expoConfig?.extra?.backendUrl;
+  console.log('Backend URL from env:', envUrl);
+  return envUrl || '';
 };
 
 const BACKEND_URL = getBackendUrl();

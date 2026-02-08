@@ -307,4 +307,4 @@ export const adminService = {
   },
 };
 
-export default api;# Deploy ready
+export default api;

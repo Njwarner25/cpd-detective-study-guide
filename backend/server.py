@@ -1249,6 +1249,29 @@ async def fix_all_three_questions():
         results.append({"question": "interrogation", "found": False, "updated": False})
     
     return {
+
+
+@api_router.post("/admin/add-question-numbers")
+async def add_question_numbers():
+    """Add sequential numbers to all questions for easier searching"""
+    questions = await db.questions.find({}).sort("created_at", 1).to_list(1000)
+    
+    updated_count = 0
+    for index, question in enumerate(questions, start=1):
+        result = await db.questions.update_one(
+            {"question_id": question["question_id"]},
+            {"$set": {"question_number": index}}
+        )
+        if result.modified_count > 0:
+            updated_count += 1
+    
+    return {
+        "status": "success",
+        "total_questions": len(questions),
+        "numbered": updated_count,
+        "message": f"Added sequential numbers 1-{len(questions)} to all questions"
+    }
+
         "status": "complete",
         "results": results,
         "summary": f"Found: {sum(1 for r in results if r['found'])}/3, Updated: {sum(1 for r in results if r['updated'])}/3"

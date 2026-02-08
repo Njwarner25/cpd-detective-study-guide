@@ -1174,6 +1174,87 @@ async def fix_interrogation_retention():
         return {"status": "not_found", "message": "Question not found - may need different search pattern", "updated": False}
 
 
+@api_router.post("/admin/fix-all-three-questions")
+async def fix_all_three_questions():
+    """Fix all 3 known incorrect questions"""
+    results = []
+    
+    # Question 1: Drowning - try multiple search patterns
+    drowning_patterns = [
+        "apparent drowning victim is recovered",
+        "drowning victim",
+        "body.*drowning.*recovered"
+    ]
+    
+    for pattern in drowning_patterns:
+        drowning = await db.questions.find_one({"content": {"$regex": pattern, "$options": "i"}})
+        if drowning:
+            result = await db.questions.update_one(
+                {"question_id": drowning["question_id"]},
+                {"$set": {
+                    "answer": "Hospitalization Case Report (CPD-11.406)",
+                    "explanation": "When a drowning victim's body is recovered, the officer notifies OEMC and prepares a Hospitalization Case Report (CPD-11.406).",
+                    "reference": "CPD General Orders - Death Investigations"
+                }}
+            )
+            results.append({"question": "drowning", "found": True, "updated": result.modified_count > 0, "id": drowning["question_id"]})
+            break
+    else:
+        results.append({"question": "drowning", "found": False, "updated": False})
+    
+    # Question 2: Juvenile fingerprinting - try multiple patterns
+    juvenile_patterns = [
+        "Juveniles under the age",
+        "fingerprinted.*felony",
+        "age.*fingerprinted.*unless"
+    ]
+    
+    for pattern in juvenile_patterns:
+        juvenile = await db.questions.find_one({"content": {"$regex": pattern, "$options": "i"}})
+        if juvenile:
+            result = await db.questions.update_one(
+                {"question_id": juvenile["question_id"]},
+                {"$set": {
+                    "answer": "10",
+                    "explanation": "Juveniles under the age of 10 will not be fingerprinted unless the arrest is a felony offense and the watch operations lieutenant approves the processing.",
+                    "reference": "CPD General Orders - Processing Juveniles and Minors, Section B"
+                }}
+            )
+            results.append({"question": "juvenile", "found": True, "updated": result.modified_count > 0, "id": juvenile["question_id"]})
+            break
+    else:
+        results.append({"question": "juvenile", "found": False, "updated": False})
+    
+    # Question 3: Interrogation retention - try multiple patterns
+    interrogation_patterns = [
+        "digitally recorded interrogations.*no charge",
+        "detective must verify.*retained within",
+        "recordings.*retained.*days"
+    ]
+    
+    for pattern in interrogation_patterns:
+        interrogation = await db.questions.find_one({"content": {"$regex": pattern, "$options": "i"}})
+        if interrogation:
+            result = await db.questions.update_one(
+                {"question_id": interrogation["question_id"]},
+                {"$set": {
+                    "answer": "21",
+                    "explanation": "Per CPD General Order on Digital Recording System, detectives must verify that digital recordings of interrogations where no charge is placed have been retained within 21 days.",
+                    "reference": "CPD General Order - Digital Recording System"
+                }}
+            )
+            results.append({"question": "interrogation", "found": True, "updated": result.modified_count > 0, "id": interrogation["question_id"]})
+            break
+    else:
+        results.append({"question": "interrogation", "found": False, "updated": False})
+    
+    return {
+        "status": "complete",
+        "results": results,
+        "summary": f"Found: {sum(1 for r in results if r['found'])}/3, Updated: {sum(1 for r in results if r['updated'])}/3"
+    }
+
+
 # Include the router in the main app
 app.include_router(api_router)
 

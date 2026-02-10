@@ -117,7 +117,7 @@ export default function Support() {
               <Text style={styles.modalTitle}>Scan with Zelle</Text>
               <Text style={styles.modalSubtitle}>Open your bank app and scan this QR code</Text>
               <Image
-                source={require('../assets/images/zelle-qr.jpg')}
+                source={require('../../assets/images/zelle-qr.jpg')}
                 style={styles.qrImage}
                 resizeMode="contain"
               />

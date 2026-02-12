@@ -1183,6 +1183,17 @@ async def add_questions_safe(data: Dict[str, List[Dict[str, Any]]]):
                     added += 1
             results["categories"] = f"Added {added} new categories"
         
+
+
+@api_router.delete("/admin/delete-scenario/{question_id}")
+async def delete_scenario(question_id: str):
+    """Delete a specific scenario by question_id"""
+    result = await db.questions.delete_one({"question_id": question_id})
+    if result.deleted_count > 0:
+        return {"status": "success", "message": f"Deleted question {question_id}"}
+    else:
+        raise HTTPException(status_code=404, detail="Question not found")
+
         return {"status": "success", "results": results}
     
     except Exception as e:

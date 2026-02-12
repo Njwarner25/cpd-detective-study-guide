@@ -236,3 +236,4 @@ const styles = StyleSheet.create({
   retryButton: { backgroundColor: '#2563eb', paddingVertical: 16, borderRadius: 12, alignItems: 'center' },
   retryButtonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
 });
+// MCQ

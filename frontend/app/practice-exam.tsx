@@ -467,6 +467,93 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   instructionItem: {
+  scrollView: {
+    flex: 1,
+  },
+  reviewSection: {
+    marginTop: 24,
+  },
+  reviewHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    marginBottom: 16,
+  },
+  reviewTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#fff',
+  },
+  reviewCard: {
+    backgroundColor: '#1e293b',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+    borderLeftWidth: 4,
+    borderLeftColor: '#ef4444',
+  },
+  reviewQuestionNumber: {
+    fontSize: 14,
+    color: '#64748b',
+    marginBottom: 8,
+  },
+  reviewQuestionText: {
+    fontSize: 16,
+    color: '#fff',
+    lineHeight: 24,
+    marginBottom: 16,
+  },
+  answerComparison: {
+    gap: 12,
+    marginBottom: 12,
+  },
+  wrongAnswerBox: {
+    backgroundColor: '#7f1d1d',
+    padding: 12,
+    borderRadius: 8,
+  },
+  correctAnswerBox: {
+    backgroundColor: '#064e3b',
+    padding: 12,
+    borderRadius: 8,
+  },
+  answerLabel: {
+    fontSize: 12,
+    color: '#cbd5e1',
+    marginBottom: 4,
+  },
+  wrongAnswerText: {
+    fontSize: 15,
+    color: '#fca5a5',
+    fontWeight: '500',
+  },
+  correctAnswerText: {
+    fontSize: 15,
+    color: '#86efac',
+    fontWeight: '600',
+  },
+  explanationBox: {
+    backgroundColor: '#0f172a',
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 8,
+  },
+  explanationLabel: {
+    fontSize: 12,
+    color: '#64748b',
+    marginBottom: 4,
+  },
+  explanationText: {
+    fontSize: 14,
+    color: '#cbd5e1',
+    lineHeight: 20,
+  },
+  referenceText: {
+    fontSize: 13,
+    color: '#94a3b8',
+    fontStyle: 'italic',
+  },
+
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,

@@ -60,17 +60,8 @@ export default function PracticeExam() {
   };
 
   const handleStart = () => {
-    Alert.alert(
-      'Start Practice Exam?',
-      'This is a 105-question practice exam with a 90-minute timer. Once started, the timer cannot be paused. Are you ready?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Start Exam',
-          onPress: () => setExamStarted(true),
-        },
-      ]
-    );
+    // Skip confirmation and start immediately for web compatibility
+    setExamStarted(true);
   };
 
   const handleAnswer = (answer: string) => {

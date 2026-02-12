@@ -1145,6 +1145,49 @@ async def promote_to_admin(email: str):
         raise HTTPException(status_code=404, detail="User not found")
 
 @api_router.post("/admin/add-sequential-numbers")
+
+
+@api_router.post("/admin/add-questions-safe")
+async def add_questions_safe(data: Dict[str, List[Dict[str, Any]]]):
+    """
+    SAFELY ADD questions without deleting existing data
+    Use this instead of import-data to preserve existing content
+    """
+    try:
+        results = {}
+        
+        # ADD questions without deleting
+        if "questions" in data and data["questions"]:
+            # Insert only questions that don't already exist
+            added = 0
+            for question in data["questions"]:
+                existing = await db.questions.find_one({"question_id": question.get("question_id")})
+                if not existing:
+                    await db.questions.insert_one(question)
+                    added += 1
+                else:
+                    # Update existing instead of skip
+                    await db.questions.update_one(
+                        {"question_id": question.get("question_id")},
+                        {"$set": question}
+                    )
+            results["questions"] = f"Added/updated {added} new questions"
+        
+        # ADD categories without deleting
+        if "categories" in data and data["categories"]:
+            added = 0
+            for category in data["categories"]:
+                existing = await db.categories.find_one({"category_id": category.get("category_id")})
+                if not existing:
+                    await db.categories.insert_one(category)
+                    added += 1
+            results["categories"] = f"Added {added} new categories"
+        
+        return {"status": "success", "results": results}
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Safe import failed: {str(e)}")
+
 async def add_sequential_numbers():
     """Add sequential numbers to all questions for easier admin reference"""
     try:

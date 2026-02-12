@@ -196,61 +196,125 @@ export default function PracticeExam() {
     const answeredCount = Object.keys(answers).length;
     const passingScore = 70;
     const passed = score! >= passingScore;
+    
+    // Calculate wrong answers
+    const wrongAnswers = questions
+      .map((q, idx) => ({
+        question: q,
+        index: idx,
+        userAnswer: answers[idx],
+        isCorrect: answers[idx] === q.answer,
+      }))
+      .filter(item => !item.isCorrect);
 
     return (
       <SafeAreaView style={styles.container}>
-        <View style={styles.resultsContainer}>
-          <View style={[styles.scoreCard, passed ? styles.passCard : styles.failCard]}>
-            <Ionicons 
-              name={passed ? "checkmark-circle" : "close-circle"} 
-              size={80} 
-              color={passed ? "#10b981" : "#ef4444"} 
-            />
-            <Text style={styles.scoreTitle}>
-              {passed ? "Congratulations!" : "Keep Studying"}
-            </Text>
-            <Text style={styles.scoreValue}>{score}%</Text>
-            <Text style={styles.scoreSubtitle}>
-              {answeredCount} of {questions.length} questions answered
-            </Text>
-          </View>
-
-          <View style={styles.statsContainer}>
-            <View style={styles.statRow}>
-              <Text style={styles.statLabel}>Correct Answers:</Text>
-              <Text style={styles.statValue}>
-                {Math.round((score! / 100) * questions.length)} / {questions.length}
+        <ScrollView style={styles.scrollView}>
+          <View style={styles.resultsContainer}>
+            <View style={[styles.scoreCard, passed ? styles.passCard : styles.failCard]}>
+              <Ionicons 
+                name={passed ? "checkmark-circle" : "close-circle"} 
+                size={80} 
+                color={passed ? "#10b981" : "#ef4444"} 
+              />
+              <Text style={styles.scoreTitle}>
+                {passed ? "Congratulations!" : "Keep Studying"}
+              </Text>
+              <Text style={styles.scoreValue}>{score}%</Text>
+              <Text style={styles.scoreSubtitle}>
+                {answeredCount} of {questions.length} questions answered
               </Text>
             </View>
-            <View style={styles.statRow}>
-              <Text style={styles.statLabel}>Passing Score:</Text>
-              <Text style={styles.statValue}>70%</Text>
+
+            <View style={styles.statsContainer}>
+              <View style={styles.statRow}>
+                <Text style={styles.statLabel}>Correct Answers:</Text>
+                <Text style={styles.statValue}>
+                  {Math.round((score! / 100) * questions.length)} / {questions.length}
+                </Text>
+              </View>
+              <View style={styles.statRow}>
+                <Text style={styles.statLabel}>Passing Score:</Text>
+                <Text style={styles.statValue}>70%</Text>
+              </View>
+              <View style={styles.statRow}>
+                <Text style={styles.statLabel}>Time Used:</Text>
+                <Text style={styles.statValue}>{formatTime(EXAM_DURATION - timeRemaining)}</Text>
+              </View>
             </View>
-            <View style={styles.statRow}>
-              <Text style={styles.statLabel}>Time Used:</Text>
-              <Text style={styles.statValue}>{formatTime(EXAM_DURATION - timeRemaining)}</Text>
-            </View>
+
+            {/* Review Wrong Answers */}
+            {wrongAnswers.length > 0 && (
+              <View style={styles.reviewSection}>
+                <View style={styles.reviewHeader}>
+                  <Ionicons name="book-outline" size={24} color="#ef4444" />
+                  <Text style={styles.reviewTitle}>Review Incorrect Answers ({wrongAnswers.length})</Text>
+                </View>
+
+                {wrongAnswers.map((item, idx) => (
+                  <View key={item.index} style={styles.reviewCard}>
+                    <Text style={styles.reviewQuestionNumber}>
+                      Question {item.index + 1}
+                    </Text>
+                    <Text style={styles.reviewQuestionText}>
+                      {item.question.content}
+                    </Text>
+
+                    <View style={styles.answerComparison}>
+                      <View style={styles.wrongAnswerBox}>
+                        <Text style={styles.answerLabel}>Your Answer:</Text>
+                        <Text style={styles.wrongAnswerText}>
+                          ❌ {item.userAnswer || 'Not answered'}
+                        </Text>
+                      </View>
+
+                      <View style={styles.correctAnswerBox}>
+                        <Text style={styles.answerLabel}>Correct Answer:</Text>
+                        <Text style={styles.correctAnswerText}>
+                          ✅ {item.question.answer}
+                        </Text>
+                      </View>
+                    </View>
+
+                    {item.question.explanation && (
+                      <View style={styles.explanationBox}>
+                        <Text style={styles.explanationLabel}>Explanation:</Text>
+                        <Text style={styles.explanationText}>
+                          {item.question.explanation}
+                        </Text>
+                      </View>
+                    )}
+
+                    {item.question.reference && (
+                      <Text style={styles.referenceText}>
+                        📖 {item.question.reference}
+                      </Text>
+                    )}
+                  </View>
+                ))}
+              </View>
+            )}
+
+            <TouchableOpacity 
+              style={styles.reviewButton}
+              onPress={() => {
+                setExamStarted(false);
+                setExamCompleted(false);
+                setAnswers({});
+                setCurrentIndex(0);
+                setTimeRemaining(EXAM_DURATION);
+                setScore(null);
+              }}
+            >
+              <Ionicons name="refresh" size={24} color="#fff" />
+              <Text style={styles.reviewButtonText}>Retake Exam</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.homeButton} onPress={() => router.back()}>
+              <Text style={styles.homeButtonText}>Back to Home</Text>
+            </TouchableOpacity>
           </View>
-
-          <TouchableOpacity 
-            style={styles.reviewButton}
-            onPress={() => {
-              setExamStarted(false);
-              setExamCompleted(false);
-              setAnswers({});
-              setCurrentIndex(0);
-              setTimeRemaining(EXAM_DURATION);
-              setScore(null);
-            }}
-          >
-            <Ionicons name="refresh" size={24} color="#fff" />
-            <Text style={styles.reviewButtonText}>Retake Exam</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.homeButton} onPress={() => router.back()}>
-            <Text style={styles.homeButtonText}>Back to Home</Text>
-          </TouchableOpacity>
-        </View>
+        </ScrollView>
       </SafeAreaView>
     );
   }

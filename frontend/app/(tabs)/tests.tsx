@@ -37,7 +37,7 @@ export default function Tests() {
   ];
 
   const startTest = (count: string) => {
-    router.push(`/quiz?count=${count}`);
+    router.push(`/mcq-test?count=${count}`);
   };
 
   return (

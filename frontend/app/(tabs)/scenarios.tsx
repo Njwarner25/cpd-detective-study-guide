@@ -58,7 +58,7 @@ export default function Scenarios() {
           <Text style={styles.subtitle}>{scenarios.length} scenarios available</Text>
           <View style={styles.infoCard}>
             <Ionicons name="time" size={20} color="#f59e0b" />
-            <Text style={styles.infoText}>Each scenario has a 7-minute timer</Text>
+            <Text style={styles.infoText}>Timed scenarios with AI grading</Text>
           </View>
         </View>
 

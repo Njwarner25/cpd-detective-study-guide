@@ -136,7 +136,7 @@ export default function Home() {
             </View>
             <View style={styles.actionContent}>
               <Text style={styles.actionTitle}>Practice Scenarios</Text>
-              <Text style={styles.actionDescription}>7-minute timed scenarios with AI grading</Text>
+              <Text style={styles.actionDescription}>Timed scenarios with AI grading</Text>
             </View>
             <Ionicons name="chevron-forward" size={20} color="#64748b" />
           </TouchableOpacity>

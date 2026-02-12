@@ -98,6 +98,21 @@ export default function Home() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Quick Start</Text>
           
+          {/* NEW: Full Practice Exam */}
+          <TouchableOpacity 
+            style={[styles.actionCard, styles.featuredCard]}
+            onPress={() => router.push('/practice-exam')}
+          >
+            <View style={[styles.actionIcon, { backgroundColor: '#8b5cf6' }]}>
+              <Ionicons name="trophy" size={24} color="#fff" />
+            </View>
+            <View style={styles.actionContent}>
+              <Text style={styles.actionTitle}>Full Practice Exam ⭐</Text>
+              <Text style={styles.actionDescription}>105 questions • 90-minute timer • Simulates actual test</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color="#8b5cf6" />
+          </TouchableOpacity>
+          
           <TouchableOpacity 
             style={styles.actionCard}
             onPress={() => router.push('/flashcards')}

@@ -37,7 +37,7 @@ const updates = [
     date: 'January 2025',
     title: 'Complex Scenarios & Study Aids',
     features: [
-      { icon: 'document-text', color: '#8b5cf6', text: '3 Complex Multi-Part Scenarios with 10-minute timers' },
+      { icon: 'document-text', color: '#8b5cf6', text: '3 Complex Multi-Part Scenarios with 15-minute timers' },
       { icon: 'bulb', color: '#f59e0b', text: 'R.E.A.C.T.I.O.N. Framework - Organize your scenario responses' },
       { icon: 'time', color: '#60a5fa', text: 'Extended time limits for complex scenarios' },
     ],

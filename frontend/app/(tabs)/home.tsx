@@ -261,6 +261,11 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     gap: 12,
   },
+  featuredCard: {
+    borderWidth: 2,
+    borderColor: '#8b5cf6',
+    backgroundColor: '#1e1b4b',
+  },
   actionIcon: {
     width: 48,
     height: 48,

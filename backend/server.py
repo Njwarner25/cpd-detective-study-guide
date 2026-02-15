@@ -1144,90 +1144,6 @@ async def promote_to_admin(email: str):
     else:
         raise HTTPException(status_code=404, detail="User not found")
 
-@api_router.post("/admin/add-sequential-numbers")
-
-
-@api_router.post("/admin/add-questions-safe")
-async def add_questions_safe(data: Dict[str, List[Dict[str, Any]]]):
-    """
-    SAFELY ADD questions without deleting existing data
-    Use this instead of import-data to preserve existing content
-    """
-    try:
-        results = {}
-        
-        # ADD questions without deleting
-        if "questions" in data and data["questions"]:
-            # Insert only questions that don't already exist
-            added = 0
-            for question in data["questions"]:
-                existing = await db.questions.find_one({"question_id": question.get("question_id")})
-                if not existing:
-                    await db.questions.insert_one(question)
-                    added += 1
-                else:
-                    # Update existing instead of skip
-                    await db.questions.update_one(
-                        {"question_id": question.get("question_id")},
-                        {"$set": question}
-                    )
-            results["questions"] = f"Added/updated {added} new questions"
-        
-        # ADD categories without deleting
-        if "categories" in data and data["categories"]:
-            added = 0
-            for category in data["categories"]:
-                existing = await db.categories.find_one({"category_id": category.get("category_id")})
-                if not existing:
-                    await db.categories.insert_one(category)
-                    added += 1
-            results["categories"] = f"Added {added} new categories"
-        
-        return {"status": "success", "results": results}
-    
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Safe import failed: {str(e)}")
-
-
-@api_router.delete("/admin/delete-scenario/{question_id}")
-async def delete_scenario(question_id: str):
-    """Delete a specific scenario by question_id"""
-    result = await db.questions.delete_one({"question_id": question_id})
-    if result.deleted_count > 0:
-        return {"status": "success", "message": f"Deleted question {question_id}"}
-    else:
-        raise HTTPException(status_code=404, detail="Question not found")
-
-        return {"status": "success", "results": results}
-    
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Safe import failed: {str(e)}")
-
-async def add_sequential_numbers():
-    """Add sequential numbers to all questions for easier admin reference"""
-    try:
-        # Get all questions sorted by creation date
-        questions = await db.questions.find({}).sort("created_at", 1).to_list(1000)
-        
-        updated_count = 0
-        # Add sequential number to each question
-        for index, question in enumerate(questions, start=1):
-            result = await db.questions.update_one(
-                {"question_id": question["question_id"]},
-                {"$set": {"question_number": index}}
-            )
-            if result.modified_count > 0:
-                updated_count += 1
-        
-        return {
-            "status": "success",
-            "total_questions": len(questions),
-            "numbered": updated_count,
-            "message": f"Successfully added numbers 1-{len(questions)} to all questions"
-        }
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to number questions: {str(e)}")
-
 # Include the router in the main app
 app.include_router(api_router)
 
@@ -1253,5 +1169,3 @@ async def shutdown_db_client():
 # Trigger 1769753571
 # OpenAI 1769754675
 # OpenAI key 1769756527
-
-

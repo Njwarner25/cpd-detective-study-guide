@@ -21,18 +21,18 @@ export default function Flashcards() {
   const loadData = async () => {
     try {
       setLoading(true);
-      console.log('Loading flashcards with category:', selectedCategory, 'token:', sessionToken ? 'present' : 'missing');
+      console.log('Loading ILCS flashcards with category:', selectedCategory, 'token:', sessionToken ? 'present' : 'missing');
       
       const [questionsData, categoriesData] = await Promise.all([
-        questionService.getQuestions('flashcard', selectedCategory || undefined, sessionToken || undefined),
+        questionService.getQuestions('flashcard', 'cat_ilcs', sessionToken || undefined),
         categoryService.getCategories()
       ]);
       
-      console.log('Loaded', questionsData.length, 'flashcards and', categoriesData.length, 'categories');
+      console.log('Loaded', questionsData.length, 'ILCS flashcards and', categoriesData.length, 'categories');
       setQuestions(questionsData);
       setCategories(categoriesData);
     } catch (error) {
-      console.error('Failed to load flashcards:', error);
+      console.error('Failed to load ILCS flashcards:', error);
       setQuestions([]);
     } finally {
       setLoading(false);

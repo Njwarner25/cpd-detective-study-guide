@@ -1183,6 +1183,10 @@ async def add_questions_safe(data: Dict[str, List[Dict[str, Any]]]):
                     added += 1
             results["categories"] = f"Added {added} new categories"
         
+        return {"status": "success", "results": results}
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Safe import failed: {str(e)}")
 
 
 @api_router.delete("/admin/delete-scenario/{question_id}")

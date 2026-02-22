@@ -57,7 +57,7 @@ export default function Login() {
       } else {
         await login(email, password);
       }
-      router.replace('/(tabs)/home');
+      router.replace('/upgrade');
     } catch (error: any) {
       console.error('Auth error:', error);
       const errorMessage = error?.message || 'Authentication failed. Please try again.';
@@ -73,7 +73,7 @@ export default function Login() {
 
     try {
       await guestLogin();
-      router.replace('/(tabs)/home');
+      router.replace('/upgrade');
     } catch (error: any) {
       console.error('Guest login error:', error);
       setError('Guest login failed. Please try again.');
@@ -156,7 +156,7 @@ export default function Login() {
               <Text style={styles.label}>Password</Text>
               <TextInput
                 style={styles.input}
-                placeholder="••••••••"
+                placeholder="â¢â¢â¢â¢â¢â¢â¢â¢"
                 placeholderTextColor="#64748b"
                 value={password}
                 onChangeText={setPassword}
@@ -170,7 +170,7 @@ export default function Login() {
                 <Text style={styles.label}>Confirm Password</Text>
                 <TextInput
                   style={styles.input}
-                  placeholder="••••••••"
+                  placeholder="â¢â¢â¢â¢â¢â¢â¢â¢"
                   placeholderTextColor="#64748b"
                   value={confirmPassword}
                   onChangeText={setConfirmPassword}

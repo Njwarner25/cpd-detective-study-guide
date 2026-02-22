@@ -36,7 +36,7 @@ export default function Register() {
 
     try {
       await register(email, password, name);
-      router.replace('/(tabs)/home');
+      router.replace('/upgrade');
     } catch (error: any) {
       setError(error.message);
     } finally {

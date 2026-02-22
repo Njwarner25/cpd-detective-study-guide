@@ -1225,7 +1225,7 @@ async def create_checkout_session(user: User = Depends(require_user)):
             payment_method_types=["card"],
             line_items=[{"price": STRIPE_PRICE_ID, "quantity": 1}],
             mode="payment",
-            success_url=f"{FRONTEND_URL}/payment-success?session_id=success",
+            success_url="https://www.detectiveexamstudyguide.com/payment-success",
             cancel_url=f"{FRONTEND_URL}/upgrade",
             client_reference_id=user.user_id,
             customer_email=user.email,
@@ -1242,7 +1242,7 @@ async def create_checkout_session(user: User = Depends(require_user)):
         return {"checkout_url": checkout_session.url, "session_id": checkout_session.id}
     except stripe.error.StripeError as e:
         logging.error(f"Stripe error: {e}")
-        raise HTTPException(status_code=500, detail="Failed to create checkout session")
+        raise HTTPException(status_code=500, detail=f"Stripe error: {str(e)}")
 
 
 @api_router.post("/payments/verify")

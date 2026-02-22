@@ -19,7 +19,7 @@ try:
     from emergentintegrations.llm.chat import LlmChat, UserMessage
     HAS_EMERGENT = True
 except ImportError:
-    HAS_EMERGENT = False
+    HAS_EMERGENT = Falseh
     LlmChat = None
     UserMessage = None
 
@@ -32,13 +32,13 @@ client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
 # Stripe configuration
-STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY')
+STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY', '').strip() or None
 STRIPE_WEBHOOK_SECRET = os.environ.get('STRIPE_WEBHOOK_SECRET')
-STRIPE_PRICE_ID = os.environ.get('STRIPE_PRICE_ID')
-FRONTEND_URL = os.environ.get('FRONTEND_URL', 'https://detectiveexamstudyguide.com')
+STRIPE_PRICE_ID = os.environ.get('STRIPE_PRICE_ID', '').strip() or None
+FRONTEND_URL = os.environ.get('FRONTEND_URL', 'https://detectiveexamstudyguide.com').strip()
 
 if STRIPE_SECRET_KEY:
-    stripe.api_key = STRIPE_SECRET_KEY
+    stripe.api_key = STRIPE_SECRET_KEY.strip() if STRIPE_SECRET_KEY else None
 
 
 # Create the main app without a prefix

@@ -19,7 +19,7 @@ try:
     from emergentintegrations.llm.chat import LlmChat, UserMessage
     HAS_EMERGENT = True
 except ImportError:
-    HAS_EMERGENT = Falseh
+    HAS_EMERGENT = False
     LlmChat = None
     UserMessage = None
 

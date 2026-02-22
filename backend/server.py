@@ -1223,7 +1223,7 @@ async def create_checkout_session(user: User = Depends(require_user)):
     try:
         checkout_session = stripe.checkout.Session.create(
             payment_method_types=["card"],
-            line_items=[{"price": STRIPE_PRICE_ID, "quantity": 1}],
+            line_items=[{"price": "price_1T3f2sFaKA9n89CX3J8tKstA", "quantity": 1}],
             mode="payment",
             success_url="https://www.detectiveexamstudyguide.com/payment-success",
             cancel_url="https://www.detectiveexamstudyguide.com/upgrade",

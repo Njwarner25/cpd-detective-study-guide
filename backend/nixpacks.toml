@@ -6,3 +6,5 @@ cmds = ["python3.11 -m venv /app/.venv", "/app/.venv/bin/pip install -r requirem
 
 [start]
 cmd = "/app/.venv/bin/uvicorn server:app --host 0.0.0.0 --port ${PORT:-8001}"
+
+# v2 - fixed startCommand

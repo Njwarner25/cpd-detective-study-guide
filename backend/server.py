@@ -12,6 +12,7 @@ import uuid
 from datetime import datetime, timezone, timedelta
 import bcrypt
 import httpx
+import stripe
 
 # Try to import emergentintegrations (only available on Emergent platform)
 try:
@@ -30,10 +31,31 @@ mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
+# Stripe configuration
+STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY')
+STRIPE_WEBHOOK_SECRET = os.environ.get('STRIPE_WEBHOOK_SECRET')
+STRIPE_PRICE_ID = os.environ.get('STRIPE_PRICE_ID')
+FRONTEND_URL = os.environ.get('FRONTEND_URL', 'https://detectiveexamstudyguide.com')
+
+if STRIPE_SECRET_KEY:
+    stripe.api_key = STRIPE_SECRET_KEY
+
+
 # Create the main app without a prefix
 app = FastAPI()
 
 # Create a router with the /api prefix
+
+class PaymentRecord(BaseModel):
+    payment_id: str
+    user_id: str
+    stripe_session_id: str
+    stripe_payment_intent: Optional[str] = None
+    amount: int  # in cents
+    currency: str = "usd"
+    status: str  # pending, completed, failed
+    created_at: datetime
+
 api_router = APIRouter(prefix="/api")
 
 # Current app version - UPDATE THIS WHEN RELEASING NEW VERSIONS
@@ -548,7 +570,7 @@ async def create_category(category: Category, user: User = Depends(require_admin
 
 # ========== QUESTION ENDPOINTS ==========
 
-@api_router.get("/questions", response_model=List[Question])
+@api_router.get("/questions")
 async def get_questions(
     type: Optional[str] = None,
     category_id: Optional[str] = None,
@@ -559,16 +581,40 @@ async def get_questions(
         query["type"] = type
     if category_id:
         query["category_id"] = category_id
-    
-    # Limit results for production performance
     questions = await db.questions.find(query, {"_id": 0}).to_list(500)
+
+    # Check premium access
+    has_premium = user.role == "admin"
+    if not has_premium:
+        payment = await db.payments.find_one(
+            {"user_id": user.user_id, "status": "completed"}, {"_id": 0}
+        )
+        has_premium = payment is not None
+
+    for q in questions:
+        is_premium = q.get("is_premium", False)
+        q["is_locked"] = is_premium and not has_premium
+        if q["is_locked"]:
+            q["answer"] = None
+            q["model_answer"] = None
+            q["explanation"] = None
+
     return questions
 
-@api_router.get("/questions/{question_id}", response_model=Question)
+@api_router.get("/questions/{question_id}")
 async def get_question(question_id: str, user: User = Depends(require_user)):
     question = await db.questions.find_one({"question_id": question_id}, {"_id": 0})
     if not question:
         raise HTTPException(status_code=404, detail="Question not found")
+
+    is_premium = question.get("is_premium", False)
+    if is_premium and user.role != "admin":
+        payment = await db.payments.find_one(
+            {"user_id": user.user_id, "status": "completed"}, {"_id": 0}
+        )
+        if not payment:
+            raise HTTPException(status_code=403, detail="Premium access required. Please upgrade to access this scenario.")
+
     return question
 
 @api_router.post("/questions", response_model=Question)
@@ -1145,7 +1191,157 @@ async def promote_to_admin(email: str):
         raise HTTPException(status_code=404, detail="User not found")
 
 # Include the router in the main app
+
+
+# ========== PAYMENT ENDPOINTS ==========
+
+@api_router.get("/payments/status")
+async def get_payment_status(user: User = Depends(require_user)):
+    if user.role == "admin":
+        return {"has_paid": True, "is_premium": True}
+    if user.role == "guest":
+        return {"has_paid": False, "is_premium": False}
+    payment = await db.payments.find_one(
+        {"user_id": user.user_id, "status": "completed"},
+        {"_id": 0}
+    )
+    has_paid = payment is not None
+    return {"has_paid": has_paid, "is_premium": has_paid}
+
+
+@api_router.post("/payments/create-checkout")
+async def create_checkout_session(user: User = Depends(require_user)):
+    if not STRIPE_SECRET_KEY:
+        raise HTTPException(status_code=500, detail="Stripe is not configured")
+    if user.role == "guest":
+        raise HTTPException(status_code=403, detail="Please register an account before purchasing premium access")
+    existing_payment = await db.payments.find_one(
+        {"user_id": user.user_id, "status": "completed"}, {"_id": 0}
+    )
+    if existing_payment:
+        raise HTTPException(status_code=400, detail="You already have premium access")
+    try:
+        checkout_session = stripe.checkout.Session.create(
+            payment_method_types=["card"],
+            line_items=[{"price": STRIPE_PRICE_ID, "quantity": 1}],
+            mode="payment",
+            success_url=f"{FRONTEND_URL}/payment-success?session_id={{CHECKOUT_SESSION_ID}}",
+            cancel_url=f"{FRONTEND_URL}/upgrade",
+            client_reference_id=user.user_id,
+            customer_email=user.email,
+            metadata={"user_id": user.user_id, "user_email": user.email}
+        )
+        payment_id = f"pay_{uuid.uuid4().hex[:12]}"
+        await db.payments.insert_one({
+            "payment_id": payment_id,
+            "user_id": user.user_id,
+            "stripe_session_id": checkout_session.id,
+            "amount": 0, "currency": "usd", "status": "pending",
+            "created_at": datetime.now(timezone.utc)
+        })
+        return {"checkout_url": checkout_session.url, "session_id": checkout_session.id}
+    except stripe.error.StripeError as e:
+        logging.error(f"Stripe error: {e}")
+        raise HTTPException(status_code=500, detail="Failed to create checkout session")
+
+
+@api_router.post("/payments/verify")
+async def verify_payment(user: User = Depends(require_user)):
+    payment = await db.payments.find_one(
+        {"user_id": user.user_id, "status": "completed"}, {"_id": 0}
+    )
+    if payment:
+        return {"verified": True, "has_paid": True}
+    pending = await db.payments.find_one(
+        {"user_id": user.user_id, "status": "pending"}, {"_id": 0}
+    )
+    if pending and pending.get("stripe_session_id"):
+        try:
+            session = stripe.checkout.Session.retrieve(pending["stripe_session_id"])
+            if session.payment_status == "paid":
+                await db.payments.update_one(
+                    {"payment_id": pending["payment_id"]},
+                    {"$set": {"status": "completed", "stripe_payment_intent": session.payment_intent, "amount": session.amount_total or 0}}
+                )
+                await db.users.update_one(
+                    {"user_id": user.user_id},
+                    {"$set": {"has_paid": True, "paid_at": datetime.now(timezone.utc)}}
+                )
+                return {"verified": True, "has_paid": True}
+        except Exception as e:
+            logging.error(f"Payment verification error: {e}")
+    return {"verified": False, "has_paid": False}
+
+
+
+
+# ========== ADMIN PAYMENT ENDPOINTS ==========
+
+class SetPremiumRequest(BaseModel):
+    question_ids: List[str]
+    is_premium: bool
+
+@api_router.post("/admin/set-premium")
+async def set_questions_premium(data: SetPremiumRequest, user: User = Depends(require_admin)):
+    result = await db.questions.update_many(
+        {"question_id": {"$in": data.question_ids}},
+        {"$set": {"is_premium": data.is_premium}}
+    )
+    return {"message": f"Updated {result.modified_count} questions", "is_premium": data.is_premium}
+
+@api_router.get("/admin/payments")
+async def get_payment_analytics(user: User = Depends(require_admin)):
+    total_payments = await db.payments.count_documents({"status": "completed"})
+    total_revenue_pipeline = [
+        {"$match": {"status": "completed"}},
+        {"$group": {"_id": None, "total": {"$sum": "$amount"}}}
+    ]
+    revenue_result = await db.payments.aggregate(total_revenue_pipeline).to_list(1)
+    total_revenue = revenue_result[0]["total"] if revenue_result else 0
+    recent_payments = await db.payments.find(
+        {"status": "completed"}, {"_id": 0}
+    ).sort("created_at", -1).limit(20).to_list(20)
+    return {
+        "total_payments": total_payments,
+        "total_revenue_cents": total_revenue,
+        "total_revenue_dollars": total_revenue / 100,
+        "recent_payments": recent_payments
+    }
+
+
 app.include_router(api_router)
+
+
+# ========== STRIPE WEBHOOK (on app, not api_router) ==========
+from fastapi import Request as FastAPIRequest
+
+@app.post("/stripe/webhook")
+async def stripe_webhook(request: FastAPIRequest):
+    if not STRIPE_WEBHOOK_SECRET:
+        raise HTTPException(status_code=500, detail="Webhook secret not configured")
+    payload = await request.body()
+    sig_header = request.headers.get("stripe-signature")
+    try:
+        event = stripe.Webhook.construct_event(payload, sig_header, STRIPE_WEBHOOK_SECRET)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid payload")
+    except stripe.error.SignatureVerificationError:
+        raise HTTPException(status_code=400, detail="Invalid signature")
+    if event["type"] == "checkout.session.completed":
+        session = event["data"]["object"]
+        user_id = session.get("client_reference_id")
+        if user_id:
+            await db.payments.update_one(
+                {"stripe_session_id": session["id"]},
+                {"$set": {"status": "completed", "stripe_payment_intent": session.get("payment_intent"), "amount": session.get("amount_total", 0)}}
+            )
+            await db.users.update_one(
+                {"user_id": user_id},
+                {"$set": {"has_paid": True, "paid_at": datetime.now(timezone.utc)}}
+            )
+            logging.info(f"Payment completed for user {user_id}")
+    return {"status": "ok"}
+
 
 app.add_middleware(
     CORSMiddleware,

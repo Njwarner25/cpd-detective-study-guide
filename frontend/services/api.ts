@@ -308,3 +308,25 @@ export const adminService = {
 };
 
 export default api;
+
+
+// ========== PAYMENT SERVICE (Stripe Integration) ==========
+export const paymentService = {
+  async getPaymentStatus(token?: string) {
+    const headers = token ? { Authorization: `Bearer ${token}` } : {};
+    const response = await api.get('/payments/status', { headers });
+    return response.data;
+  },
+
+  async createCheckoutSession(token?: string) {
+    const headers = token ? { Authorization: `Bearer ${token}` } : {};
+    const response = await api.post('/payments/create-checkout', {}, { headers });
+    return response.data;
+  },
+
+  async verifyPayment(token?: string) {
+    const headers = token ? { Authorization: `Bearer ${token}` } : {};
+    const response = await api.post('/payments/verify', {}, { headers });
+    return response.data;
+  },
+};

@@ -54,38 +54,38 @@ export default function Scenarios() {
 
               <Text style={s.gradingSectionHead}>I/O Solutions Scoring Method</Text>
               <Text style={s.gradingText}>
-                The CPD Detective Part 2 written assessment is developed and scored by I/O Solutions (IOS), a national leader in public safety promotional testing. Your written responses are evaluated by trained assessors who score your answers against a checklist of Mandatory Courses of Action â essentially an answer key of the behavioral actions you should demonstrate as the responding detective.
+                The CPD Detective Part 2 written assessment is developed and scored by I/O Solutions (IOS), a national leader in public safety promotional testing. Your written responses are evaluated by trained assessors who score your answers against a checklist of Mandatory Courses of Action — essentially an answer key of the behavioral actions you should demonstrate as the responding detective.
               </Text>
 
               <Text style={s.gradingSectionHead}>Differentially Weighted Point System</Text>
               <Text style={s.gradingText}>
-                Unlike a standard pass/fail test, I/O Solutions uses differentially weighted scoring. Not every correct action is worth the same number of points â critical investigative steps earn more than routine ones, and harmful actions can cost you points:
+                Unlike a standard pass/fail test, I/O Solutions uses differentially weighted scoring. Not every correct action is worth the same number of points — critical investigative steps earn more than routine ones, and harmful actions can cost you points:
               </Text>
-              <View style={s.pointRow}><View style={[s.pointBadge,{backgroundColor:'#166534'}]}><Text style={s.pointVal}>+2</Text></View><Text style={s.pointLabel}>Most effective â actions critical to the investigation (e.g., securing scene, requesting ET, ensuring victim safety, interviewing witnesses individually)</Text></View>
-              <View style={s.pointRow}><View style={[s.pointBadge,{backgroundColor:'#854d0e'}]}><Text style={s.pointVal}>+1</Text></View><Text style={s.pointLabel}>Effective but lower priority â appropriate actions that support the investigation (e.g., canvassing area, checking POD cameras, background checks)</Text></View>
-              <View style={s.pointRow}><View style={[s.pointBadge,{backgroundColor:'#64748b'}]}><Text style={s.pointVal}> 0</Text></View><Text style={s.pointLabel}>Ineffective â unnecessary, premature, or does not advance the case</Text></View>
-              <View style={s.pointRow}><View style={[s.pointBadge,{backgroundColor:'#991b1b'}]}><Text style={s.pointVal}>-1</Text></View><Text style={s.pointLabel}>Counterproductive â could compromise the investigation or violate procedure</Text></View>
-              <View style={s.pointRow}><View style={[s.pointBadge,{backgroundColor:'#7f1d1d'}]}><Text style={s.pointVal}>-2</Text></View><Text style={s.pointLabel}>Harmful â directly damages the case, endangers safety, or violates legal requirements</Text></View>
+              <View style={s.pointRow}><View style={[s.pointBadge,{backgroundColor:'#166534'}]}><Text style={s.pointVal}>+2</Text></View><Text style={s.pointLabel}>Most effective — actions critical to the investigation (e.g., securing scene, requesting ET, ensuring victim safety, interviewing witnesses individually)</Text></View>
+              <View style={s.pointRow}><View style={[s.pointBadge,{backgroundColor:'#854d0e'}]}><Text style={s.pointVal}>+1</Text></View><Text style={s.pointLabel}>Effective but lower priority — appropriate actions that support the investigation (e.g., canvassing area, checking POD cameras, background checks)</Text></View>
+              <View style={s.pointRow}><View style={[s.pointBadge,{backgroundColor:'#64748b'}]}><Text style={s.pointVal}> 0</Text></View><Text style={s.pointLabel}>Ineffective — unnecessary, premature, or does not advance the case</Text></View>
+              <View style={s.pointRow}><View style={[s.pointBadge,{backgroundColor:'#991b1b'}]}><Text style={s.pointVal}>-1</Text></View><Text style={s.pointLabel}>Counterproductive — could compromise the investigation or violate procedure</Text></View>
+              <View style={s.pointRow}><View style={[s.pointBadge,{backgroundColor:'#7f1d1d'}]}><Text style={s.pointVal}>-2</Text></View><Text style={s.pointLabel}>Harmful — directly damages the case, endangers safety, or violates legal requirements</Text></View>
 
-              <Text style={s.gradingSectionHead}>Assessor Checklist â What They Look For</Text>
+              <Text style={s.gradingSectionHead}>Assessor Checklist — What They Look For</Text>
               <Text style={s.gradingText}>
-                Assessors are trained to evaluate your behavioral actions â what you would actually do as the responding detective, not theoretical knowledge. Your written response is compared line-by-line against the Mandatory Courses of Action checklist. Points are awarded for each required action you include and deducted for harmful ones.
+                Assessors are trained to evaluate your behavioral actions — what you would actually do as the responding detective, not theoretical knowledge. Your written response is compared line-by-line against the Mandatory Courses of Action checklist. Points are awarded for each required action you include and deducted for harmful ones.
               </Text>
 
               <Text style={s.gradingSectionHead}>Format Matters</Text>
-              <Text style={s.gradingBullet}>{'\u2022'} When the question asks for a list of actions, write a numbered or bulleted list â narrative paragraphs may not be scored</Text>
-              <Text style={s.gradingBullet}>{'\u2022'} When told to select a specific number of answers, selecting more than that number results in an automatic zero for that question â even if all your selections are correct</Text>
+              <Text style={s.gradingBullet}>{'\u2022'} When the question asks for a list of actions, write a numbered or bulleted list — narrative paragraphs may not be scored</Text>
+              <Text style={s.gradingBullet}>{'\u2022'} When told to select a specific number of answers, selecting more than that number results in an automatic zero for that question — even if all your selections are correct</Text>
               <Text style={s.gradingBullet}>{'\u2022'} Selecting fewer than the specified number earns partial credit for correct selections</Text>
               <Text style={s.gradingBullet}>{'\u2022'} When a question asks you to explain your reasoning, you must provide a rationale or you will not receive full credit</Text>
 
               <Text style={s.gradingSectionHead}>How Our AI Grading Works</Text>
               <Text style={s.gradingText}>
-                Our AI grading system mirrors the I/O Solutions methodology. After you submit your written response, the AI evaluates it against the same type of Mandatory Courses of Action checklist that real assessors use. You receive a point breakdown showing which +2 and +1 actions you hit, which you missed, and any actions that would have cost you points â so you know exactly where to improve.
+                Our AI grading system mirrors the I/O Solutions methodology. After you submit your written response, the AI evaluates it against the same type of Mandatory Courses of Action checklist that real assessors use. You receive a point breakdown showing which +2 and +1 actions you hit, which you missed, and any actions that would have cost you points — so you know exactly where to improve.
               </Text>
 
               <View style={s.tipBox}>
                 <Ionicons name="bulb-outline" size={16} color="#fbbf24" />
-                <Text style={s.tipText}>Key mindset: "What would I actually do as the responding Detective?" Your score depends on demonstrating the right behavioral actions in the right priority order â not on how much you know.</Text>
+                <Text style={s.tipText}>Key mindset: "What would I actually do as the responding Detective?" Your score depends on demonstrating the right behavioral actions in the right priority order — not on how much you know.</Text>
               </View>
             </View>
           )}
@@ -101,7 +101,7 @@ export default function Scenarios() {
             <Text style={s.lockDesc}>Unlock {scenarios.length} timed detective scenarios with AI grading, curveball events, and text-to-speech narration.</Text>
             <TouchableOpacity style={s.unlockBtn} onPress={() => router.push('/upgrade')}>
               <Ionicons name="star" size={16} color="#000" />
-              <Text style={s.unlockTxt}>Unlock Premium â $25.00</Text>
+              <Text style={s.unlockTxt}>Unlock Premium — $25.00</Text>
             </TouchableOpacity>
             {scenarios.slice(0,3).map((sc: any, i: number) => (
               <View key={i} style={s.lockCard}>

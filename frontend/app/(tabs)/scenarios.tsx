@@ -8,7 +8,7 @@ import { questionService } from '../../services/api';
 
 export default function Scenarios() {
   const { sessionToken, hasPaid, isGuest } = useAuth();
-  const router = useRouter();hh
+  const router = useRouter();
   const [scenarios, setScenarios] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showGrading, setShowGrading] = useState(false);
@@ -28,6 +28,7 @@ export default function Scenarios() {
   const startScenario = (scenario: any) => {
     if (!hasPaid && !isGuest) { router.push('/upgrade'); return; }
     router.push({ pathname: '/practice-scenario', params: { scenarioId: scenario.question_id, title: scenario.title } });
+  };
 
   const isPremium = hasPaid;
 

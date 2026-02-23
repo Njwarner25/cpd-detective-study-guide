@@ -12,6 +12,7 @@ export default function Scenarios() {
   const [scenarios, setScenarios] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showGradingInfo, setShowGradingInfo] = useState(false);
+  const [showFramework, setShowFramework] = useState(false);
 
   useEffect(() => {
     loadScenarios();
@@ -120,15 +121,17 @@ export default function Scenarios() {
           {showGradingInfo && (
             <View style={st.gradingBody}>
               <Text style={st.gradingText}>
-                These scenarios simulate the CPD Detective Part 2 written exam format used by I/O Solutions. Each scenario is graded on the following criteria:
+                The CPD Detective Part 2 is a written work sample assessment developed by I/O Solutions. Trained assessors score your response against a predefined checklist of Mandatory Courses of Action. Your written responses are evaluated on behavioral actions — what you would actually do as the responding detective.
               </Text>
+
+              <Text style={st.gradingSectionLabel}>ASSESSOR CHECKLIST CATEGORIES</Text>
 
               <View style={st.gradingItem}>
                 <View style={[st.gradingDot, { backgroundColor: '#ef4444' }]} />
                 <View style={{ flex: 1 }}>
-                  <Text style={st.gradingItemTitle}>Mandatory Actions</Text>
+                  <Text style={st.gradingItemTitle}>Mandatory Courses of Action</Text>
                   <Text style={st.gradingItemDesc}>
-                    Critical steps that MUST be in your response — securing the scene, notifying OEMC, requesting evidence technicians, etc. Missing these will significantly impact your score.
+                    The assessor checklist contains critical actions you MUST include. Each item on the checklist earns points — missing mandatory actions means missing points. These include required notifications, scene management, and investigative steps specific to the scenario.
                   </Text>
                 </View>
               </View>
@@ -136,9 +139,9 @@ export default function Scenarios() {
               <View style={st.gradingItem}>
                 <View style={[st.gradingDot, { backgroundColor: '#3b82f6' }]} />
                 <View style={{ flex: 1 }}>
-                  <Text style={st.gradingItemTitle}>General Order & ILCS Citations</Text>
+                  <Text style={st.gradingItemTitle}>Required Notifications & Reports</Text>
                   <Text style={st.gradingItemDesc}>
-                    Reference specific CPD General Orders (G04-02, G06-01, S04-29, etc.) and relevant Illinois Compiled Statutes. Proper citations show you know the legal framework.
+                    List all required notifications (OEMC, watch commander, Area detective division, forensic services, ASA, etc.) and reports to be completed (case report, arrest report, evidence inventory, etc.). Use numbered or bulleted lists — narratives may not be scored for list-format questions.
                   </Text>
                 </View>
               </View>
@@ -146,9 +149,9 @@ export default function Scenarios() {
               <View style={st.gradingItem}>
                 <View style={[st.gradingDot, { backgroundColor: '#10b981' }]} />
                 <View style={{ flex: 1 }}>
-                  <Text style={st.gradingItemTitle}>Investigative Thoroughness</Text>
+                  <Text style={st.gradingItemTitle}>On-Scene Investigative Actions</Text>
                   <Text style={st.gradingItemDesc}>
-                    Comprehensive approach — witness canvass, evidence preservation, POD/video review, case documentation, and proper chain of custody.
+                    Demonstrate proper investigative procedure — securing/establishing perimeters, witness separation and canvass, evidence identification and preservation, requesting ET/forensic services, reviewing POD cameras, and maintaining chain of custody.
                   </Text>
                 </View>
               </View>
@@ -156,9 +159,9 @@ export default function Scenarios() {
               <View style={st.gradingItem}>
                 <View style={[st.gradingDot, { backgroundColor: '#f59e0b' }]} />
                 <View style={{ flex: 1 }}>
-                  <Text style={st.gradingItemTitle}>Professional Communication</Text>
+                  <Text style={st.gradingItemTitle}>General Orders & Legal Knowledge</Text>
                   <Text style={st.gradingItemDesc}>
-                    Clear, organized writing with logical progression. Use professional language and demonstrate command of CPD procedures.
+                    Apply relevant CPD directives and Illinois law. Reference specific General Orders, Special Orders, and ILCS statutes. Use proper CPD terminology throughout your response. Assessors look for applied knowledge, not just memorization.
                   </Text>
                 </View>
               </View>
@@ -166,11 +169,18 @@ export default function Scenarios() {
               <View style={st.gradingItem}>
                 <View style={[st.gradingDot, { backgroundColor: '#8b5cf6' }]} />
                 <View style={{ flex: 1 }}>
-                  <Text style={st.gradingItemTitle}>Curveball Response</Text>
+                  <Text style={st.gradingItemTitle}>Response Format & Completeness</Text>
                   <Text style={st.gradingItemDesc}>
-                    Mid-scenario complications test your ability to adapt. You'll receive a "wrench" twist that changes the situation and must adjust your approach accordingly.
+                    Responses must be organized and legible. When asked for lists, use numbered or bulleted format — unformatted items may not be scored. Cover all parts of multi-part questions. Differentially weighted answers mean some actions score higher than others (+2, +1, 0, -1).
                   </Text>
                 </View>
+              </View>
+
+              <View style={st.gradingTip}>
+                <Ionicons name="bulb" size={16} color="#f59e0b" />
+                <Text style={st.gradingTipText}>
+                  Tip: Think "what would I actually do as the responding detective?" — assessors evaluate behavioral actions, not theoretical knowledge.
+                </Text>
               </View>
 
               <View style={st.timerNote}>
@@ -179,6 +189,55 @@ export default function Scenarios() {
                   Standard scenarios: 15 minutes  •  Complex scenarios: 20 minutes
                 </Text>
               </View>
+            </View>
+          )}
+        </TouchableOpacity>
+
+        {/* D.E.T.E.C.T.I.V.E.S. Framework */}
+        <TouchableOpacity
+          style={st.frameworkCard}
+          onPress={() => setShowFramework(!showFramework)}
+          activeOpacity={0.8}
+        >
+          <View style={st.gradingHeader}>
+            <View style={[st.gradingIconWrap, { backgroundColor: '#1e3a5f' }]}>
+              <Ionicons name="shield-checkmark" size={20} color="#60a5fa" />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={st.gradingTitle}>D.E.T.E.C.T.I.V.E.S. Framework</Text>
+              <Text style={st.gradingSubtitle}>Use this to organize your response</Text>
+            </View>
+            <Ionicons name={showFramework ? 'chevron-up' : 'chevron-down'} size={20} color="#64748b" />
+          </View>
+
+          {showFramework && (
+            <View style={st.gradingBody}>
+              <Text style={st.gradingText}>
+                Use this acronym to structure your response and make sure you hit every major area assessors are looking for:
+              </Text>
+
+              {[
+                { letter: 'D', title: 'Document the Scene', desc: 'Secure, photograph, and preserve all evidence at the scene. Establish crime scene logs.' },
+                { letter: 'E', title: 'Establish Perimeter', desc: 'Set inner/outer perimeter with crime scene tape and uniformed personnel. Control access.' },
+                { letter: 'T', title: 'Talk to Witnesses', desc: 'Separate, identify, and interview all witnesses individually. Obtain written statements.' },
+                { letter: 'E', title: 'Evidence Collection', desc: 'Tag, log, and maintain chain of custody. Request ET/forensic services for processing.' },
+                { letter: 'C', title: 'Communicate & Coordinate', desc: 'Notify OEMC, watch commander, Area detectives, ASA. Issue flash messages and BOLOs.' },
+                { letter: 'T', title: 'Technology & Surveillance', desc: 'Canvass for POD cameras, private security cameras. Run LEADS/CLEAR checks. Digital evidence.' },
+                { letter: 'I', title: 'Interrogation & Interviews', desc: 'Miranda warnings when applicable, recorded interrogation, detailed suspect statements.' },
+                { letter: 'V', title: 'Verify & Validate', desc: 'Cross-reference statements, confirm IDs with photo arrays, check alibis, verify timelines.' },
+                { letter: 'E', title: 'Examine Forensics', desc: 'Request ballistics, DNA, gunshot residue, fingerprints, trace evidence as applicable.' },
+                { letter: 'S', title: 'Summarize & Report', desc: 'Complete case report, supplementary reports, evidence inventory, and all required documentation.' },
+              ].map((item, index) => (
+                <View key={index} style={st.fwItem}>
+                  <View style={st.fwLetterBadge}>
+                    <Text style={st.fwLetterText}>{item.letter}</Text>
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={st.fwTitle}>{item.title}</Text>
+                    <Text style={st.fwDesc}>{item.desc}</Text>
+                  </View>
+                </View>
+              ))}
             </View>
           )}
         </TouchableOpacity>
@@ -235,7 +294,7 @@ export default function Scenarios() {
                     </Text>
                     <View style={st.scenarioMeta}>
                       <View style={st.metaTag}>
-                        <Ionicons name="time-outline" size={12} color="#94a3b8" />
+                        <Ionicons name=""time-outline" size={12} color="#94a3b8" />
                         <Text style={st.metaText}>{scenario.is_complex ? '20 min' : '15 min'}</Text>
                       </View>
                       {scenario.difficulty && (
@@ -334,12 +393,23 @@ const st = StyleSheet.create({
   gradingSubtitle: { fontSize: 13, color: '#f59e0b', fontWeight: '500', marginTop: 2 },
   gradingBody: { marginTop: 16, borderTopWidth: 1, borderTopColor: '#334155', paddingTop: 16 },
   gradingText: { fontSize: 14, color: '#cbd5e1', lineHeight: 22, marginBottom: 16 },
+  gradingSectionLabel: { fontSize: 11, fontWeight: '700', color: '#f59e0b', letterSpacing: 1.5, marginBottom: 12 },
   gradingItem: { flexDirection: 'row', gap: 12, marginBottom: 14 },
   gradingDot: { width: 8, height: 8, borderRadius: 4, marginTop: 6 },
   gradingItemTitle: { fontSize: 14, fontWeight: '700', color: '#fff', marginBottom: 4 },
   gradingItemDesc: { fontSize: 13, color: '#94a3b8', lineHeight: 20 },
+  gradingTip: { flexDirection: 'row', gap: 10, backgroundColor: '#1e3a5f', borderRadius: 10, padding: 12, marginTop: 4, marginBottom: 12 },
+  gradingTipText: { fontSize: 13, color: '#60a5fa', lineHeight: 20, flex: 1, fontStyle: 'italic' },
   timerNote: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: 'rgba(245,158,11,0.1)', borderRadius: 10, padding: 12, marginTop: 4 },
   timerNoteText: { fontSize: 13, color: '#f59e0b', fontWeight: '600' },
+
+  // D.E.T.E.C.T.I.V.E.S. Framework
+  frameworkCard: { backgroundColor: '#1e293b', borderRadius: 14, padding: 16, marginBottom: 20, borderWidth: 1, borderColor: '#1e3a5f' },
+  fwItem: { flexDirection: 'row', alignItems: 'flex-start', gap: 12, marginBottom: 12 },
+  fwLetterBadge: { width: 30, height: 30, borderRadius: 8, backgroundColor: '#2563eb', alignItems: 'center', justifyContent: 'center' },
+  fwLetterText: { color: '#fff', fontSize: 15, fontWeight: '800' },
+  fwTitle: { fontSize: 14, fontWeight: '700', color: '#fff', marginBottom: 2 },
+  fwDesc: { fontSize: 12, color: '#94a3b8', lineHeight: 18 },
 
   // Locked Overlay
   lockedOverlay: { backgroundColor: '#1e293b', borderRadius: 16, padding: 24, marginBottom: 24, alignItems: 'center', borderWidth: 1, borderColor: 'rgba(245, 158, 11, 0.2)' },

@@ -1,1 +1,1 @@
-2026-02-23T17:51:57.257Z - Redeploy: Updated scenarios.tsx with I/O Solutions grading methodology
+2026-02-23T18:11:03.181Z - Fix: scenarios now fetch from getQuestions(scenario, cat_detective_part2) instead of broken getScenarios

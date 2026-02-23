@@ -1,1 +1,1 @@
-2026-02-23T18:11:03.181Z - Fix: scenarios now fetch from getQuestions(scenario, cat_detective_part2) instead of broken getScenarios
+2026-02-23T18:49:22.262Z - Fix: useEffect now depends on [sessionToken] so scenarios load after auth ready

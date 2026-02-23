@@ -7,446 +7,185 @@ import { useRouter } from 'expo-router';
 import { questionService } from '../../services/api';
 
 export default function Scenarios() {
-  const { sessionToken, hasPaid, isGuest, user } = useAuth();
+  const { sessionToken, hasPaid, isGuest } = useAuth();
   const router = useRouter();
   const [scenarios, setScenarios] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showGradingInfo, setShowGradingInfo] = useState(false);
-  const [showFramework, setShowFramework] = useState(false);
+  const [showGrading, setShowGrading] = useState(false);
 
-  useEffect(() => {
-    loadScenarios();
-  }, [sessionToken]);
+  useEffect(() => { loadScenarios(); }, []);
 
   const loadScenarios = async () => {
     try {
-      setLoading(true);
-      const data = await questionService.getQuestions(
-        'scenario',
-        'cat_detective_part2',
-        sessionToken || undefined
-      );
+      const data = await questionService.getScenarios(sessionToken || undefined);
       setScenarios(data || []);
-    } catch (error) {
-      console.error('Failed to load scenarios:', error);
-    } finally {
-      setLoading(false);
-    }
+    } catch (e) { console.error(e); }
+    finally { setLoading(false); }
   };
 
-  const handleStartScenario = (scenarioId: string) => {
-    router.push({ pathname: '/practice-scenario', params: { scenarioId } });
+  const startScenario = (scenario: any) => {
+    if (!hasPaid && !isGuest) { router.push('/upgrade'); return; }
+    router.push({ pathname: '/practice-scenario', params: { scenarioId: scenario._id || scenario.id, title: scenario.title }});
   };
 
-  const handleUpgrade = () => {
-    router.push('/upgrade');
-  };
-
-  const isAdmin = user?.role === 'admin';
-  const canAccess = hasPaid || isAdmin;
-
-  if (loading) {
-    return (
-      <SafeAreaView style={st.container}>
-        <View style={st.loadingContainer}>
-          <ActivityIndicator size="large" color="#10b981" />
-          <Text style={st.loadingText}>Loading scenarios...</Text>
-        </View>
-      </SafeAreaView>
-    );
-  }
+  const isPremium = hasPaid;
 
   return (
-    <SafeAreaView style={st.container}>
-      <ScrollView style={st.scrollView} contentContainerStyle={st.scrollContent} showsVerticalScrollIndicator={false}>
+    <SafeAreaView style={s.safe}>
+      <ScrollView style={s.scroll} contentContainerStyle={s.content}>
 
-        {/* Premium Header */}
-        <View style={st.premiumHeader}>
-          <View style={st.premiumBadge}>
-            <Ionicons name="star" size={14} color="#fff" />
-            <Text style={st.premiumBadgeText}>PREMIUM</Text>
-          </View>
-          <Text style={st.headerTitle}>Detective Part 2 Scenarios</Text>
-          <Text style={st.headerSubtitle}>
-            Timed scenarios with AI grading{'\n'}Based on I/O Solutions methodology
-          </Text>
+        {/* Header */}
+        <View style={s.header}>
+          <View style={s.premBadge}><Ionicons name="star" size={14} color="#fbbf24" /><Text style={s.premTxt}>PREMIUM</Text></View>
+          <Text style={s.title}>Detective Scenarios</Text>
+          <Text style={s.subtitle}>Timed written scenarios graded using the I/O Solutions methodology</Text>
         </View>
 
-        {/* Info Card */}
-        <View style={st.infoCard}>
-          <View style={st.infoRow}>
-            <View style={st.infoItem}>
-              <Ionicons name="time" size={20} color="#f59e0b" />
-              <Text style={st.infoLabel}>15-20 min</Text>
-              <Text style={st.infoDesc}>Per scenario</Text>
-            </View>
-            <View style={st.infoDivider} />
-            <View style={st.infoItem}>
-              <Ionicons name="document-text" size={20} color="#3b82f6" />
-              <Text style={st.infoLabel}>{scenarios.length}</Text>
-              <Text style={st.infoDesc}>Scenarios</Text>
-            </View>
-            <View style={st.infoDivider} />
-            <View style={st.infoItem}>
-              <Ionicons name="sparkles" size={20} color="#10b981" />
-              <Text style={st.infoLabel}>AI</Text>
-              <Text style={st.infoDesc}>Graded</Text>
-            </View>
-            <View style={st.infoDivider} />
-            <View style={st.infoItem}>
-              <Ionicons name="volume-high" size={20} color="#8b5cf6" />
-              <Text style={st.infoLabel}>Audio</Text>
-              <Text style={st.infoDesc}>Read aloud</Text>
-            </View>
-          </View>
-        </View>
-
-        {/* I/O Solutions Grading Method Explanation */}
-        <TouchableOpacity
-          style={st.gradingCard}
-          onPress={() => setShowGradingInfo(!showGradingInfo)}
-          activeOpacity={0.8}
-        >
-          <View style={st.gradingHeader}>
-            <View style={st.gradingIconWrap}>
-              <Ionicons name="school" size={20} color="#f59e0b" />
-            </View>
-            <View style={{ flex: 1 }}>
-              <Text style={st.gradingTitle}>How You're Graded</Text>
-              <Text style={st.gradingSubtitle}>I/O Solutions Scoring Method</Text>
-            </View>
-            <Ionicons name={showGradingInfo ? 'chevron-up' : 'chevron-down'} size={20} color="#64748b" />
+        {/* ===== HOW YOU'RE GRADED ===== */}
+        <TouchableOpacity style={s.gradingCard} onPress={() => setShowGrading(!showGrading)} activeOpacity={0.8}>
+          <View style={s.gradingHeader}>
+            <Ionicons name="school-outline" size={20} color="#60a5fa" />
+            <Text style={s.gradingTitle}>How You're Graded</Text>
+            <Ionicons name={showGrading ? 'chevron-up' : 'chevron-down'} size={18} color="#94a3b8" />
           </View>
 
-          {showGradingInfo && (
-            <View style={st.gradingBody}>
-              <Text style={st.gradingText}>
-                The CPD Detective Part 2 is a written work sample assessment developed by I/O Solutions. Trained assessors score your response against a predefined checklist of Mandatory Courses of Action. Your written responses are evaluated on behavioral actions — what you would actually do as the responding detective.
+          {showGrading && (
+            <View style={s.gradingBody}>
+
+              <Text style={s.gradingSectionHead}>I/O Solutions Scoring Method</Text>
+              <Text style={s.gradingText}>
+                The CPD Detective Part 2 written assessment is developed and scored by I/O Solutions (IOS), a national leader in public safety promotional testing. Your written responses are evaluated by trained assessors who score your answers against a checklist of Mandatory Courses of Action â essentially an answer key of the behavioral actions you should demonstrate as the responding detective.
               </Text>
 
-              <Text style={st.gradingSectionLabel}>ASSESSOR CHECKLIST CATEGORIES</Text>
+              <Text style={s.gradingSectionHead}>Differentially Weighted Point System</Text>
+              <Text style={s.gradingText}>
+                Unlike a standard pass/fail test, I/O Solutions uses differentially weighted scoring. Not every correct action is worth the same number of points â critical investigative steps earn more than routine ones, and harmful actions can cost you points:
+              </Text>
+              <View style={s.pointRow}><View style={[s.pointBadge,{backgroundColor:'#166534'}]}><Text style={s.pointVal}>+2</Text></View><Text style={s.pointLabel}>Most effective â actions critical to the investigation (e.g., securing scene, requesting ET, ensuring victim safety, interviewing witnesses individually)</Text></View>
+              <View style={s.pointRow}><View style={[s.pointBadge,{backgroundColor:'#854d0e'}]}><Text style={s.pointVal}>+1</Text></View><Text style={s.pointLabel}>Effective but lower priority â appropriate actions that support the investigation (e.g., canvassing area, checking POD cameras, background checks)</Text></View>
+              <View style={s.pointRow}><View style={[s.pointBadge,{backgroundColor:'#64748b'}]}><Text style={s.pointVal}> 0</Text></View><Text style={s.pointLabel}>Ineffective â unnecessary, premature, or does not advance the case</Text></View>
+              <View style={s.pointRow}><View style={[s.pointBadge,{backgroundColor:'#991b1b'}]}><Text style={s.pointVal}>-1</Text></View><Text style={s.pointLabel}>Counterproductive â could compromise the investigation or violate procedure</Text></View>
+              <View style={s.pointRow}><View style={[s.pointBadge,{backgroundColor:'#7f1d1d'}]}><Text style={s.pointVal}>-2</Text></View><Text style={s.pointLabel}>Harmful â directly damages the case, endangers safety, or violates legal requirements</Text></View>
 
-              <View style={st.gradingItem}>
-                <View style={[st.gradingDot, { backgroundColor: '#ef4444' }]} />
-                <View style={{ flex: 1 }}>
-                  <Text style={st.gradingItemTitle}>Mandatory Courses of Action</Text>
-                  <Text style={st.gradingItemDesc}>
-                    The assessor checklist contains critical actions you MUST include. Each item on the checklist earns points — missing mandatory actions means missing points. These include required notifications, scene management, and investigative steps specific to the scenario.
-                  </Text>
-                </View>
-              </View>
+              <Text style={s.gradingSectionHead}>Assessor Checklist â What They Look For</Text>
+              <Text style={s.gradingText}>
+                Assessors are trained to evaluate your behavioral actions â what you would actually do as the responding detective, not theoretical knowledge. Your written response is compared line-by-line against the Mandatory Courses of Action checklist. Points are awarded for each required action you include and deducted for harmful ones.
+              </Text>
 
-              <View style={st.gradingItem}>
-                <View style={[st.gradingDot, { backgroundColor: '#3b82f6' }]} />
-                <View style={{ flex: 1 }}>
-                  <Text style={st.gradingItemTitle}>Required Notifications & Reports</Text>
-                  <Text style={st.gradingItemDesc}>
-                    List all required notifications (OEMC, watch commander, Area detective division, forensic services, ASA, etc.) and reports to be completed (case report, arrest report, evidence inventory, etc.). Use numbered or bulleted lists — narratives may not be scored for list-format questions.
-                  </Text>
-                </View>
-              </View>
+              <Text style={s.gradingSectionHead}>Format Matters</Text>
+              <Text style={s.gradingBullet}>{'\u2022'} When the question asks for a list of actions, write a numbered or bulleted list â narrative paragraphs may not be scored</Text>
+              <Text style={s.gradingBullet}>{'\u2022'} When told to select a specific number of answers, selecting more than that number results in an automatic zero for that question â even if all your selections are correct</Text>
+              <Text style={s.gradingBullet}>{'\u2022'} Selecting fewer than the specified number earns partial credit for correct selections</Text>
+              <Text style={s.gradingBullet}>{'\u2022'} When a question asks you to explain your reasoning, you must provide a rationale or you will not receive full credit</Text>
 
-              <View style={st.gradingItem}>
-                <View style={[st.gradingDot, { backgroundColor: '#10b981' }]} />
-                <View style={{ flex: 1 }}>
-                  <Text style={st.gradingItemTitle}>On-Scene Investigative Actions</Text>
-                  <Text style={st.gradingItemDesc}>
-                    Demonstrate proper investigative procedure — securing/establishing perimeters, witness separation and canvass, evidence identification and preservation, requesting ET/forensic services, reviewing POD cameras, and maintaining chain of custody.
-                  </Text>
-                </View>
-              </View>
+              <Text style={s.gradingSectionHead}>How Our AI Grading Works</Text>
+              <Text style={s.gradingText}>
+                Our AI grading system mirrors the I/O Solutions methodology. After you submit your written response, the AI evaluates it against the same type of Mandatory Courses of Action checklist that real assessors use. You receive a point breakdown showing which +2 and +1 actions you hit, which you missed, and any actions that would have cost you points â so you know exactly where to improve.
+              </Text>
 
-              <View style={st.gradingItem}>
-                <View style={[st.gradingDot, { backgroundColor: '#f59e0b' }]} />
-                <View style={{ flex: 1 }}>
-                  <Text style={st.gradingItemTitle}>General Orders & Legal Knowledge</Text>
-                  <Text style={st.gradingItemDesc}>
-                    Apply relevant CPD directives and Illinois law. Reference specific General Orders, Special Orders, and ILCS statutes. Use proper CPD terminology throughout your response. Assessors look for applied knowledge, not just memorization.
-                  </Text>
-                </View>
-              </View>
-
-              <View style={st.gradingItem}>
-                <View style={[st.gradingDot, { backgroundColor: '#8b5cf6' }]} />
-                <View style={{ flex: 1 }}>
-                  <Text style={st.gradingItemTitle}>Response Format & Completeness</Text>
-                  <Text style={st.gradingItemDesc}>
-                    Responses must be organized and legible. When asked for lists, use numbered or bulleted format — unformatted items may not be scored. Cover all parts of multi-part questions. Differentially weighted answers mean some actions score higher than others (+2, +1, 0, -1).
-                  </Text>
-                </View>
-              </View>
-
-              <View style={st.gradingTip}>
-                <Ionicons name="bulb" size={16} color="#f59e0b" />
-                <Text style={st.gradingTipText}>
-                  Tip: Think "what would I actually do as the responding detective?" — assessors evaluate behavioral actions, not theoretical knowledge.
-                </Text>
-              </View>
-
-              <View style={st.timerNote}>
-                <Ionicons name="time" size={16} color="#f59e0b" />
-                <Text style={st.timerNoteText}>
-                  Standard scenarios: 15 minutes  •  Complex scenarios: 20 minutes
-                </Text>
+              <View style={s.tipBox}>
+                <Ionicons name="bulb-outline" size={16} color="#fbbf24" />
+                <Text style={s.tipText}>Key mindset: "What would I actually do as the responding Detective?" Your score depends on demonstrating the right behavioral actions in the right priority order â not on how much you know.</Text>
               </View>
             </View>
           )}
         </TouchableOpacity>
 
-        {/* D.E.T.E.C.T.I.V.E.S. Framework */}
-        <TouchableOpacity
-          style={st.frameworkCard}
-          onPress={() => setShowFramework(!showFramework)}
-          activeOpacity={0.8}
-        >
-          <View style={st.gradingHeader}>
-            <View style={[st.gradingIconWrap, { backgroundColor: '#1e3a5f' }]}>
-              <Ionicons name="shield-checkmark" size={20} color="#60a5fa" />
-            </View>
-            <View style={{ flex: 1 }}>
-              <Text style={st.gradingTitle}>D.E.T.E.C.T.I.V.E.S. Framework</Text>
-              <Text style={st.gradingSubtitle}>Use this to organize your response</Text>
-            </View>
-            <Ionicons name={showFramework ? 'chevron-up' : 'chevron-down'} size={20} color="#64748b" />
-          </View>
-
-          {showFramework && (
-            <View style={st.gradingBody}>
-              <Text style={st.gradingText}>
-                Use this acronym to structure your response and make sure you hit every major area assessors are looking for:
-              </Text>
-
-              {[
-                { letter: 'D', title: 'Document the Scene', desc: 'Secure, photograph, and preserve all evidence at the scene. Establish crime scene logs.' },
-                { letter: 'E', title: 'Establish Perimeter', desc: 'Set inner/outer perimeter with crime scene tape and uniformed personnel. Control access.' },
-                { letter: 'T', title: 'Talk to Witnesses', desc: 'Separate, identify, and interview all witnesses individually. Obtain written statements.' },
-                { letter: 'E', title: 'Evidence Collection', desc: 'Tag, log, and maintain chain of custody. Request ET/forensic services for processing.' },
-                { letter: 'C', title: 'Communicate & Coordinate', desc: 'Notify OEMC, watch commander, Area detectives, ASA. Issue flash messages and BOLOs.' },
-                { letter: 'T', title: 'Technology & Surveillance', desc: 'Canvass for POD cameras, private security cameras. Run LEADS/CLEAR checks. Digital evidence.' },
-                { letter: 'I', title: 'Interrogation & Interviews', desc: 'Miranda warnings when applicable, recorded interrogation, detailed suspect statements.' },
-                { letter: 'V', title: 'Verify & Validate', desc: 'Cross-reference statements, confirm IDs with photo arrays, check alibis, verify timelines.' },
-                { letter: 'E', title: 'Examine Forensics', desc: 'Request ballistics, DNA, gunshot residue, fingerprints, trace evidence as applicable.' },
-                { letter: 'S', title: 'Summarize & Report', desc: 'Complete case report, supplementary reports, evidence inventory, and all required documentation.' },
-              ].map((item, index) => (
-                <View key={index} style={st.fwItem}>
-                  <View style={st.fwLetterBadge}>
-                    <Text style={st.fwLetterText}>{item.letter}</Text>
-                  </View>
-                  <View style={{ flex: 1 }}>
-                    <Text style={st.fwTitle}>{item.title}</Text>
-                    <Text style={st.fwDesc}>{item.desc}</Text>
-                  </View>
-                </View>
-              ))}
-            </View>
-          )}
-        </TouchableOpacity>
-
-        {/* Locked content for non-paid users */}
-        {!canAccess && (
-          <View style={st.lockedOverlay}>
-            <Ionicons name="lock-closed" size={48} color="#f59e0b" />
-            <Text style={st.lockedTitle}>Premium Content</Text>
-            <Text style={st.lockedDesc}>
-              Unlock all {scenarios.length} detective scenarios with timed practice, curveball complications, and AI-powered grading using the I/O Solutions scoring matrix.
-            </Text>
-            <View style={st.lockedFeatures}>
-              {[
-                { icon: 'checkmark-circle', text: '15-20 minute timed written responses' },
-                { icon: 'checkmark-circle', text: 'Scenarios read aloud to you' },
-                { icon: 'checkmark-circle', text: 'Mid-scenario curveball twists' },
-                { icon: 'checkmark-circle', text: 'AI grading on mandatory actions & GO citations' },
-                { icon: 'checkmark-circle', text: 'Detailed feedback & improvement tips' },
-              ].map((f, i) => (
-                <View key={i} style={st.lockedFeatureRow}>
-                  <Ionicons name={f.icon as any} size={18} color="#10b981" />
-                  <Text style={st.lockedFeatureText}>{f.text}</Text>
-                </View>
-              ))}
-            </View>
-            <TouchableOpacity style={st.unlockButton} onPress={handleUpgrade}>
-              <Ionicons name="lock-open" size={20} color="#fff" />
-              <Text style={st.unlockButtonText}>Unlock Premium — $25.00</Text>
+        {/* ===== Scenario List ===== */}
+        {loading ? (
+          <ActivityIndicator size="large" color="#60a5fa" style={{marginTop:40}} />
+        ) : !isPremium ? (
+          <View style={s.lockOverlay}>
+            <Ionicons name="lock-closed" size={48} color="#fbbf24" />
+            <Text style={s.lockTitle}>Premium Content</Text>
+            <Text style={s.lockDesc}>Unlock {scenarios.length} timed detective scenarios with AI grading, curveball events, and text-to-speech narration.</Text>
+            <TouchableOpacity style={s.unlockBtn} onPress={() => router.push('/upgrade')}>
+              <Ionicons name="star" size={16} color="#000" />
+              <Text style={s.unlockTxt}>Unlock Premium â $25.00</Text>
             </TouchableOpacity>
-            <Text style={st.unlockSubtext}>One-time payment • Lifetime access</Text>
-          </View>
-        )}
-
-        {/* Scenario List - shown to paid users */}
-        {canAccess && (
-          <>
-            <Text style={st.sectionTitle}>All Scenarios</Text>
-            {scenarios.map((scenario, index) => (
-              <TouchableOpacity
-                key={scenario.question_id || index}
-                style={st.scenarioCard}
-                onPress={() => handleStartScenario(scenario.question_id)}
-                activeOpacity={0.7}
-              >
-                <View style={st.scenarioCardHeader}>
-                  <View style={st.scenarioNumber}>
-                    <Text style={st.scenarioNumberText}>{index + 1}</Text>
+            {scenarios.slice(0,3).map((sc: any, i: number) => (
+              <View key={i} style={s.lockCard}>
+                <View style={s.cardRow}>
+                  <View style={[s.numBadge,s.lockNum]}><Text style={s.numTxt}>{i+1}</Text></View>
+                  <View style={{flex:1}}>
+                    <Text style={s.lockCardTitle}>{sc.title}</Text>
+                    <Text style={s.lockCardDesc}>{sc.is_complex ? '20 min' : '15 min'} {'\u2022'} {sc.difficulty || 'Standard'}</Text>
                   </View>
-                  <View style={st.scenarioCardContent}>
-                    <Text style={st.scenarioTitle}>{scenario.title}</Text>
-                    <Text style={st.scenarioDesc} numberOfLines={2}>
-                      {scenario.description || scenario.content || ''}
-                    </Text>
-                    <View style={st.scenarioMeta}>
-                      <View style={st.metaTag}>
-                        <Ionicons name=""time-outline" size={12} color="#94a3b8" />
-                        <Text style={st.metaText}>{scenario.is_complex ? '20 min' : '15 min'}</Text>
-                      </View>
-                      {scenario.difficulty && (
-                        <View style={[st.difficultyBadge, scenario.difficulty === 'Hard' ? st.diffHard : st.diffMedium]}>
-                          <Text style={st.difficultyText}>{scenario.difficulty}</Text>
-                        </View>
-                      )}
-                      {scenario.is_complex && (
-                        <View style={[st.difficultyBadge, { backgroundColor: '#4c1d95' }]}>
-                          <Text style={st.difficultyText}>Complex</Text>
-                        </View>
-                      )}
-                      <View style={st.metaTag}>
-                        <Ionicons name="volume-high-outline" size={12} color="#8b5cf6" />
-                        <Text style={[st.metaText, { color: '#8b5cf6' }]}>Audio</Text>
-                      </View>
-                      {(scenario.is_complex || scenario.has_wrench) && (
-                        <View style={st.metaTag}>
-                          <Ionicons name="flash" size={12} color="#f59e0b" />
-                          <Text style={[st.metaText, { color: '#f59e0b' }]}>Curveball</Text>
-                        </View>
-                      )}
+                  <Ionicons name="lock-closed" size={16} color="#64748b" />
+                </View>
+              </View>
+            ))}
+            <Text style={s.moreText}>+ {Math.max(0,scenarios.length-3)} more scenarios...</Text>
+          </View>
+        ) : (
+          <View>
+            <Text style={s.sectionLabel}>{scenarios.length} Scenarios Available</Text>
+            {scenarios.map((sc: any, i: number) => (
+              <TouchableOpacity key={sc._id||i} style={s.card} onPress={() => startScenario(sc)} activeOpacity={0.7}>
+                <View style={s.cardRow}>
+                  <View style={s.numBadge}><Text style={s.numTxt}>{i+1}</Text></View>
+                  <View style={{flex:1}}>
+                    <Text style={s.cardTitle}>{sc.title}</Text>
+                    <View style={s.tagRow}>
+                      <View style={s.tag}><Ionicons name="time-outline" size={12} color="#94a3b8" /><Text style={s.tagTxt}>{sc.is_complex ? '20 min' : '15 min'}</Text></View>
+                      <View style={s.tag}><Ionicons name="volume-high-outline" size={12} color="#94a3b8" /><Text style={s.tagTxt}>Audio</Text></View>
+                      {sc.difficulty && <View style={[s.diffBadge,sc.difficulty==='Hard'?s.diffH:s.diffM]}><Text style={s.diffTxt}>{sc.difficulty}</Text></View>}
                     </View>
                   </View>
                   <Ionicons name="chevron-forward" size={20} color="#64748b" />
                 </View>
               </TouchableOpacity>
             ))}
-          </>
+          </View>
         )}
-
-        {/* Preview for non-paid - show scenario titles but locked */}
-        {!canAccess && (
-          <>
-            <Text style={st.sectionTitle}>Scenario Preview</Text>
-            {scenarios.map((scenario, index) => (
-              <TouchableOpacity
-                key={scenario.question_id || index}
-                style={st.lockedCard}
-                onPress={handleUpgrade}
-                activeOpacity={0.7}
-              >
-                <View style={st.scenarioCardHeader}>
-                  <View style={[st.scenarioNumber, st.lockedNumber]}>
-                    <Ionicons name="lock-closed" size={14} color="#64748b" />
-                  </View>
-                  <View style={st.scenarioCardContent}>
-                    <Text style={st.lockedScenarioTitle}>{scenario.title}</Text>
-                    <Text style={st.lockedScenarioDesc} numberOfLines={1}>
-                      {scenario.is_complex ? '20 min • Complex' : '15 min'} • Tap to unlock
-                    </Text>
-                  </View>
-                </View>
-              </TouchableOpacity>
-            ))}
-            <TouchableOpacity style={[st.unlockButton, { marginTop: 16 }]} onPress={handleUpgrade}>
-              <Ionicons name="lock-open" size={20} color="#fff" />
-              <Text style={st.unlockButtonText}>Unlock All Scenarios</Text>
-            </TouchableOpacity>
-          </>
-        )}
-
-        <View style={{ height: 40 }} />
       </ScrollView>
     </SafeAreaView>
   );
 }
 
-const st = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0c0c0c' },
-  scrollView: { flex: 1 },
-  scrollContent: { padding: 20, paddingBottom: 40 },
-  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  loadingText: { color: '#94a3b8', marginTop: 12, fontSize: 15 },
-
-  // Premium Header
-  premiumHeader: { alignItems: 'center', marginBottom: 20, paddingTop: 8 },
-  premiumBadge: { flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: '#f59e0b', paddingHorizontal: 14, paddingVertical: 6, borderRadius: 20, marginBottom: 12 },
-  premiumBadgeText: { color: '#fff', fontSize: 12, fontWeight: '700', letterSpacing: 1 },
-  headerTitle: { fontSize: 24, fontWeight: 'bold', color: '#fff', textAlign: 'center', marginBottom: 6 },
-  headerSubtitle: { fontSize: 15, color: '#94a3b8', textAlign: 'center', lineHeight: 22 },
-
-  // Info Card
-  infoCard: { backgroundColor: '#1e293b', borderRadius: 16, padding: 16, marginBottom: 16 },
-  infoRow: { flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center' },
-  infoItem: { alignItems: 'center', flex: 1 },
-  infoDivider: { width: 1, height: 40, backgroundColor: '#334155' },
-  infoLabel: { color: '#fff', fontSize: 16, fontWeight: '700', marginTop: 6 },
-  infoDesc: { color: '#64748b', fontSize: 12, marginTop: 2 },
-
-  // Grading Info Card
-  gradingCard: { backgroundColor: '#1e293b', borderRadius: 16, padding: 18, marginBottom: 20, borderWidth: 1, borderColor: '#334155' },
-  gradingHeader: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  gradingIconWrap: { width: 40, height: 40, borderRadius: 12, backgroundColor: 'rgba(245,158,11,0.15)', alignItems: 'center', justifyContent: 'center' },
-  gradingTitle: { fontSize: 16, fontWeight: '700', color: '#fff' },
-  gradingSubtitle: { fontSize: 13, color: '#f59e0b', fontWeight: '500', marginTop: 2 },
-  gradingBody: { marginTop: 16, borderTopWidth: 1, borderTopColor: '#334155', paddingTop: 16 },
-  gradingText: { fontSize: 14, color: '#cbd5e1', lineHeight: 22, marginBottom: 16 },
-  gradingSectionLabel: { fontSize: 11, fontWeight: '700', color: '#f59e0b', letterSpacing: 1.5, marginBottom: 12 },
-  gradingItem: { flexDirection: 'row', gap: 12, marginBottom: 14 },
-  gradingDot: { width: 8, height: 8, borderRadius: 4, marginTop: 6 },
-  gradingItemTitle: { fontSize: 14, fontWeight: '700', color: '#fff', marginBottom: 4 },
-  gradingItemDesc: { fontSize: 13, color: '#94a3b8', lineHeight: 20 },
-  gradingTip: { flexDirection: 'row', gap: 10, backgroundColor: '#1e3a5f', borderRadius: 10, padding: 12, marginTop: 4, marginBottom: 12 },
-  gradingTipText: { fontSize: 13, color: '#60a5fa', lineHeight: 20, flex: 1, fontStyle: 'italic' },
-  timerNote: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: 'rgba(245,158,11,0.1)', borderRadius: 10, padding: 12, marginTop: 4 },
-  timerNoteText: { fontSize: 13, color: '#f59e0b', fontWeight: '600' },
-
-  // D.E.T.E.C.T.I.V.E.S. Framework
-  frameworkCard: { backgroundColor: '#1e293b', borderRadius: 14, padding: 16, marginBottom: 20, borderWidth: 1, borderColor: '#1e3a5f' },
-  fwItem: { flexDirection: 'row', alignItems: 'flex-start', gap: 12, marginBottom: 12 },
-  fwLetterBadge: { width: 30, height: 30, borderRadius: 8, backgroundColor: '#2563eb', alignItems: 'center', justifyContent: 'center' },
-  fwLetterText: { color: '#fff', fontSize: 15, fontWeight: '800' },
-  fwTitle: { fontSize: 14, fontWeight: '700', color: '#fff', marginBottom: 2 },
-  fwDesc: { fontSize: 12, color: '#94a3b8', lineHeight: 18 },
-
-  // Locked Overlay
-  lockedOverlay: { backgroundColor: '#1e293b', borderRadius: 16, padding: 24, marginBottom: 24, alignItems: 'center', borderWidth: 1, borderColor: 'rgba(245, 158, 11, 0.2)' },
-  lockedTitle: { fontSize: 22, fontWeight: 'bold', color: '#fff', marginTop: 12, marginBottom: 8 },
-  lockedDesc: { fontSize: 14, color: '#94a3b8', textAlign: 'center', lineHeight: 22, marginBottom: 16 },
-  lockedFeatures: { width: '100%', marginBottom: 20 },
-  lockedFeatureRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 10 },
-  lockedFeatureText: { color: '#e2e8f0', fontSize: 14, fontWeight: '500' },
-
-  // Unlock Button
-  unlockButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: '#10b981', paddingVertical: 16, paddingHorizontal: 24, borderRadius: 12, width: '100%' },
-  unlockButtonText: { color: '#fff', fontSize: 17, fontWeight: '700' },
-  unlockSubtext: { color: '#64748b', fontSize: 13, marginTop: 8 },
-
-  // Section Title
-  sectionTitle: { fontSize: 18, fontWeight: 'bold', color: '#fff', marginBottom: 14 },
-
-  // Scenario Cards (unlocked)
-  scenarioCard: { backgroundColor: '#1e293b', borderRadius: 14, padding: 16, marginBottom: 12, borderWidth: 1, borderColor: '#334155' },
-  scenarioCardHeader: { flexDirection: 'row', alignItems: 'center' },
-  scenarioNumber: { width: 36, height: 36, borderRadius: 10, backgroundColor: '#10b981', alignItems: 'center', justifyContent: 'center', marginRight: 14 },
-  scenarioNumberText: { color: '#fff', fontSize: 15, fontWeight: '700' },
-  scenarioCardContent: { flex: 1 },
-  scenarioTitle: { fontSize: 15, fontWeight: '600', color: '#fff', marginBottom: 4 },
-  scenarioDesc: { fontSize: 13, color: '#94a3b8', lineHeight: 18, marginBottom: 8 },
-  scenarioMeta: { flexDirection: 'row', gap: 8, flexWrap: 'wrap' },
-  metaTag: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  metaText: { fontSize: 11, color: '#94a3b8' },
-  difficultyBadge: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6 },
-  diffHard: { backgroundColor: '#7f1d1d' },
-  diffMedium: { backgroundColor: '#1e3a5f' },
-  difficultyText: { fontSize: 11, color: '#fff', fontWeight: '600' },
-
-  // Locked Cards (preview)
-  lockedCard: { backgroundColor: '#1e293b', borderRadius: 14, padding: 14, marginBottom: 8, opacity: 0.5 },
-  lockedNumber: { backgroundColor: '#334155' },
-  lockedScenarioTitle: { fontSize: 14, fontWeight: '600', color: '#94a3b8', marginBottom: 2 },
-  lockedScenarioDesc: { fontSize: 12, color: '#64748b' },
+const s = StyleSheet.create({
+  safe:{flex:1,backgroundColor:'#0f172a'},
+  scroll:{flex:1},
+  content:{padding:16,paddingBottom:100},
+  header:{marginBottom:16,alignItems:'center'},
+  premBadge:{flexDirection:'row',alignItems:'center',backgroundColor:'rgba(251,191,36,0.15)',paddingHorizontal:12,paddingVertical:4,borderRadius:20,marginBottom:8},
+  premTxt:{color:'#fbbf24',fontSize:12,fontWeight:'700',marginLeft:4},
+  title:{fontSize:24,fontWeight:'800',color:'#f1f5f9',marginBottom:4},
+  subtitle:{fontSize:13,color:'#94a3b8',textAlign:'center'},
+  gradingCard:{backgroundColor:'#1e293b',borderRadius:12,padding:14,marginBottom:16,borderWidth:1,borderColor:'#334155'},
+  gradingHeader:{flexDirection:'row',alignItems:'center',gap:8},
+  gradingTitle:{flex:1,fontSize:15,fontWeight:'700',color:'#e2e8f0'},
+  gradingBody:{marginTop:12},
+  gradingSectionHead:{fontSize:14,fontWeight:'700',color:'#60a5fa',marginTop:14,marginBottom:4},
+  gradingText:{fontSize:13,color:'#cbd5e1',lineHeight:20,marginBottom:6},
+  gradingBullet:{fontSize:13,color:'#cbd5e1',lineHeight:22,paddingLeft:8},
+  pointRow:{flexDirection:'row',alignItems:'flex-start',marginBottom:8,gap:8},
+  pointBadge:{width:32,height:24,borderRadius:6,alignItems:'center',justifyContent:'center'},
+  pointVal:{fontSize:13,fontWeight:'800',color:'#fff'},
+  pointLabel:{flex:1,fontSize:12,color:'#94a3b8',lineHeight:18},
+  tipBox:{flexDirection:'row',backgroundColor:'rgba(251,191,36,0.1)',borderRadius:8,padding:10,marginTop:14,gap:8,alignItems:'flex-start'},
+  tipText:{flex:1,fontSize:12,color:'#fbbf24',lineHeight:18},
+  sectionLabel:{fontSize:14,fontWeight:'700',color:'#94a3b8',marginBottom:10},
+  card:{backgroundColor:'#1e293b',borderRadius:12,padding:14,marginBottom:8},
+  cardRow:{flexDirection:'row',alignItems:'center',gap:10},
+  numBadge:{width:32,height:32,borderRadius:16,backgroundColor:'#1e3a5f',alignItems:'center',justifyContent:'center'},
+  numTxt:{fontSize:14,fontWeight:'800',color:'#60a5fa'},
+  cardTitle:{fontSize:14,fontWeight:'600',color:'#f1f5f9',marginBottom:4},
+  tagRow:{flexDirection:'row',alignItems:'center',gap:6},
+  tag:{flexDirection:'row',alignItems:'center',gap:3},
+  tagTxt:{fontSize:11,color:'#94a3b8'},
+  diffBadge:{paddingHorizontal:8,paddingVertical:2,borderRadius:6},
+  diffH:{backgroundColor:'#7f1d1d'},
+  diffM:{backgroundColor:'#1e3a5f'},
+  diffTxt:{fontSize:11,color:'#fff',fontWeight:'600'},
+  lockOverlay:{alignItems:'center',padding:20,marginTop:10},
+  lockTitle:{fontSize:20,fontWeight:'800',color:'#fbbf24',marginTop:10,marginBottom:6},
+  lockDesc:{fontSize:13,color:'#94a3b8',textAlign:'center',marginBottom:16,lineHeight:20},
+  unlockBtn:{flexDirection:'row',alignItems:'center',backgroundColor:'#fbbf24',paddingHorizontal:24,paddingVertical:12,borderRadius:30,gap:8,marginBottom:20},
+  unlockTxt:{fontSize:16,fontWeight:'800',color:'#000'},
+  lockCard:{backgroundColor:'#1e293b',borderRadius:12,padding:14,marginBottom:8,opacity:0.5,width:'100%'},
+  lockNum:{backgroundColor:'#334155'},
+  lockCardTitle:{fontSize:14,fontWeight:'600',color:'#94a3b8',marginBottom:2},
+  lockCardDesc:{fontSize:12,color:'#64748b'},
+  moreText:{fontSize:13,color:'#64748b',marginTop:4},
 });
-

@@ -1190,6 +1190,66 @@ async def promote_to_admin(email: str):
     else:
         raise HTTPException(status_code=404, detail="User not found")
 
+
+class GrantPremiumRequest(BaseModel):
+    email: str
+
+@api_router.post("/admin/grant-premium")
+async def grant_premium_by_email(data: GrantPremiumRequest, user: User = Depends(require_admin)):
+    """Admin can grant premium access to any user by email"""
+    result = await db.users.update_one(
+        {"email": data.email.lower()},
+        {"$set": {"has_paid": True, "paid_at": datetime.now(timezone.utc), "granted_by": "admin"}}
+    )
+    if result.modified_count > 0:
+        return {"status": "success", "message": f"Premium granted to {data.email}"}
+    elif result.matched_count > 0:
+        return {"status": "success", "message": f"User {data.email} already has premium"}
+    else:
+        raise HTTPException(status_code=404, detail=f"User {data.email} not found")
+
+@api_router.post("/admin/revoke-premium")
+async def revoke_premium_by_email(data: GrantPremiumRequest, user: User = Depends(require_admin)):
+    """Admin can revoke premium access from a user by email"""
+    result = await db.users.update_one(
+        {"email": data.email.lower()},
+        {"$set": {"has_paid": False}, "$unset": {"granted_by": ""}}
+    )
+    if result.modified_count > 0:
+        return {"status": "success", "message": f"Premium revoked from {data.email}"}
+    else:
+        raise HTTPException(status_code=404, detail=f"User {data.email} not found")
+
+@api_router.get("/admin/users")
+async def get_all_users(user: User = Depends(require_admin)):
+    """Admin can view all users with their payment status"""
+    users = []
+    async for u in db.users.find({}, {"_id": 0, "password_hash": 0}):
+        payment = await db.payments.find_one(
+            {"user_id": u.get("user_id"), "status": "completed"}, {"_id": 0}
+        )
+        users.append({
+            "email": u.get("email"),
+            "name": u.get("name", ""),
+            "role": u.get("role", "user"),
+            "has_paid": u.get("has_paid", False) or (payment is not None),
+            "granted_by": u.get("granted_by"),
+            "created_at": str(u.get("created_at", "")),
+        })
+    return {"users": users, "total": len(users)}
+
+@api_router.post("/admin/grant-premium-bulk")
+async def grant_premium_bulk(emails: list[str], user: User = Depends(require_admin)):
+    """Admin can grant premium to multiple users at once"""
+    results = []
+    for email in emails:
+        r = await db.users.update_one(
+            {"email": email.lower()},
+            {"$set": {"has_paid": True, "paid_at": datetime.now(timezone.utc), "granted_by": "admin"}}
+        )
+        results.append({"email": email, "found": r.matched_count > 0, "updated": r.modified_count > 0})
+    return {"results": results}
+
 # Include the router in the main app
 
 
@@ -1201,6 +1261,10 @@ async def get_payment_status(user: User = Depends(require_user)):
         return {"has_paid": True, "is_premium": True}
     if user.role == "guest":
         return {"has_paid": False, "is_premium": False}
+    # Check if user has been manually granted premium
+    user_doc = await db.users.find_one({"user_id": user.user_id})
+    if user_doc and user_doc.get("has_paid"):
+        return {"has_paid": True, "is_premium": True}
     payment = await db.payments.find_one(
         {"user_id": user.user_id, "status": "completed"},
         {"_id": 0}

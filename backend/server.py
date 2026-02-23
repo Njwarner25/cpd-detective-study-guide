@@ -1309,7 +1309,107 @@ async def get_payment_analytics(user: User = Depends(require_admin)):
     }
 
 
-app.include_router(api_router)
+
+
+# ========== ADMIN GRANT PREMIUM & ACCESS CODES ==========
+
+class GrantPremiumRequest(BaseModel):
+    email: str
+
+@api_router.post("/admin/grant-premium")
+async def grant_premium_by_email(data: GrantPremiumRequest, user: User = Depends(require_admin)):
+    email = data.email.lower()
+    target_user = await db.users.find_one({"email": email})
+    if not target_user:
+        raise HTTPException(status_code=404, detail=f"User {email} not found")
+    await db.users.update_one(
+        {"email": email},
+        {"$set": {"has_paid": True, "paid_at": datetime.now(timezone.utc)}}
+    )
+    await db.payments.update_one(
+        {"user_id": target_user["user_id"], "status": "completed"},
+        {"$set": {
+            "payment_id": f"admin-grant-{target_user['user_id']}-{int(datetime.now(timezone.utc).timestamp())}",
+            "user_id": target_user["user_id"],
+            "email": email,
+            "status": "completed",
+            "amount": 0,
+            "stripe_session_id": "admin-granted",
+            "created_at": datetime.now(timezone.utc),
+            "granted_by": user.email
+        }},
+        upsert=True
+    )
+    return {"status": "success", "message": f"Premium access granted to {email}"}
+
+
+class AccessCodeCreate(BaseModel):
+    note: Optional[str] = None
+
+@api_router.post("/admin/access-codes")
+async def create_access_code(data: AccessCodeCreate = AccessCodeCreate(), user: User = Depends(require_admin)):
+    import secrets
+    code = secrets.token_urlsafe(16)
+    await db.access_codes.insert_one({
+        "code": code,
+        "created_by": user.email,
+        "created_at": datetime.now(timezone.utc),
+        "redeemed": False,
+        "redeemed_by": None,
+        "redeemed_at": None,
+        "note": data.note or ""
+    })
+    return {"code": code, "message": "Access code created successfully"}
+
+
+@api_router.get("/admin/access-codes")
+async def list_access_codes(user: User = Depends(require_admin)):
+    codes = await db.access_codes.find({}, {"_id": 0}).sort("created_at", -1).to_list(100)
+    return {"codes": codes}
+
+
+class RedeemCodeRequest(BaseModel):
+    code: str
+
+@api_router.post("/access-codes/redeem")
+async def redeem_access_code(data: RedeemCodeRequest, user: User = Depends(require_user)):
+    if user.role == "guest":
+        raise HTTPException(status_code=403, detail="Please register an account first")
+    code_doc = await db.access_codes.find_one({"code": data.code, "redeemed": False})
+    if not code_doc:
+        raise HTTPException(status_code=404, detail="Invalid or already used access code")
+    await db.access_codes.update_one(
+        {"code": data.code},
+        {"$set": {"redeemed": True, "redeemed_by": user.email, "redeemed_at": datetime.now(timezone.utc)}}
+    )
+    await db.users.update_one(
+        {"user_id": user.user_id},
+        {"$set": {"has_paid": True, "paid_at": datetime.now(timezone.utc)}}
+    )
+    await db.payments.update_one(
+        {"user_id": user.user_id, "status": "completed"},
+        {"$set": {
+            "payment_id": f"code-{data.code[:8]}-{user.user_id}",
+            "user_id": user.user_id,
+            "email": user.email,
+            "status": "completed",
+            "amount": 0,
+            "stripe_session_id": f"access-code-{data.code}",
+            "created_at": datetime.now(timezone.utc)
+        }},
+        upsert=True
+    )
+    return {"status": "success", "message": "Premium access activated!"}
+
+
+@api_router.post("/admin/bootstrap-admin")
+async def bootstrap_admin(email: str):
+    result = await db.users.update_one({"email": email.lower()}, {"$set": {"role": "admin"}})
+    if result.modified_count > 0:
+        return {"status": "success", "message": f"User {email} promoted to admin"}
+    raise HTTPException(status_code=404, detail="User not found")
+
+\napp.include_router(api_router)
 
 
 # ========== STRIPE WEBHOOK (on app, not api_router) ==========

@@ -13,7 +13,7 @@ export default function Scenarios() {
   const [loading, setLoading] = useState(true);
   const [showGrading, setShowGrading] = useState(false);
 
-  useEffect(() => { loadScenarios(); }, []);
+    useEffect(() => { loadScenarios(); }, [sessionToken]);
 
   const loadScenarios = async () => {
     try {

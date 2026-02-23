@@ -17,7 +17,7 @@ export default function Scenarios() {
 
   const loadScenarios = async () => {
     try {
-      const data = await questionService.getScenarios(sessionToken || undefined);
+            const data = await questionService.getQuestions('scenario', 'cat_detective_part2', sessionToken || undefined);
       setScenarios(data || []);
     } catch (e) { console.error(e); }
     finally { setLoading(false); }

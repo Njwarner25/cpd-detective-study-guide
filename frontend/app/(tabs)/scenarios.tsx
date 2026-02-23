@@ -12,12 +12,13 @@ export default function Scenarios() {
   const [scenarios, setScenarios] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showGrading, setShowGrading] = useState(false);
+  const [showFramework, setShowFramework] = useState(false);
 
-    useEffect(() => { loadScenarios(); }, [sessionToken]);
+  useEffect(() => { loadScenarios(); }, [sessionToken]);
 
   const loadScenarios = async () => {
     try {
-            const data = await questionService.getQuestions('scenario', 'cat_detective_part2', sessionToken || undefined);
+      const data = await questionService.getQuestions('scenario', 'cat_detective_part2', sessionToken || undefined);
       setScenarios(data || []);
     } catch (e) { console.error(e); }
     finally { setLoading(false); }
@@ -54,39 +55,74 @@ export default function Scenarios() {
 
               <Text style={s.gradingSectionHead}>I/O Solutions Scoring Method</Text>
               <Text style={s.gradingText}>
-                The CPD Detective Part 2 written assessment is developed and scored by I/O Solutions (IOS), a national leader in public safety promotional testing. Your written responses are evaluated by trained assessors who score your answers against a checklist of Mandatory Courses of Action — essentially an answer key of the behavioral actions you should demonstrate as the responding detective.
+                The CPD Detective Part 2 written assessment is developed and scored by I/O Solutions (IOS), a national leader in public safety promotional testing. Your written responses are evaluated by trained assessors who score your answers against a checklist of Mandatory Courses of Action {'\u2014'} essentially an answer key of the behavioral actions you should demonstrate as the responding detective.
               </Text>
 
               <Text style={s.gradingSectionHead}>Differentially Weighted Point System</Text>
               <Text style={s.gradingText}>
-                Unlike a standard pass/fail test, I/O Solutions uses differentially weighted scoring. Not every correct action is worth the same number of points — critical investigative steps earn more than routine ones, and harmful actions can cost you points:
+                Unlike a standard pass/fail test, I/O Solutions uses differentially weighted scoring. Not every correct action is worth the same number of points {'\u2014'} critical investigative steps earn more than routine ones, and harmful actions can cost you points:
               </Text>
-              <View style={s.pointRow}><View style={[s.pointBadge,{backgroundColor:'#166534'}]}><Text style={s.pointVal}>+2</Text></View><Text style={s.pointLabel}>Most effective — actions critical to the investigation (e.g., securing scene, requesting ET, ensuring victim safety, interviewing witnesses individually)</Text></View>
-              <View style={s.pointRow}><View style={[s.pointBadge,{backgroundColor:'#854d0e'}]}><Text style={s.pointVal}>+1</Text></View><Text style={s.pointLabel}>Effective but lower priority — appropriate actions that support the investigation (e.g., canvassing area, checking POD cameras, background checks)</Text></View>
-              <View style={s.pointRow}><View style={[s.pointBadge,{backgroundColor:'#64748b'}]}><Text style={s.pointVal}> 0</Text></View><Text style={s.pointLabel}>Ineffective — unnecessary, premature, or does not advance the case</Text></View>
-              <View style={s.pointRow}><View style={[s.pointBadge,{backgroundColor:'#991b1b'}]}><Text style={s.pointVal}>-1</Text></View><Text style={s.pointLabel}>Counterproductive — could compromise the investigation or violate procedure</Text></View>
-              <View style={s.pointRow}><View style={[s.pointBadge,{backgroundColor:'#7f1d1d'}]}><Text style={s.pointVal}>-2</Text></View><Text style={s.pointLabel}>Harmful — directly damages the case, endangers safety, or violates legal requirements</Text></View>
+              <View style={s.pointRow}><View style={[s.pointBadge,{backgroundColor:'#166534'}]}><Text style={s.pointVal}>+2</Text></View><Text style={s.pointLabel}>Most effective {'\u2014'} actions critical to the investigation (e.g., securing scene, requesting ET, ensuring victim safety, interviewing witnesses individually)</Text></View>
+              <View style={s.pointRow}><View style={[s.pointBadge,{backgroundColor:'#854d0e'}]}><Text style={s.pointVal}>+1</Text></View><Text style={s.pointLabel}>Effective but lower priority {'\u2014'} appropriate actions that support the investigation (e.g., canvassing area, checking POD cameras, background checks)</Text></View>
+              <View style={s.pointRow}><View style={[s.pointBadge,{backgroundColor:'#64748b'}]}><Text style={s.pointVal}> 0</Text></View><Text style={s.pointLabel}>Ineffective {'\u2014'} unnecessary, premature, or does not advance the case</Text></View>
+              <View style={s.pointRow}><View style={[s.pointBadge,{backgroundColor:'#991b1b'}]}><Text style={s.pointVal}>-1</Text></View><Text style={s.pointLabel}>Counterproductive {'\u2014'} could compromise the investigation or violate procedure</Text></View>
+              <View style={s.pointRow}><View style={[s.pointBadge,{backgroundColor:'#7f1d1d'}]}><Text style={s.pointVal}>-2</Text></View><Text style={s.pointLabel}>Harmful {'\u2014'} directly damages the case, endangers safety, or violates legal requirements</Text></View>
 
-              <Text style={s.gradingSectionHead}>Assessor Checklist — What They Look For</Text>
+              <Text style={s.gradingSectionHead}>Assessor Checklist {'\u2014'} What They Look For</Text>
               <Text style={s.gradingText}>
-                Assessors are trained to evaluate your behavioral actions — what you would actually do as the responding detective, not theoretical knowledge. Your written response is compared line-by-line against the Mandatory Courses of Action checklist. Points are awarded for each required action you include and deducted for harmful ones.
+                Assessors are trained to evaluate your behavioral actions {'\u2014'} what you would actually do as the responding detective, not theoretical knowledge. Your written response is compared line-by-line against the Mandatory Courses of Action checklist. Points are awarded for each required action you include and deducted for harmful ones.
               </Text>
 
               <Text style={s.gradingSectionHead}>Format Matters</Text>
-              <Text style={s.gradingBullet}>{'\u2022'} When the question asks for a list of actions, write a numbered or bulleted list — narrative paragraphs may not be scored</Text>
-              <Text style={s.gradingBullet}>{'\u2022'} When told to select a specific number of answers, selecting more than that number results in an automatic zero for that question — even if all your selections are correct</Text>
+              <Text style={s.gradingBullet}>{'\u2022'} When the question asks for a list of actions, write a numbered or bulleted list {'\u2014'} narrative paragraphs may not be scored</Text>
+              <Text style={s.gradingBullet}>{'\u2022'} When told to select a specific number of answers, selecting more than that number results in an automatic zero for that question {'\u2014'} even if all your selections are correct</Text>
               <Text style={s.gradingBullet}>{'\u2022'} Selecting fewer than the specified number earns partial credit for correct selections</Text>
               <Text style={s.gradingBullet}>{'\u2022'} When a question asks you to explain your reasoning, you must provide a rationale or you will not receive full credit</Text>
 
               <Text style={s.gradingSectionHead}>How Our AI Grading Works</Text>
               <Text style={s.gradingText}>
-                Our AI grading system mirrors the I/O Solutions methodology. After you submit your written response, the AI evaluates it against the same type of Mandatory Courses of Action checklist that real assessors use. You receive a point breakdown showing which +2 and +1 actions you hit, which you missed, and any actions that would have cost you points — so you know exactly where to improve.
+                Our AI grading system mirrors the I/O Solutions methodology. After you submit your written response, the AI evaluates it against the same type of Mandatory Courses of Action checklist that real assessors use. You receive a point breakdown showing which +2 and +1 actions you hit, which you missed, and any actions that would have cost you points {'\u2014'} so you know exactly where to improve.
               </Text>
 
               <View style={s.tipBox}>
                 <Ionicons name="bulb-outline" size={16} color="#fbbf24" />
-                <Text style={s.tipText}>Key mindset: "What would I actually do as the responding Detective?" Your score depends on demonstrating the right behavioral actions in the right priority order — not on how much you know.</Text>
+                <Text style={s.tipText}>Key mindset: "What would I actually do as the responding Detective?" Your score depends on demonstrating the right behavioral actions in the right priority order {'\u2014'} not on how much you know.</Text>
               </View>
+            </View>
+          )}
+        </TouchableOpacity>
+
+        {/* ===== D.E.T.E.C.T.I.V.E.S. Framework ===== */}
+        <TouchableOpacity style={s.fwCard} onPress={() => setShowFramework(!showFramework)} activeOpacity={0.8}>
+          <View style={s.gradingHeader}>
+            <Ionicons name="shield-checkmark-outline" size={20} color="#60a5fa" />
+            <Text style={s.gradingTitle}>D.E.T.E.C.T.I.V.E.S. Framework</Text>
+            <Ionicons name={showFramework ? 'chevron-up' : 'chevron-down'} size={18} color="#94a3b8" />
+          </View>
+
+          {showFramework && (
+            <View style={s.gradingBody}>
+              <Text style={s.gradingText}>Use this acronym to organize your response and hit every major scoring area:</Text>
+              {[
+                ['D','Document the Scene','Secure scene, crime scene logs, photograph, preserve evidence'],
+                ['E','Establish Perimeter','Inner/outer perimeter, crime scene tape, control access points'],
+                ['T','Talk to Witnesses','Separate, identify, interview individually, written statements'],
+                ['E','Evidence Collection','Tag, log, chain of custody, request ET/forensic services'],
+                ['C','Communicate & Coordinate','Notify OEMC, watch commander, Area detectives, ASA, BOLOs'],
+                ['T','Technology & Surveillance','POD cameras, private cameras, LEADS/CLEAR checks, digital evidence'],
+                ['I','Interrogation & Interviews','Miranda warnings, recorded interrogation, suspect statements'],
+                ['V','Verify & Validate','Cross-reference statements, photo arrays, check alibis, timelines'],
+                ['E','Examine Forensics','Ballistics, DNA, gunshot residue, fingerprints, trace evidence'],
+                ['S','Summarize & Report','Case report, supplementary reports, evidence inventory, court prep'],
+              ].map(([letter, title, desc], i) => (
+                <View key={i} style={s.fwItem}>
+                  <View style={s.fwBadge}><Text style={s.fwLetter}>{letter}</Text></View>
+                  <View style={{flex:1}}>
+                    <Text style={s.fwTitle}>{title}</Text>
+                    <Text style={s.fwDesc}>{desc}</Text>
+                  </View>
+                </View>
+              ))}
             </View>
           )}
         </TouchableOpacity>
@@ -101,7 +137,7 @@ export default function Scenarios() {
             <Text style={s.lockDesc}>Unlock {scenarios.length} timed detective scenarios with AI grading, curveball events, and text-to-speech narration.</Text>
             <TouchableOpacity style={s.unlockBtn} onPress={() => router.push('/upgrade')}>
               <Ionicons name="star" size={16} color="#000" />
-              <Text style={s.unlockTxt}>Unlock Premium — $25.00</Text>
+              <Text style={s.unlockTxt}>Unlock Premium {'\u2014'} $25.00</Text>
             </TouchableOpacity>
             {scenarios.slice(0,3).map((sc: any, i: number) => (
               <View key={i} style={s.lockCard}>
@@ -152,7 +188,8 @@ const s = StyleSheet.create({
   premTxt:{color:'#fbbf24',fontSize:12,fontWeight:'700',marginLeft:4},
   title:{fontSize:24,fontWeight:'800',color:'#f1f5f9',marginBottom:4},
   subtitle:{fontSize:13,color:'#94a3b8',textAlign:'center'},
-  gradingCard:{backgroundColor:'#1e293b',borderRadius:12,padding:14,marginBottom:16,borderWidth:1,borderColor:'#334155'},
+  gradingCard:{backgroundColor:'#1e293b',borderRadius:12,padding:14,marginBottom:10,borderWidth:1,borderColor:'#334155'},
+  fwCard:{backgroundColor:'#1e293b',borderRadius:12,padding:14,marginBottom:16,borderWidth:1,borderColor:'#1e3a5f'},
   gradingHeader:{flexDirection:'row',alignItems:'center',gap:8},
   gradingTitle:{flex:1,fontSize:15,fontWeight:'700',color:'#e2e8f0'},
   gradingBody:{marginTop:12},
@@ -165,6 +202,11 @@ const s = StyleSheet.create({
   pointLabel:{flex:1,fontSize:12,color:'#94a3b8',lineHeight:18},
   tipBox:{flexDirection:'row',backgroundColor:'rgba(251,191,36,0.1)',borderRadius:8,padding:10,marginTop:14,gap:8,alignItems:'flex-start'},
   tipText:{flex:1,fontSize:12,color:'#fbbf24',lineHeight:18},
+  fwItem:{flexDirection:'row',alignItems:'flex-start',marginBottom:8,gap:10},
+  fwBadge:{width:28,height:28,borderRadius:14,backgroundColor:'#1e3a5f',alignItems:'center',justifyContent:'center'},
+  fwLetter:{fontSize:14,fontWeight:'800',color:'#60a5fa'},
+  fwTitle:{fontSize:13,fontWeight:'700',color:'#e2e8f0'},
+  fwDesc:{fontSize:11,color:'#94a3b8',lineHeight:16},
   sectionLabel:{fontSize:14,fontWeight:'700',color:'#94a3b8',marginBottom:10},
   card:{backgroundColor:'#1e293b',borderRadius:12,padding:14,marginBottom:8},
   cardRow:{flexDirection:'row',alignItems:'center',gap:10},

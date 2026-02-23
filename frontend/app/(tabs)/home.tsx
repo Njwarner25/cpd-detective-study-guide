@@ -7,7 +7,7 @@ import { useRouter } from 'expo-router';
 import { statsService, categoryService } from '../../services/api';
 
 export default function Home() {
-  const { user, sessionToken } = useAuth();
+  const { user, sessionToken, hasPaid } = useAuth();
   const router = useRouter();
   const [stats, setStats] = useState<any>(null);
   const [categories, setCategories] = useState<any[]>([]);
@@ -94,7 +94,29 @@ export default function Home() {
           </View>
         </View>
 
-        {/* Quick Actions */}
+        
+            {/* Premium Scenarios Upgrade Banner */}
+            {!hasPaid && user?.role !== 'admin' && (
+              <TouchableOpacity 
+                style={{backgroundColor: '#1e293b', borderRadius: 16, padding: 18, marginBottom: 16, borderWidth: 1, borderColor: 'rgba(245,158,11,0.3)'}}
+                onPress={() => router.push('/upgrade')}
+              >
+                <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 8}}>
+                  <View style={{backgroundColor: '#f59e0b', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, flexDirection: 'row', alignItems: 'center', gap: 4}}>
+                    <Ionicons name="star" size={12} color="#fff" />
+                    <Text style={{color: '#fff', fontSize: 10, fontWeight: '700', letterSpacing: 1}}>PREMIUM</Text>
+                  </View>
+                </View>
+                <Text style={{color: '#fff', fontSize: 17, fontWeight: '700', marginBottom: 4}}>Detective Part 2 Scenarios</Text>
+                <Text style={{color: '#94a3b8', fontSize: 13, lineHeight: 20, marginBottom: 12}}>20 timed scenarios with AI grading using I/O Solutions methodology. Scenarios read aloud with curveball twists.</Text>
+                <View style={{backgroundColor: '#10b981', borderRadius: 10, paddingVertical: 12, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 8}}>
+                  <Ionicons name="lock-open" size={16} color="#fff" />
+                  <Text style={{color: '#fff', fontSize: 15, fontWeight: '700'}}>Unlock Premium — $25.00</Text>
+                </View>
+              </TouchableOpacity>
+            )}
+
+            {/* Quick Actions */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Quick Start</Text>
           

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert, Image, ActivityIndicator, Share } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert, Image, ActivityIndicator, Share, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../contexts/AuthContext';
@@ -20,12 +20,12 @@ const showAlert = (title, message, buttons) => {
       window.alert(title + '\n\n' + message);
     }
   } else {
-    showAlert(title, message, buttons);
+    Alert.alert(title, message, buttons);
   }
 };
 
 export default function Profile() {
-  const { user, logout, isGuest, sessionToken } = useAuth();
+  const { user, logout, isGuest, sessionToken, hasPaid } = useAuth();
   const router = useRouter();
   const [resetting, setResetting] = useState(false);
 
@@ -33,9 +33,9 @@ export default function Profile() {
     try {
       const appUrl = 'https://cpd-study.emergent.app';
       await Share.share({
-        message: `Check out the CPD Detective Exam Study Guide app! It has 160+ practice questions, scenarios, and flashcards to help you prepare for the Chicago Police Department Detective Test. 📚👮‍♂️\n\n🔗 Try it here: ${appUrl}\n\n🚀 Coming soon to App Store & Google Play!`,
+        message: 'Check out the CPD Detective Exam Study Guide app! It has 160+ practice questions, scenarios, and flashcards to help you prepare for the Chicago Police Department Detective Test.' + '\n\n' + 'Try it here: ' + appUrl + '\n\n' + 'Coming soon to App Store & Google Play!',
         title: 'CPD Detective Exam Study Guide',
-        url: appUrl, // iOS will use this for the link
+        url: appUrl,
       });
     } catch (error) {
       console.error('Error sharing:', error);
@@ -99,13 +99,16 @@ export default function Profile() {
               <Image source={{ uri: user.picture }} style={styles.avatar} />
             ) : (
               <View style={[styles.avatarPlaceholder, isGuest && styles.guestAvatar]}>
-                <Ionicons name={isGuest ? "person-outline" : "person"} size={48} color={isGuest ? "#f59e0b" : "#64748b"} />
+                <Ionicons
+                  name={isGuest ? 'person-outline' : 'person'}
+                  size={48}
+                  color={isGuest ? '#f59e0b' : '#64748b'}
+                />
               </View>
             )}
           </View>
           <Text style={styles.name}>{user?.name || 'Guest User'}</Text>
           <Text style={styles.email}>{user?.email}</Text>
-          
           {isGuest ? (
             <View style={styles.guestBadge}>
               <Ionicons name="time-outline" size={14} color="#f59e0b" />
@@ -123,6 +126,44 @@ export default function Profile() {
           )}
         </View>
 
+        {/* Premium Upgrade Section - for registered users who haven't paid */}
+        {!isGuest && user?.role !== 'admin' && !hasPaid && (
+          <View style={styles.premiumUpgradeSection}>
+            <TouchableOpacity
+              style={styles.premiumUpgradeCard}
+              onPress={() => router.push('/upgrade')}
+            >
+              <View style={styles.premiumUpgradeIconContainer}>
+                <Ionicons name="star" size={32} color="#f59e0b" />
+              </View>
+              <View style={styles.premiumUpgradeContent}>
+                <Text style={styles.premiumUpgradeTitle}>Upgrade to Premium</Text>
+                <Text style={styles.premiumUpgradeSubtitle}>
+                  Unlock all 20 practice scenarios with AI-powered grading
+                </Text>
+              </View>
+              <View style={styles.premiumUpgradePrice}>
+                <Text style={styles.premiumUpgradePriceText}>$25</Text>
+                <Text style={styles.premiumUpgradePriceNote}>one-time</Text>
+              </View>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {/* Premium Active Badge - for users who have paid */}
+        {!isGuest && user?.role !== 'admin' && hasPaid && (
+          <View style={styles.premiumActiveSection}>
+            <View style={styles.premiumActiveCard}>
+              <Ionicons name="star" size={24} color="#f59e0b" />
+              <View style={styles.premiumActiveContent}>
+                <Text style={styles.premiumActiveTitle}>Premium Active</Text>
+                <Text style={styles.premiumActiveSubtitle}>You have full access to all content</Text>
+              </View>
+              <Ionicons name="checkmark-circle" size={24} color="#10b981" />
+            </View>
+          </View>
+        )}
+
         {isGuest && (
           <View style={styles.upgradeSection}>
             <View style={styles.upgradeCard}>
@@ -132,7 +173,8 @@ export default function Profile() {
               <View style={styles.upgradeContent}>
                 <Text style={styles.upgradeTitle}>Upgrade Your Account</Text>
                 <Text style={styles.upgradeText}>
-                  Create a free account to save your progress, sync across devices, and track your study history.
+                  Create a free account to save your progress, sync across devices, and
+                  track your study history.
                 </Text>
               </View>
               <TouchableOpacity style={styles.upgradeButton} onPress={handleUpgradeAccount}>
@@ -185,7 +227,6 @@ export default function Profile() {
         {!isGuest && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Account</Text>
-            
             <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/leaderboard')}>
               <View style={[styles.menuIconContainer, { backgroundColor: '#1e3a5f' }]}>
                 <Ionicons name="trophy" size={20} color="#fbbf24" />
@@ -193,7 +234,6 @@ export default function Profile() {
               <Text style={styles.menuText}>Leaderboard</Text>
               <Ionicons name="chevron-forward" size={20} color="#64748b" />
             </TouchableOpacity>
-            
             <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/bookmarks')}>
               <View style={[styles.menuIconContainer, { backgroundColor: '#78350f' }]}>
                 <Ionicons name="bookmark" size={20} color="#f59e0b" />
@@ -201,7 +241,6 @@ export default function Profile() {
               <Text style={styles.menuText}>My Bookmarks</Text>
               <Ionicons name="chevron-forward" size={20} color="#64748b" />
             </TouchableOpacity>
-            
             <TouchableOpacity style={styles.menuItem} onPress={handleResetScores} disabled={resetting}>
               <View style={[styles.menuIconContainer, { backgroundColor: '#7f1d1d' }]}>
                 {resetting ? (
@@ -213,7 +252,6 @@ export default function Profile() {
               <Text style={styles.menuText}>Reset All Scores</Text>
               <Ionicons name="chevron-forward" size={20} color="#64748b" />
             </TouchableOpacity>
-            
             <TouchableOpacity style={styles.menuItem}>
               <View style={styles.menuIconContainer}>
                 <Ionicons name="person-outline" size={20} color="#fff" />
@@ -221,7 +259,6 @@ export default function Profile() {
               <Text style={styles.menuText}>Edit Profile</Text>
               <Ionicons name="chevron-forward" size={20} color="#64748b" />
             </TouchableOpacity>
-
             <TouchableOpacity style={styles.menuItem}>
               <View style={styles.menuIconContainer}>
                 <Ionicons name="lock-closed-outline" size={20} color="#fff" />
@@ -235,8 +272,7 @@ export default function Profile() {
         {user?.role === 'admin' && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Admin</Text>
-            
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.menuItem}
               onPress={() => router.push('/admin')}
             >
@@ -251,7 +287,7 @@ export default function Profile() {
 
         {/* Install App Section */}
         <View style={styles.installSection}>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.installCard}
             onPress={() => router.push('/install')}
           >
@@ -270,7 +306,6 @@ export default function Profile() {
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Support</Text>
-          
           <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/updates')}>
             <View style={[styles.menuIconContainer, { backgroundColor: '#1e3a8a' }]}>
               <Ionicons name="sparkles" size={20} color="#60a5fa" />
@@ -281,7 +316,6 @@ export default function Profile() {
             </View>
             <Ionicons name="chevron-forward" size={20} color="#64748b" />
           </TouchableOpacity>
-          
           <TouchableOpacity style={styles.menuItem}>
             <View style={styles.menuIconContainer}>
               <Ionicons name="help-circle-outline" size={20} color="#fff" />
@@ -289,7 +323,6 @@ export default function Profile() {
             <Text style={styles.menuText}>Help Center</Text>
             <Ionicons name="chevron-forward" size={20} color="#64748b" />
           </TouchableOpacity>
-
           <TouchableOpacity style={styles.menuItem}>
             <View style={styles.menuIconContainer}>
               <Ionicons name="information-circle-outline" size={20} color="#fff" />
@@ -322,7 +355,7 @@ export default function Profile() {
 
         {/* Support/Donate Section */}
         <View style={styles.supportSection}>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.supportCard}
             onPress={() => router.push('/support')}
           >
@@ -346,7 +379,7 @@ export default function Profile() {
           </TouchableOpacity>
         </View>
 
-        <Text style={styles.version}>Version 1.4.0</Text>
+        <Text style={styles.version}>Version 1.5.0</Text>
       </ScrollView>
     </SafeAreaView>
   );
@@ -437,6 +470,84 @@ const styles = StyleSheet.create({
     color: '#10b981',
     fontSize: 12,
     fontWeight: '600',
+  },
+  // Premium upgrade styles
+  premiumUpgradeSection: {
+    paddingHorizontal: 24,
+    marginBottom: 16,
+  },
+  premiumUpgradeCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#1e293b',
+    borderRadius: 16,
+    padding: 16,
+    borderWidth: 2,
+    borderColor: '#f59e0b',
+  },
+  premiumUpgradeIconContainer: {
+    width: 56,
+    height: 56,
+    borderRadius: 14,
+    backgroundColor: '#78350f',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  premiumUpgradeContent: {
+    flex: 1,
+  },
+  premiumUpgradeTitle: {
+    fontSize: 17,
+    fontWeight: 'bold',
+    color: '#fff',
+    marginBottom: 4,
+  },
+  premiumUpgradeSubtitle: {
+    fontSize: 13,
+    color: '#94a3b8',
+    lineHeight: 18,
+  },
+  premiumUpgradePrice: {
+    alignItems: 'center',
+    marginLeft: 8,
+  },
+  premiumUpgradePriceText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#10b981',
+  },
+  premiumUpgradePriceNote: {
+    fontSize: 11,
+    color: '#64748b',
+  },
+  // Premium active styles
+  premiumActiveSection: {
+    paddingHorizontal: 24,
+    marginBottom: 16,
+  },
+  premiumActiveCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#064e3b',
+    borderRadius: 16,
+    padding: 16,
+    gap: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(16, 185, 129, 0.3)',
+  },
+  premiumActiveContent: {
+    flex: 1,
+  },
+  premiumActiveTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#10b981',
+    marginBottom: 2,
+  },
+  premiumActiveSubtitle: {
+    fontSize: 13,
+    color: '#6ee7b7',
   },
   upgradeSection: {
     paddingHorizontal: 24,
@@ -563,13 +674,7 @@ const styles = StyleSheet.create({
     color: '#64748b',
     fontSize: 12,
     paddingTop: 24,
-  },
-  credits: {
-    textAlign: 'center',
-    color: '#64748b',
-    fontSize: 12,
     paddingBottom: 24,
-    fontStyle: 'italic',
   },
   newBadge: {
     backgroundColor: '#2563eb',

@@ -94,11 +94,49 @@ export default function PracticeScenario() {
     if (!scenario?.answer) return '';
     try {
       const parsed = typeof scenario.answer === 'string' ? JSON.parse(scenario.answer) : scenario.answer;
-      if (parsed?.modelAnswer) {
-        return Array.isArray(parsed.modelAnswer) ? parsed.modelAnswer.join('\n• ') : parsed.modelAnswer;
+      if (parsed?.modelAnswer && Array.isArray(parsed.modelAnswer)) {
+        const sections = [
+          { header: 'D - Document the Scene', keywords: ['photograph', 'crime scene tech', 'supervisor', 'scene status', 'weapons on scene', 'case report', 'felony 101', 'PCAD', 'document scene', 'document owner', 'document all civilian', 'document all statements', 'record all evidence'] },
+          { header: 'E - Establish Perimeter', keywords: ['perimeter', 'canine', 'uniformed'] },
+          { header: 'T - Talk to Witnesses', keywords: ['witness', 'interview', 'canvass', 'fire department', 'statement from', 'command post'] },
+          { header: 'E - Evidence Collection', keywords: ['preserve', 'physical evidence', 'shell casing', 'jewelry inventory', 'chain of custody', "owner's weapon", 'stolen'] },
+          { header: 'C - Communicate & Coordinate', keywords: ['asa', 'flash message', 'medical examiner', 'notify'] },
+          { header: 'T - Technology & Surveillance', keywords: ['security camera', 'footage', 'leads', 'clear system', 'surveillance', 'pawn shop', 'fencing'] },
+          { header: 'I - Interrogation & Interviews', keywords: ['miranda', 'electronically recorded', 'interrogation', 'apprehending officer', "suspect's statement", 'inconsistencies'] },
+          { header: 'V - Verify & Validate', keywords: ['photo lineup', 'show-up', 'background check', 'consent to search', 'footwear', 'clothing'] },
+          { header: 'E - Examine Forensics', keywords: ['forensic services', 'ballistics', 'gunshot residue', 'dna', 'trace evidence'] },
+          { header: 'S - Summarize & Report', keywords: ['arrest report', 'trr', 'tactical response', 'chain of custody maintained', 'tagged', 'file arrest'] },
+        ];
+        const buckets: Record<string, string[]> = {};
+        const used = new Set<number>();
+        sections.forEach(sec => { buckets[sec.header] = []; });
+        parsed.modelAnswer.forEach((action: string, idx: number) => {
+          const lower = action.toLowerCase();
+          for (const sec of sections) {
+            if (sec.keywords.some((kw: string) => lower.includes(kw))) {
+              buckets[sec.header].push(action);
+              used.add(idx);
+              return;
+            }
+          }
+        });
+        parsed.modelAnswer.forEach((action: string, idx: number) => {
+          if (!used.has(idx)) buckets['S - Summarize & Report'].push(action);
+        });
+        let output = '';
+        sections.forEach(sec => {
+          if (buckets[sec.header] && buckets[sec.header].length > 0) {
+            output += '**' + sec.header + '**\n';
+            buckets[sec.header].forEach((item: string) => { output += '• ' + item + '\n'; });
+            output += '\n';
+          }
+        });
+        return output.trim();
       }
       return typeof scenario.answer === 'string' ? scenario.answer : JSON.stringify(scenario.answer);
-    } catch { return scenario.answer; }
+    } catch {
+      return scenario.answer;
+    }
   }, [scenario]);
 
   useEffect(() => {
@@ -463,21 +501,14 @@ export default function PracticeScenario() {
 
             {/* Model Answer */}
             <Text style={styles.feedbackLabel}>Model Answer:</Text>
-            <Text style={styles.modelAnswer}>
-              {typeof modelAnswer === 'string' ? modelAnswer : JSON.stringify(modelAnswer)}
-            </Text>
+            {renderStructuredFeedback(typeof modelAnswer === 'string' ? modelAnswer : JSON.stringify(modelAnswer))}
 
             {/* Wrench Model Answer */}
             {wrenchData?.wrenchModelAnswer && (
               <>
                 <View style={styles.divider} />
                 <Text style={[styles.feedbackLabel, { color: '#F97316' }]}>Curveball Model Answer:</Text>
-                <Text style={styles.modelAnswer}>
-                  {Array.isArray(wrenchData.wrenchModelAnswer)
-                    ? wrenchData.wrenchModelAnswer.map((a: string, i: number) => `${i + 1}. ${a}`).join('\n')
-                    : wrenchData.wrenchModelAnswer
-                  }
-                </Text>
+                {renderStructuredFeedback(typeof modelAnswer === 'string' ? modelAnswer : JSON.stringify(modelAnswer))}
               </>
             )}
           </View>

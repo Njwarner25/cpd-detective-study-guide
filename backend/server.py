@@ -1473,7 +1473,8 @@ async def bootstrap_admin(email: str):
         return {"status": "success", "message": f"User {email} promoted to admin"}
     raise HTTPException(status_code=404, detail="User not found")
 
-\napp.include_router(api_router)
+
+app.include_router(api_router)
 
 
 # ========== STRIPE WEBHOOK (on app, not api_router) ==========

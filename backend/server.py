@@ -571,28 +571,88 @@ async def migrate_reaction_answers():
 
     return {"updated": updated, "total": len(scenarios), "errors": errors}
 
-@api_router.get("/debug-broken-scenario")
-async def debug_broken_scenario():
-    """Show the raw answer for ARMED ROBBERY WITH DEATH to diagnose JSON issue"""
+@api_router.post("/fix-armed-robbery")
+async def fix_armed_robbery():
+    """Fix the truncated JSON for ARMED ROBBERY WITH DEATH by using model_answer field"""
+    import json as json_mod
     scenario = await db.questions.find_one(
         {"title": "ARMED ROBBERY WITH DEATH", "type": "scenario"},
-        {"_id": 0, "title": 1, "answer": 1, "model_answer": 1}
+        {"_id": 0, "question_id": 1, "answer": 1, "model_answer": 1}
     )
     if not scenario:
         return {"error": "not found"}
-    raw = scenario.get("answer", "")
-    # Show chars around position 7187 where the error is
-    err_pos = 7187
-    context_start = max(0, err_pos - 100)
-    context_end = min(len(raw), err_pos + 100)
-    return {
-        "title": scenario.get("title"),
-        "answer_length": len(raw),
-        "error_context": raw[context_start:context_end],
-        "error_position": err_pos,
-        "has_model_answer": "model_answer" in scenario,
-        "first_200": raw[:200],
+
+    # Try model_answer field first
+    raw = scenario.get("model_answer", "")
+    parsed = None
+    if raw:
+        try:
+            parsed = json_mod.loads(raw) if isinstance(raw, str) else raw
+        except Exception:
+            pass
+
+    # If model_answer also fails, fix the truncated answer by appending closing brackets
+    if not parsed:
+        raw = scenario.get("answer", "")
+        # The JSON is truncated - try appending closing brackets
+        for fix in [']}}', ']}', '}']:
+            try:
+                parsed = json_mod.loads(raw + fix)
+                break
+            except Exception:
+                continue
+
+    if not parsed or not isinstance(parsed.get("modelAnswer"), list):
+        return {"error": "could not parse either field", "model_answer_len": len(str(scenario.get("model_answer", "")))}
+
+    # Now categorize into REACTION keys
+    REACTION_KEYWORDS = {
+        "R": ['safety', 'medical', 'ambulance', 'render aid', 'ems', 'arrive', 'approach',
+              'officer safety', 'life-saving', 'paramedic', 'hospital', 'injured', 'wound',
+              'first aid', 'ensure safety', 'respond'],
+        "E": ['perimeter', 'crime scene', 'secure', 'tape', 'log', 'access', 'inner', 'outer',
+              'establish', 'scene status', 'uniformed', 'scene supervisor', 'command post'],
+        "A": ['miranda', 'custody', 'detain', 'arrest', 'apprehend', 'suspect', 'handcuff',
+              'advise', 'rights', 'probable cause', 'booking'],
+        "C": ['witness', 'interview', 'canvass', 'statement', 'separate', 'canvas', 'neighbor',
+              'bystander', 'victim statement', 'employee', 'family member', 'next of kin'],
+        "T": ['photograph', 'document', 'bwc', 'body worn', 'sketch', 'notes', 'crime scene tech',
+              'diagram', 'measure', 'record', 'body-worn', 'video record', 'scene photo'],
+        "I": ['preserve', 'physical evidence', 'shell casing', 'chain of custody', 'tag', 'package',
+              'forensic', 'ballistic', 'gunshot residue', 'dna', 'trace evidence', 'fingerprint',
+              'evidence tech', 'lab', 'blood', 'fiber', 'weapon', 'firearm', 'inventory',
+              'collect evidence', 'process evidence', 'swab', 'gsr', 'toxicology'],
+        "O": ['asa', 'felony review', 'search warrant', 'consent to search', 'court order',
+              'subpoena', 'medical examiner', 'state attorney', 'legal', 'prosecutor',
+              "state's attorney", 'warrant', 'copa', 'notify', 'dcfs'],
+        "N": ['case report', 'supplementary', 'follow-up', 'surveillance', 'security camera',
+              'footage', 'leads', 'pawn shop', 'photo lineup', 'show-up', 'background check',
+              'bolo', 'flash message', 'alert', 'monitor', 'coordinate', 'ongoing',
+              'social media', 'safety plan', 'victim services', 'resources'],
     }
+
+    items = parsed["modelAnswer"]
+    buckets = {k: [] for k in "REACTION"}
+    used = set()
+    for idx, item in enumerate(items):
+        lower = item.lower()
+        for letter, keywords in REACTION_KEYWORDS.items():
+            if any(kw in lower for kw in keywords):
+                buckets[letter].append(item)
+                used.add(idx)
+                break
+    for idx, item in enumerate(items):
+        if idx not in used:
+            buckets["N"].append(item)
+
+    reaction_obj = {k: v for k, v in buckets.items() if v}
+    new_answer = json_mod.dumps({"modelAnswer": reaction_obj})
+
+    await db.questions.update_one(
+        {"question_id": scenario["question_id"]},
+        {"$set": {"answer": new_answer}}
+    )
+    return {"status": "fixed", "keys": list(reaction_obj.keys()), "total_items": len(items)}
 
 @api_router.get("/debug-scenario-titles")
 async def debug_scenario_titles():

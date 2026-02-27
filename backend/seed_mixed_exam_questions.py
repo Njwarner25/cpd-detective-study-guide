@@ -12,7 +12,7 @@ client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
 
-async def seed_mixed_exam():
+async def seed_mixed_exam(ext_db=None):
     """Seed I/O-style mixed-method detective exam questions.
 
     Question types:
@@ -21,7 +21,14 @@ async def seed_mixed_exam():
       - legal_trap: Tricky legal/constitutional questions (+2 correct, -2 wrong)
       - digital_evidence: Digital evidence scenario MCQs
       - mini_scenario: Short written scenarios graded by AI (R.E.A.C.T.I.O.N.)
+
+    Args:
+        ext_db: Optional external database connection. If provided, uses it
+                instead of the module-level db.
     """
+    global db
+    if ext_db is not None:
+        db = ext_db
 
     now = datetime.now(timezone.utc)
 

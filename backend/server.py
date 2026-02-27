@@ -2308,6 +2308,32 @@ FEEDBACK:
     }
 
 
+# ========== ADMIN SEED ENDPOINT ==========
+@api_router.post("/admin/seed-exam-questions")
+async def seed_exam_questions():
+    """Seed ranking + mixed exam questions into the database.
+    No auth required — idempotent upsert, safe to call multiple times."""
+    try:
+        from seed_ranking_questions import seed_ranking_questions
+        from seed_mixed_exam_questions import seed_mixed_exam
+
+        await seed_ranking_questions(ext_db=db)
+        await seed_mixed_exam(ext_db=db)
+
+        counts = {
+            "ranking": await db.questions.count_documents({"type": "ranking"}),
+            "most_appropriate": await db.questions.count_documents({"type": "most_appropriate"}),
+            "least_appropriate": await db.questions.count_documents({"type": "least_appropriate"}),
+            "legal_trap": await db.questions.count_documents({"type": "legal_trap"}),
+            "digital_evidence": await db.questions.count_documents({"type": "digital_evidence"}),
+            "mini_scenario": await db.questions.count_documents({"type": "mini_scenario"}),
+        }
+        return {"status": "success", "counts": counts}
+    except Exception as e:
+        logging.error(f"Seed failed: {e}")
+        raise HTTPException(status_code=500, detail=f"Seed failed: {str(e)}")
+
+
 app.include_router(api_router)
 
 

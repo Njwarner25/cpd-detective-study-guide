@@ -12,7 +12,7 @@ client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
 
-async def seed_ranking_questions():
+async def seed_ranking_questions(ext_db=None):
     """Seed 20 ranking questions based on CPD General Orders and I/O Solutions format.
 
     Each question presents a scenario and 6 actions (A-F) that must be ranked
@@ -22,7 +22,14 @@ async def seed_ranking_questions():
       Off by 2 = 0
       Off by 3 = -1
       Off by 4+ = -2
+
+    Args:
+        ext_db: Optional external database connection. If provided, uses it
+                instead of the module-level db.
     """
+    global db
+    if ext_db is not None:
+        db = ext_db
 
     # Ensure the ranking category exists
     await db.categories.update_one(

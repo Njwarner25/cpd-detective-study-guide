@@ -40,18 +40,16 @@ const showAlert = (title: string, message: string, buttons?: any[]) => {
   }
 };
 
-// D.E.T.E.C.T.I.V.E.S. Framework data
-const DETECTIVES_FRAMEWORK = [
-  { letter: 'D', title: 'Document the Scene', desc: 'Secure, photograph, and preserve all evidence at the scene' },
-  { letter: 'E', title: 'Establish Perimeter', desc: 'Set inner/outer perimeter with uniformed personnel' },
-  { letter: 'T', title: 'Talk to Witnesses', desc: 'Separate, identify, and interview all witnesses individually' },
-  { letter: 'E', title: 'Evidence Collection', desc: 'Tag, log, and maintain chain of custody for all evidence' },
-  { letter: 'C', title: 'Communicate & Coordinate', desc: 'Notify ASA, request forensics, issue flash messages' },
-  { letter: 'T', title: 'Technology & Surveillance', desc: 'Obtain security footage, LEADS/CLEAR checks, digital evidence' },
-  { letter: 'I', title: 'Interrogation & Interviews', desc: 'Miranda rights, recorded interrogation, detailed statements' },
-  { letter: 'V', title: 'Verify & Validate', desc: 'Cross-reference statements, confirm IDs, check alibis' },
-  { letter: 'E', title: 'Examine Forensics', desc: 'Ballistics, DNA, gunshot residue, trace evidence analysis' },
-  { letter: 'S', title: 'Summarize & Report', desc: 'Complete case report, felony 101, PCAD documentation' },
+// R.E.A.C.T.I.O.N. Framework data
+const REACTION_FRAMEWORK = [
+  { letter: 'R', title: 'Respond & Render Aid', desc: 'Arrive safely, ensure safety, provide medical aid' },
+  { letter: 'E', title: 'Establish the Scene', desc: 'Secure perimeters, control entry/exit' },
+  { letter: 'A', title: 'Arrest/Detain & Advise', desc: 'Locate suspects, Miranda if custodial' },
+  { letter: 'C', title: 'Collect/Identify Witnesses', desc: 'Separate witnesses, conduct interviews' },
+  { letter: 'T', title: 'Take Notes & Document', desc: 'Photos, video/BWC, sketches, notes' },
+  { letter: 'I', title: 'Inventory & Process Evidence', desc: 'Collect, package, chain of custody' },
+  { letter: 'O', title: 'Obtain Legal/Consult', desc: 'Search warrants, Felony Review' },
+  { letter: 'N', title: 'Next Steps & Notification', desc: 'Case reports, notify supervisors, follow-up' },
 ];
 
 export default function PracticeScenario() {
@@ -100,16 +98,14 @@ export default function PracticeScenario() {
       const parsed = typeof scenario.answer === 'string' ? JSON.parse(scenario.answer) : scenario.answer;
       if (parsed?.modelAnswer && Array.isArray(parsed.modelAnswer)) {
         const sections = [
-          { header: 'D - Document the Scene', keywords: ['photograph', 'crime scene tech', 'supervisor', 'scene status', 'weapons on scene', 'case report', 'felony 101', 'PCAD', 'document scene', 'document owner', 'document all civilian', 'document all statements', 'record all evidence'] },
-          { header: 'E - Establish Perimeter', keywords: ['perimeter', 'canine', 'uniformed'] },
-          { header: 'T - Talk to Witnesses', keywords: ['witness', 'interview', 'canvass', 'fire department', 'statement from', 'command post'] },
-          { header: 'E - Evidence Collection', keywords: ['preserve', 'physical evidence', 'shell casing', 'jewelry inventory', 'chain of custody', "owner's weapon", 'stolen'] },
-          { header: 'C - Communicate & Coordinate', keywords: ['asa', 'flash message', 'medical examiner', 'notify'] },
-          { header: 'T - Technology & Surveillance', keywords: ['security camera', 'footage', 'leads', 'clear system', 'surveillance', 'pawn shop', 'fencing'] },
-          { header: 'I - Interrogation & Interviews', keywords: ['miranda', 'electronically recorded', 'interrogation', 'apprehending officer', "suspect's statement", 'inconsistencies'] },
-          { header: 'V - Verify & Validate', keywords: ['photo lineup', 'show-up', 'background check', 'consent to search', 'footwear', 'clothing'] },
-          { header: 'E - Examine Forensics', keywords: ['forensic services', 'ballistics', 'gunshot residue', 'dna', 'trace evidence'] },
-          { header: 'S - Summarize & Report', keywords: ['arrest report', 'trr', 'tactical response', 'chain of custody maintained', 'tagged', 'file arrest'] },
+          { header: 'R - Respond & Render Aid', keywords: ['safety', 'medical', 'ambulance', 'render aid', 'cfd', 'fire department', 'ems', 'arrive', 'approach', 'officer safety'] },
+          { header: 'E - Establish the Scene', keywords: ['perimeter', 'canine', 'uniformed', 'crime scene', 'secure', 'tape', 'log', 'access', 'inner', 'outer'] },
+          { header: 'A - Arrest/Detain & Advise', keywords: ['miranda', 'custody', 'detain', 'arrest', 'apprehend', 'suspect', 'handcuff', 'advise'] },
+          { header: 'C - Collect/Identify Witnesses', keywords: ['witness', 'interview', 'canvass', 'statement from', 'separate', 'identify', 'command post'] },
+          { header: 'T - Take Notes & Document', keywords: ['photograph', 'crime scene tech', 'supervisor', 'scene status', 'weapons on scene', 'document scene', 'document owner', 'document all civilian', 'document all statements', 'record all evidence', 'bwc', 'body worn', 'sketch', 'notes'] },
+          { header: 'I - Inventory & Process Evidence', keywords: ['preserve', 'physical evidence', 'shell casing', 'jewelry inventory', 'chain of custody', "owner's weapon", 'stolen', 'tag', 'package', 'forensic services', 'ballistics', 'gunshot residue', 'dna', 'trace evidence', 'fingerprint'] },
+          { header: 'O - Obtain Legal/Consult', keywords: ['asa', 'felony review', 'search warrant', 'consent to search', 'court order', 'subpoena', 'flash message', 'medical examiner', 'notify'] },
+          { header: 'N - Next Steps & Notification', keywords: ['case report', 'felony 101', 'PCAD', 'arrest report', 'trr', 'tactical response', 'chain of custody maintained', 'tagged', 'file arrest', 'supplementary', 'follow-up', 'surveillance', 'security camera', 'footage', 'leads', 'clear system', 'pawn shop', 'fencing', 'photo lineup', 'show-up', 'background check'] },
         ];
         const buckets: Record<string, string[]> = {};
         const used = new Set<number>();
@@ -365,7 +361,7 @@ export default function PracticeScenario() {
       // Bold headers: **D - Document the Scene**
       else if (trimmed.startsWith('**') && trimmed.endsWith('**')) {
         const content = trimmed.replace(/\*\*/g, '');
-        // Color the letter for D.E.T.E.C.T.I.V.E.S. framework items
+        // Color the letter for R.E.A.C.T.I.O.N. framework items
         const letterMatch = content.match(/^([A-Z]) - (.+)/);
         if (letterMatch) {
           elements.push(
@@ -513,7 +509,7 @@ export default function PracticeScenario() {
             <View style={styles.divider} />
 
             {/* Main AI Feedback */}
-            <Text style={styles.feedbackLabel}>D.E.T.E.C.T.I.V.E.S. Assessment:</Text>
+            <Text style={styles.feedbackLabel}>R.E.A.C.T.I.O.N. Assessment:</Text>
             {renderStructuredFeedback(result.feedback)}
 
             {/* Wrench AI Feedback */}
@@ -698,7 +694,7 @@ export default function PracticeScenario() {
               <Text style={styles.timerPreviewText}>{formatTime(totalTime)}</Text>
             </View>
 
-            {/* D.E.T.E.C.T.I.V.E.S. Framework */}
+            {/* R.E.A.C.T.I.O.N. Framework */}
             {scenario.study_tip && (
               <View style={styles.studyTipContainer}>
                 <TouchableOpacity
@@ -707,7 +703,7 @@ export default function PracticeScenario() {
                 >
                   <View style={styles.studyTipHeaderLeft}>
                     <Ionicons name="bulb" size={20} color="#f59e0b" />
-                    <Text style={styles.studyTipHeaderText}>D.E.T.E.C.T.I.V.E.S. Framework</Text>
+                    <Text style={styles.studyTipHeaderText}>R.E.A.C.T.I.O.N. Framework</Text>
                   </View>
                   <Ionicons
                     name={showStudyTip ? 'chevron-up' : 'chevron-down'}
@@ -717,7 +713,7 @@ export default function PracticeScenario() {
                 </TouchableOpacity>
                 {showStudyTip && (
                   <View style={styles.studyTipContent}>
-                    {DETECTIVES_FRAMEWORK.map((item, index) => (
+                    {REACTION_FRAMEWORK.map((item, index) => (
                       <View key={index} style={styles.frameworkItem}>
                         <Text style={styles.frameworkLetter}>{item.letter}</Text>
                         <View style={styles.frameworkText}>

@@ -56,6 +56,15 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
+        name="leaderboard"
+        options={{
+          title: 'Rankings',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="podium" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="support"
         options={{
           title: 'Support',

@@ -795,23 +795,52 @@ STUDENT RESPONSE:
 
 Provide your response in this exact format:
 GRADE: [number 0-100]
-FEEDBACK: [detailed feedback explaining the grade, what was correct, what was missing, and how to improve]"""
+FEEDBACK:
+**R - Respond & Render Aid**
+- [what the student did well or missed for this step]
+
+**E - Establish the Scene**
+- [what the student did well or missed for this step]
+
+**A - Arrest/Detain & Advise**
+- [what the student did well or missed for this step]
+
+**C - Collect/Identify Witnesses**
+- [what the student did well or missed for this step]
+
+**T - Take Notes & Document**
+- [what the student did well or missed for this step]
+
+**I - Inventory & Process Evidence**
+- [what the student did well or missed for this step]
+
+**O - Obtain Legal/Consult**
+- [what the student did well or missed for this step]
+
+**N - Next Steps & Notification**
+- [what the student did well or missed for this step]
+
+**Overall:** [brief summary and how to improve]"""
         
         response = await client.chat.completions.create(
             model="gpt-4o",
             messages=[
-                {"role": "system", "content": """You are an expert grader for Chicago Police Department detective exam scenarios. 
-Your job is to evaluate responses based on:
-- Knowledge of relevant laws and procedures
-- Proper application of Chicago PD directives
-- Logical reasoning and decision-making
-- Clarity and completeness of response
+                {"role": "system", "content": """You are an expert grader for Chicago Police Department detective exam scenarios.
+Your job is to evaluate responses using the R.E.A.C.T.I.O.N. framework:
+  R - Respond & Render Aid (arrive safely, ensure safety, provide medical aid)
+  E - Establish the Scene (secure perimeters, control entry/exit)
+  A - Arrest/Detain & Advise (locate suspects, Miranda if custodial)
+  C - Collect/Identify Witnesses (separate witnesses, conduct interviews)
+  T - Take Notes & Document (photos, video/BWC, sketches, notes)
+  I - Inventory & Process Evidence (collect, package, chain of custody)
+  O - Obtain Legal/Consult (search warrants, Felony Review)
+  N - Next Steps & Notification (case reports, notify supervisors, follow-up)
 
-Provide a grade from 0-100 and detailed feedback."""},
+Provide a grade from 0-100 and detailed feedback organized by R.E.A.C.T.I.O.N. steps."""},
                 {"role": "user", "content": prompt}
             ],
             temperature=0.3,
-            max_tokens=500
+            max_tokens=1000
         )
         
         ai_response = response.choices[0].message.content

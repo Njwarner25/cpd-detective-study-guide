@@ -98,11 +98,11 @@ export default function Scenarios() {
           )}
         </TouchableOpacity>
 
-        {/* ===== D.E.T.E.C.T.I.V.E.S. Framework ===== */}
+        {/* ===== R.E.A.C.T.I.O.N. Framework ===== */}
         <TouchableOpacity style={s.fwCard} onPress={() => setShowFramework(!showFramework)} activeOpacity={0.8}>
           <View style={s.gradingHeader}>
             <Ionicons name="shield-checkmark-outline" size={20} color="#60a5fa" />
-            <Text style={s.gradingTitle}>D.E.T.E.C.T.I.V.E.S. Framework</Text>
+            <Text style={s.gradingTitle}>R.E.A.C.T.I.O.N. Framework</Text>
             <Ionicons name={showFramework ? 'chevron-up' : 'chevron-down'} size={18} color="#94a3b8" />
           </View>
 
@@ -110,16 +110,14 @@ export default function Scenarios() {
             <View style={s.gradingBody}>
               <Text style={s.gradingText}>Use this acronym to organize your response and hit every major scoring area:</Text>
               {[
-                ['D','Document the Scene','Secure scene, crime scene logs, photograph, preserve evidence'],
-                ['E','Establish Perimeter','Inner/outer perimeter, crime scene tape, control access points'],
-                ['T','Talk to Witnesses','Separate, identify, interview individually, written statements'],
-                ['E','Evidence Collection','Tag, log, chain of custody, request ET/forensic services'],
-                ['C','Communicate & Coordinate','Notify OEMC, watch commander, Area detectives, ASA, BOLOs'],
-                ['T','Technology & Surveillance','POD cameras, private cameras, LEADS/CLEAR checks, digital evidence'],
-                ['I','Interrogation & Interviews','Miranda warnings, recorded interrogation, suspect statements'],
-                ['V','Verify & Validate','Cross-reference statements, photo arrays, check alibis, timelines'],
-                ['E','Examine Forensics','Ballistics, DNA, gunshot residue, fingerprints, trace evidence'],
-                ['S','Summarize & Report','Case report, supplementary reports, evidence inventory, court prep'],
+                ['R','Respond & Render Aid','Arrive safely, ensure safety, provide medical aid'],
+                ['E','Establish the Scene','Secure perimeters, control entry/exit, crime scene tape'],
+                ['A','Arrest/Detain & Advise','Locate suspects, Miranda if custodial, detain & advise rights'],
+                ['C','Collect/Identify Witnesses','Separate witnesses, conduct interviews, written statements'],
+                ['T','Take Notes & Document','Photos, video/BWC, sketches, notes, crime scene logs'],
+                ['I','Inventory & Process Evidence','Collect, package, chain of custody, request ET/forensic services'],
+                ['O','Obtain Legal/Consult','Search warrants, Felony Review, ASA consultation'],
+                ['N','Next Steps & Notification','Case reports, notify supervisors, follow-up, court prep'],
               ].map(([letter, title, desc], i) => (
                 <View key={i} style={s.fwItem}>
                   <View style={s.fwBadge}><Text style={s.fwLetter}>{letter}</Text></View>

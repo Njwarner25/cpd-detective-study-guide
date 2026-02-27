@@ -2316,9 +2316,11 @@ async def seed_exam_questions():
     try:
         from seed_ranking_questions import seed_ranking_questions
         from seed_mixed_exam_questions import seed_mixed_exam
+        from seed_legal_trap_extra import seed_legal_trap_extra
 
         await seed_ranking_questions(ext_db=db)
         await seed_mixed_exam(ext_db=db)
+        await seed_legal_trap_extra(ext_db=db)
 
         counts = {
             "ranking": await db.questions.count_documents({"type": "ranking"}),

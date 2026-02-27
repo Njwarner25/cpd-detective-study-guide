@@ -36,7 +36,7 @@ interface ChatOverlayProps {
 const WELCOME_MESSAGE: Message = {
   id: 'welcome',
   role: 'assistant',
-  content: "Hey there, Detective! I'm your study buddy. I can see the scenario you're working on. Ask me for hints or guidance — I won't give away the answer, but I'll help you think through it using the R.E.A.C.T.I.O.N. framework!",
+  content: "Hey there, Detective! I'm Bot 9165, your study buddy. I can see the scenario you're working on. Ask me for hints or guidance — I won't give away the answer, but I'll help you think through it using the R.E.A.C.T.I.O.N. framework!",
 };
 
 const QUICK_ACTIONS = [
@@ -169,7 +169,7 @@ export default function ChatOverlay({
                 style={styles.headerAvatar}
               />
               <View>
-                <Text style={styles.headerTitle}>Detective Bot</Text>
+                <Text style={styles.headerTitle}>Bot 9165</Text>
                 <Text style={styles.headerSubtitle}>Study Mentor</Text>
               </View>
             </View>
@@ -213,7 +213,7 @@ export default function ChatOverlay({
           {loading && (
             <View style={styles.loadingRow}>
               <ActivityIndicator size="small" color="#3b82f6" />
-              <Text style={styles.loadingText}>Detective Bot is thinking...</Text>
+              <Text style={styles.loadingText}>Bot 9165 is thinking...</Text>
             </View>
           )}
 
@@ -229,7 +229,7 @@ export default function ChatOverlay({
           <View style={styles.inputBar}>
             <TextInput
               style={styles.input}
-              placeholder="Ask Detective Bot..."
+              placeholder="Ask Bot 9165..."
               placeholderTextColor="#64748b"
               value={inputText}
               onChangeText={setInputText}

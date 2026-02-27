@@ -521,7 +521,7 @@ export default function PracticeScenario() {
             <View style={styles.upsellCard}>
               <Ionicons name="trophy-outline" size={28} color="#fbbf24" />
               <Text style={styles.upsellTitle}>You just completed 1 of 20 scenarios</Text>
-              <Text style={styles.upsellDesc}>Unlock all 20 scenarios with AI grading, curveball events, and Detective Bot for just $25</Text>
+              <Text style={styles.upsellDesc}>Unlock all 20 scenarios with AI grading, curveball events, and Bot 9165 for just $25</Text>
               <TouchableOpacity style={styles.upsellBtn} onPress={() => router.push('/upgrade')}>
                 <Ionicons name="star" size={16} color="#000" />
                 <Text style={styles.upsellBtnTxt}>Unlock Premium {'\u2014'} $25.00</Text>

@@ -884,7 +884,7 @@ async def get_scenario_history(user: User = Depends(require_user)):
 
 @api_router.post("/chatbot/message")
 async def chatbot_message(data: ChatbotMessage, user: User = Depends(require_user)):
-    """Detective Bot - AI mentor for scenario practice"""
+    """Bot 9165 - AI mentor for scenario practice"""
     try:
         if not ANTHROPIC_API_KEY:
             raise Exception("Anthropic API key not configured")
@@ -897,7 +897,7 @@ async def chatbot_message(data: ChatbotMessage, user: User = Depends(require_use
         scenario_text = question.get("description") or question.get("content", "")
         model_answer = question.get("model_answer") or question.get("answer", "")
 
-        system_prompt = f"""You are Detective Bot, a friendly and encouraging AI mentor helping a Chicago Police Department officer study for the Detective Exam. You are guiding them through a practice scenario.
+        system_prompt = f"""You are Bot 9165, a friendly and encouraging AI mentor helping a Chicago Police Department officer study for the Detective Exam. You are guiding them through a practice scenario.
 
 SCENARIO THE STUDENT IS WORKING ON:
 {scenario_text}

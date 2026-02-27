@@ -492,6 +492,15 @@ async def migrate_reaction_answers():
         logging.error(f"Migration error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+@api_router.get("/debug-scenario-titles")
+async def debug_scenario_titles():
+    """Temporary: list all scenario titles in the database"""
+    scenarios = await db.questions.find(
+        {"type": "scenario"},
+        {"_id": 0, "title": 1, "category_id": 1}
+    ).to_list(100)
+    return {"count": len(scenarios), "scenarios": scenarios}
+
 # ========== VERSION CHECK ENDPOINT ==========
 def compare_versions(v1: str, v2: str) -> int:
     """Compare two version strings. Returns: -1 if v1 < v2, 0 if equal, 1 if v1 > v2"""

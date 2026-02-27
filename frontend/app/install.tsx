@@ -178,7 +178,7 @@ export default function InstallApp() {
               </Text>
               <TouchableOpacity 
                 style={styles.webAppButton} 
-                onPress={() => Linking.openURL('https://cpd-detective-study-guide-production.up.railway.app')}
+                onPress={() => Linking.openURL('https://www.detectiveexamstudyguide.com')}
               >
                 <Ionicons name="globe" size={24} color="#fff" />
                 <Text style={styles.webAppButtonText}>Open Web App</Text>

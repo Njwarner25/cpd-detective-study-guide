@@ -19,7 +19,7 @@ import { questionService, scenarioService } from '../services/api';
 import DetectiveBotBubble from '../components/DetectiveBotBubble';
 import ChatOverlay from '../components/ChatOverlay';
 
-const DEFAULT_TIME = 15 * 60; // 15 minutes for standard scenarios
+const DEFAULT_TIME = 20 * 60; // 20 minutes for all scenarios
 const COMPLEX_TIME = 20 * 60; // 20 minutes for complex scenarios
 
 // Cross-platform alert helper

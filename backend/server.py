@@ -516,7 +516,25 @@ async def migrate_reaction_answers():
         title = scenario.get("title", "unknown")
         try:
             raw = scenario.get("answer", "")
-            parsed = json_mod.loads(raw) if isinstance(raw, str) else raw
+            # Fix common JSON issues: unescaped quotes inside strings
+            if isinstance(raw, str):
+                try:
+                    parsed = json_mod.loads(raw)
+                except json_mod.JSONDecodeError:
+                    # Try fixing by replacing problematic characters
+                    cleaned = raw.replace('\n', '\\n').replace('\t', '\\t')
+                    try:
+                        parsed = json_mod.loads(cleaned)
+                    except json_mod.JSONDecodeError:
+                        # Last resort: use model_answer field if available
+                        raw2 = scenario.get("model_answer", "")
+                        if raw2:
+                            parsed = json_mod.loads(raw2) if isinstance(raw2, str) else raw2
+                        else:
+                            errors.append(f"{title}: unparseable JSON, skipping")
+                            continue
+            else:
+                parsed = raw
 
             if not parsed or not isinstance(parsed.get("modelAnswer"), list):
                 errors.append(f"{title}: not a flat array, skipping")

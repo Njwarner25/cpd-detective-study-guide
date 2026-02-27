@@ -571,6 +571,29 @@ async def migrate_reaction_answers():
 
     return {"updated": updated, "total": len(scenarios), "errors": errors}
 
+@api_router.get("/debug-broken-scenario")
+async def debug_broken_scenario():
+    """Show the raw answer for ARMED ROBBERY WITH DEATH to diagnose JSON issue"""
+    scenario = await db.questions.find_one(
+        {"title": "ARMED ROBBERY WITH DEATH", "type": "scenario"},
+        {"_id": 0, "title": 1, "answer": 1, "model_answer": 1}
+    )
+    if not scenario:
+        return {"error": "not found"}
+    raw = scenario.get("answer", "")
+    # Show chars around position 7187 where the error is
+    err_pos = 7187
+    context_start = max(0, err_pos - 100)
+    context_end = min(len(raw), err_pos + 100)
+    return {
+        "title": scenario.get("title"),
+        "answer_length": len(raw),
+        "error_context": raw[context_start:context_end],
+        "error_position": err_pos,
+        "has_model_answer": "model_answer" in scenario,
+        "first_200": raw[:200],
+    }
+
 @api_router.get("/debug-scenario-titles")
 async def debug_scenario_titles():
     """Temporary: list all scenario titles and a sample answer"""

@@ -264,18 +264,11 @@ export default function PracticeScenario() {
     setIsStarted(true);
     setPhase('respond');
     startTimeRef.current = Date.now();
-    // Auto-read scenario aloud when starting
+    // Auto-read scenario aloud when starting (uses ElevenLabs via backend)
     if (scenario) {
       const text = scenario.description || scenario.content;
-      if (text && Platform.OS === 'web' && 'speechSynthesis' in window) {
-        stopTTS();
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.rate = 0.9;
-        utterance.onend = () => setIsTTSPlaying(false);
-        utterance.onerror = () => setIsTTSPlaying(false);
-        ttsRef.current = utterance;
-        window.speechSynthesis.speak(utterance);
-        setIsTTSPlaying(true);
+      if (text) {
+        toggleTTS(text);
       }
     }
   };

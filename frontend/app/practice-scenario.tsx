@@ -15,7 +15,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../contexts/AuthContext';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { questionService, scenarioService } from '../services/api';
+import { questionService, scenarioService, ttsService } from '../services/api';
 import DetectiveBotBubble from '../components/DetectiveBotBubble';
 import ChatOverlay from '../components/ChatOverlay';
 
@@ -185,55 +185,53 @@ export default function PracticeScenario() {
     }
   };
 
-  // ── TTS (Web Speech API for web, can extend for native) ──
-  const getBestVoice = (): SpeechSynthesisVoice | null => {
-    if (Platform.OS !== 'web' || !('speechSynthesis' in window)) return null;
-    const voices = window.speechSynthesis.getVoices();
-    // Prefer high-quality English voices in priority order
-    const preferred = [
-      'Google US English',
-      'Google UK English Male',
-      'Google UK English Female',
-      'Microsoft David',
-      'Microsoft Mark',
-      'Microsoft Zira',
-      'Samantha',
-      'Daniel',
-      'Alex',
-    ];
-    for (const name of preferred) {
-      const match = voices.find(v => v.name.includes(name));
-      if (match) return match;
+  // ── TTS (OpenAI high-quality voices via backend) ──
+  const toggleTTS = async (text: string) => {
+    if (isTTSPlaying) {
+      stopTTS();
+      return;
     }
-    // Fallback: any English voice
-    return voices.find(v => v.lang.startsWith('en')) || null;
-  };
 
-  const toggleTTS = (text: string) => {
-    if (Platform.OS === 'web' && 'speechSynthesis' in window) {
-      if (isTTSPlaying) {
-        stopTTS();
-      } else {
-        stopTTS();
+    try {
+      stopTTS();
+      setIsTTSPlaying(true);
+
+      const audioUrl = await ttsService.generateSpeech(text, sessionToken || undefined, 'nova');
+      const audio = new Audio(audioUrl);
+      audio.onended = () => {
+        setIsTTSPlaying(false);
+        URL.revokeObjectURL(audioUrl);
+      };
+      audio.onerror = () => {
+        setIsTTSPlaying(false);
+        URL.revokeObjectURL(audioUrl);
+      };
+      ttsRef.current = audio;
+      await audio.play();
+    } catch (e) {
+      console.error('TTS error:', e);
+      setIsTTSPlaying(false);
+      // Fallback to Web Speech API
+      if (Platform.OS === 'web' && 'speechSynthesis' in window) {
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.rate = 0.95;
-        utterance.pitch = 1.0;
-        const voice = getBestVoice();
-        if (voice) utterance.voice = voice;
         utterance.onend = () => setIsTTSPlaying(false);
         utterance.onerror = () => setIsTTSPlaying(false);
         ttsRef.current = utterance;
         window.speechSynthesis.speak(utterance);
         setIsTTSPlaying(true);
       }
-    } else {
-      showAlert('TTS Not Available', 'Text-to-speech is only available on web browsers.');
     }
   };
 
   const stopTTS = () => {
-    if (Platform.OS === 'web' && 'speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
+    if (ttsRef.current) {
+      if (ttsRef.current instanceof Audio) {
+        ttsRef.current.pause();
+        ttsRef.current.currentTime = 0;
+      } else if (Platform.OS === 'web' && 'speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
     }
     setIsTTSPlaying(false);
   };

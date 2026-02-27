@@ -1,5 +1,5 @@
 from fastapi import FastAPI, APIRouter, HTTPException, Depends, Cookie, Response, Header
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, StreamingResponse
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -167,6 +167,10 @@ class ChatbotMessage(BaseModel):
     user_message: str
     conversation_history: List[Dict[str, str]] = []
     user_current_response: str = ""
+
+class TTSRequest(BaseModel):
+    text: str
+    voice: str = "nova"  # alloy, echo, fable, onyx, nova, shimmer
 
 class ChatbotResponse(BaseModel):
     bot_response: str
@@ -963,6 +967,40 @@ YOUR RULES:
             bot_response="I'm having trouble connecting right now. Try asking me again in a moment!",
             hints_given=0
         )
+
+# ========== TTS ENDPOINT ==========
+
+@api_router.post("/tts")
+async def text_to_speech(data: TTSRequest, user: User = Depends(require_user)):
+    """Generate high-quality speech audio using OpenAI TTS"""
+    try:
+        api_key = OPENAI_API_KEY or EMERGENT_LLM_KEY
+        if not api_key:
+            raise Exception("OpenAI API key not configured")
+
+        # Limit text length to control costs (max ~5000 chars per request)
+        text = data.text[:5000]
+
+        from openai import AsyncOpenAI
+        client = AsyncOpenAI(api_key=api_key)
+
+        response = await client.audio.speech.create(
+            model="tts-1",
+            voice=data.voice,
+            input=text,
+            response_format="mp3",
+        )
+
+        audio_bytes = response.content
+        return StreamingResponse(
+            iter([audio_bytes]),
+            media_type="audio/mpeg",
+            headers={"Content-Disposition": "inline; filename=speech.mp3"}
+        )
+
+    except Exception as e:
+        logging.error(f"TTS error: {e}")
+        raise HTTPException(status_code=500, detail="Failed to generate speech audio")
 
 # ========== STATS ENDPOINTS ==========
 

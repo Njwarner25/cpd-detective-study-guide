@@ -289,6 +289,20 @@ export const chatbotService = {
   },
 };
 
+// TTS Service
+export const ttsService = {
+  async generateSpeech(text: string, token?: string, voice: string = 'nova'): Promise<string> {
+    const headers: any = { Authorization: `Bearer ${token}` };
+    const response = await api.post('/tts', { text, voice }, {
+      headers,
+      responseType: 'blob',
+      timeout: 60000,
+    });
+    const blob = new Blob([response.data], { type: 'audio/mpeg' });
+    return URL.createObjectURL(blob);
+  },
+};
+
 // Stats Service
 export const statsService = {
     async getStats(token?: string) {

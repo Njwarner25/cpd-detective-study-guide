@@ -66,6 +66,7 @@ MINIMUM_REQUIRED_VERSION = "1.5.0"
 EMERGENT_LLM_KEY = os.environ.get('EMERGENT_LLM_KEY')
 OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
 ANTHROPIC_API_KEY = os.environ.get('ANTHROPIC_API_KEY')
+ELEVENLABS_API_KEY = os.environ.get('ELEVENLABS_API_KEY')
 
 # ========== MODELS ==========
 
@@ -1001,14 +1002,59 @@ YOUR RULES:
 
 @api_router.post("/tts")
 async def text_to_speech(data: TTSRequest, user: User = Depends(require_user)):
-    """Generate high-quality speech audio using OpenAI TTS"""
+    """Generate high-quality speech audio using ElevenLabs TTS (primary) or OpenAI (fallback)"""
+    import httpx
+
+    # Limit text length to control costs
+    text = data.text[:5000]
+
+    # --- ElevenLabs (primary) ---
+    if ELEVENLABS_API_KEY:
+        try:
+            # ElevenLabs voice IDs — natural, human-sounding voices
+            voice_map = {
+                "nova": "EXAVITQu4vr4xnSDxMaL",      # Sarah – warm, engaging female
+                "alloy": "pFZP5JQG7iQjIQuC4Bku",      # Lily – calm female narrator
+                "echo": "CwhRBWXzGAHq8TQ4Fs17",       # Roger – confident male
+                "onyx": "TX3LPaxmHKxFdv7VOQHJ",       # Liam – deep male
+                "shimmer": "XB0fDUnXU5powFXDhCwa",     # Charlotte – warm British female
+                "fable": "jBpfuIE2acCO8z3wKNLl",       # George – warm British male
+            }
+            voice_id = voice_map.get(data.voice, voice_map["nova"])
+
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                response = await client.post(
+                    f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}",
+                    headers={
+                        "xi-api-key": ELEVENLABS_API_KEY,
+                        "Content-Type": "application/json",
+                    },
+                    json={
+                        "text": text,
+                        "model_id": "eleven_turbo_v2_5",
+                        "voice_settings": {
+                            "stability": 0.5,
+                            "similarity_boost": 0.75,
+                            "style": 0.4,
+                            "use_speaker_boost": True,
+                        },
+                    },
+                )
+                response.raise_for_status()
+                return StreamingResponse(
+                    iter([response.content]),
+                    media_type="audio/mpeg",
+                    headers={"Content-Disposition": "inline; filename=speech.mp3"},
+                )
+        except Exception as e:
+            logging.error(f"ElevenLabs TTS error: {e}")
+            # Fall through to OpenAI fallback
+
+    # --- OpenAI fallback ---
     try:
         api_key = OPENAI_API_KEY or EMERGENT_LLM_KEY
         if not api_key:
-            raise Exception("OpenAI API key not configured")
-
-        # Limit text length to control costs (max ~5000 chars per request)
-        text = data.text[:5000]
+            raise Exception("No TTS API key configured (set ELEVENLABS_API_KEY or OPENAI_API_KEY)")
 
         from openai import AsyncOpenAI
         client = AsyncOpenAI(api_key=api_key)
@@ -1020,15 +1066,13 @@ async def text_to_speech(data: TTSRequest, user: User = Depends(require_user)):
             response_format="mp3",
         )
 
-        audio_bytes = response.content
         return StreamingResponse(
-            iter([audio_bytes]),
+            iter([response.content]),
             media_type="audio/mpeg",
-            headers={"Content-Disposition": "inline; filename=speech.mp3"}
+            headers={"Content-Disposition": "inline; filename=speech.mp3"},
         )
-
     except Exception as e:
-        logging.error(f"TTS error: {e}")
+        logging.error(f"TTS error (all providers failed): {e}")
         raise HTTPException(status_code=500, detail="Failed to generate speech audio")
 
 # ========== STATS ENDPOINTS ==========

@@ -65,6 +65,7 @@ MINIMUM_REQUIRED_VERSION = "1.5.0"
 # LLM Keys
 EMERGENT_LLM_KEY = os.environ.get('EMERGENT_LLM_KEY')
 OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')
+ANTHROPIC_API_KEY = os.environ.get('ANTHROPIC_API_KEY')
 
 # ========== MODELS ==========
 
@@ -160,6 +161,16 @@ class ScenarioSubmit(BaseModel):
 
 class BookmarkToggle(BaseModel):
     question_id: str
+
+class ChatbotMessage(BaseModel):
+    question_id: str
+    user_message: str
+    conversation_history: List[Dict[str, str]] = []
+    user_current_response: str = ""
+
+class ChatbotResponse(BaseModel):
+    bot_response: str
+    hints_given: int = 0
 
 # ========== AUTH HELPERS ==========
 
@@ -842,8 +853,92 @@ async def get_scenario_history(user: User = Depends(require_user)):
         {"user_id": user.user_id},
         {"_id": 0}
     ).sort("submitted_at", -1).to_list(100)
-    
+
     return responses
+
+# ========== CHATBOT ENDPOINT ==========
+
+@api_router.post("/chatbot/message")
+async def chatbot_message(data: ChatbotMessage, user: User = Depends(require_user)):
+    """Detective Bot - AI mentor for scenario practice"""
+    try:
+        if not ANTHROPIC_API_KEY:
+            raise Exception("Anthropic API key not configured")
+
+        # Fetch the scenario from DB
+        question = await db.questions.find_one({"question_id": data.question_id}, {"_id": 0})
+        if not question:
+            raise HTTPException(status_code=404, detail="Question not found")
+
+        scenario_text = question.get("description") or question.get("content", "")
+        model_answer = question.get("model_answer") or question.get("answer", "")
+
+        system_prompt = f"""You are Detective Bot, a friendly and encouraging AI mentor helping a Chicago Police Department officer study for the Detective Exam. You are guiding them through a practice scenario.
+
+SCENARIO THE STUDENT IS WORKING ON:
+{scenario_text}
+
+MODEL ANSWER (HIDDEN FROM STUDENT - DO NOT REVEAL):
+{model_answer}
+
+THE STUDENT'S CURRENT TYPED RESPONSE SO FAR:
+{data.user_current_response or "(Student hasn't typed anything yet)"}
+
+YOUR RULES:
+1. NEVER reveal the full model answer or copy/paste sections from it
+2. Ask guiding questions to help the student think through the problem
+3. Hint at ONE missing R.E.A.C.T.I.O.N. framework area at a time
+4. Reference the R.E.A.C.T.I.O.N. framework steps:
+   R - Respond & Render Aid (arrive safely, ensure safety, provide medical aid)
+   E - Establish the Scene (secure perimeters, control entry/exit)
+   A - Arrest/Detain & Advise (locate suspects, Miranda if custodial)
+   C - Collect/Identify Witnesses (separate witnesses, conduct interviews)
+   T - Take Notes & Document (photos, video/BWC, sketches, notes)
+   I - Inventory & Process Evidence (collect, package, chain of custody)
+   O - Obtain Legal/Consult (search warrants, Felony Review)
+   N - Next Steps & Notification (case reports, notify supervisors, follow-up)
+5. Be encouraging but push the student to think deeper
+6. Keep responses concise (2-4 sentences max)
+7. If the student asks for the answer directly, remind them that working through it builds stronger exam skills
+8. Use a professional but supportive tone appropriate for law enforcement training"""
+
+        import anthropic
+        client = anthropic.AsyncAnthropic(api_key=ANTHROPIC_API_KEY)
+
+        # Build messages from conversation history (cap at 20)
+        messages = []
+        history = data.conversation_history[-20:] if len(data.conversation_history) > 20 else data.conversation_history
+        for msg in history:
+            role = msg.get("role", "user")
+            if role in ("user", "assistant"):
+                messages.append({"role": role, "content": msg.get("content", "")})
+
+        # Add the current user message
+        messages.append({"role": "user", "content": data.user_message})
+
+        response = await client.messages.create(
+            model="claude-sonnet-4-20250514",
+            system=system_prompt,
+            messages=messages,
+            temperature=0.7,
+            max_tokens=500,
+        )
+
+        bot_response = response.content[0].text
+
+        # Count hints given (approximate by counting assistant messages)
+        hints_given = len([m for m in history if m.get("role") == "assistant"]) + 1
+
+        return ChatbotResponse(bot_response=bot_response, hints_given=hints_given)
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Chatbot error: {e}")
+        return ChatbotResponse(
+            bot_response="I'm having trouble connecting right now. Try asking me again in a moment!",
+            hints_given=0
+        )
 
 # ========== STATS ENDPOINTS ==========
 

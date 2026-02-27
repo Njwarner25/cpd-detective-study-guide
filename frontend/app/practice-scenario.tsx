@@ -16,6 +16,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../contexts/AuthContext';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { questionService, scenarioService } from '../services/api';
+import DetectiveBotBubble from '../components/DetectiveBotBubble';
+import ChatOverlay from '../components/ChatOverlay';
 
 const DEFAULT_TIME = 15 * 60; // 15 minutes for standard scenarios
 const COMPLEX_TIME = 20 * 60; // 20 minutes for complex scenarios
@@ -70,6 +72,8 @@ export default function PracticeScenario() {
   const [showStudyTip, setShowStudyTip] = useState(false);
   const [isTTSPlaying, setIsTTSPlaying] = useState(false);
   const [phase, setPhase] = useState<'start' | 'respond' | 'wrench' | 'result'>('start');
+  const [chatVisible, setChatVisible] = useState(false);
+  const [hintCount, setHintCount] = useState(0);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef<number>(0);
   const ttsRef = useRef<any>(null);
@@ -779,7 +783,17 @@ export default function PracticeScenario() {
             )}
           </TouchableOpacity>
         </View>
+
       </KeyboardAvoidingView>
+
+      <DetectiveBotBubble onPress={() => setChatVisible(true)} hintCount={hintCount} />
+      <ChatOverlay
+        visible={chatVisible}
+        onClose={() => setChatVisible(false)}
+        questionId={scenario.question_id}
+        userCurrentResponse={response}
+        onHintReceived={(count) => setHintCount(count)}
+      />
     </SafeAreaView>
   );
 }

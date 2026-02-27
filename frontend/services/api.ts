@@ -275,6 +275,20 @@ export const scenarioService = {
                          },
 };
 
+// Chatbot Service
+export const chatbotService = {
+  async sendMessage(data: {
+    question_id: string;
+    user_message: string;
+    conversation_history: { role: string; content: string }[];
+    user_current_response: string;
+  }, token?: string) {
+    const headers = token ? { Authorization: `Bearer ${token}` } : {};
+    const response = await api.post('/chatbot/message', data, { headers, timeout: 30000 });
+    return response.data;
+  },
+};
+
 // Stats Service
 export const statsService = {
     async getStats(token?: string) {

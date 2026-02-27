@@ -470,6 +470,28 @@ async def health_check():
     except Exception as e:
         return {"status": "unhealthy", "database": str(e)}
 
+@api_router.post("/migrate-reaction-answers")
+async def migrate_reaction_answers():
+    """One-time migration: update all scenario answers to REACTION-keyed JSON format"""
+    try:
+        from reaction_answers import REACTION_ANSWERS
+        import json as json_mod
+        updated = 0
+        not_found = []
+        for title, answer_dict in REACTION_ANSWERS.items():
+            result = await db.questions.update_many(
+                {"title": title, "type": "scenario"},
+                {"$set": {"answer": json_mod.dumps(answer_dict)}}
+            )
+            if result.modified_count > 0:
+                updated += result.modified_count
+            else:
+                not_found.append(title)
+        return {"updated": updated, "not_found": not_found}
+    except Exception as e:
+        logging.error(f"Migration error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 # ========== VERSION CHECK ENDPOINT ==========
 def compare_versions(v1: str, v2: str) -> int:
     """Compare two version strings. Returns: -1 if v1 < v2, 0 if equal, 1 if v1 > v2"""

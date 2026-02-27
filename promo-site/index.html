@@ -183,7 +183,47 @@ h2 { font-size: clamp(2rem, 4vw, 3.4rem); font-weight: 800; line-height: 1.15; m
 }
 .curveball-cards .card.show { opacity: 1; transform: translateX(0); }
 
-/* ── Section 5: Pricing ── */
+/* ── Section 5: Exam Types ── */
+.exam-grid {
+  display: flex; flex-wrap: wrap; gap: 14px;
+  justify-content: center; margin-top: 24px;
+  max-width: 700px;
+}
+.exam-tile {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 14px;
+  padding: 16px 22px;
+  width: 200px;
+  text-align: left;
+  opacity: 0; transform: translateY(20px);
+  transition: opacity 0.5s, transform 0.5s;
+}
+.exam-tile.show { opacity: 1; transform: translateY(0); }
+.exam-tile .tile-icon { font-size: 1.6rem; margin-bottom: 6px; }
+.exam-tile .tile-title { font-size: 1rem; font-weight: 700; margin-bottom: 4px; }
+.exam-tile .tile-count { font-size: 0.8rem; font-weight: 600; opacity: 0.6; }
+@media (max-width: 600px) {
+  .exam-tile { width: 46%; padding: 14px 16px; }
+}
+
+/* ── Section 6: Pricing ── */
+.pricing-layout {
+  display: flex; align-items: center; justify-content: center; gap: 48px;
+  width: 100%; max-width: 900px; margin: 0 auto;
+}
+.pricing-text { flex: 1; }
+.pricing-image {
+  flex: 0 0 auto; max-width: 380px;
+}
+.pricing-image img {
+  width: 100%; border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+}
+@media (max-width: 768px) {
+  .pricing-layout { flex-direction: column; gap: 32px; }
+  .pricing-image { max-width: 300px; }
+}
 .price-tag {
   font-size: 4.5rem; font-weight: 900;
   background: linear-gradient(135deg, var(--green), #34d399);
@@ -211,7 +251,7 @@ h2 { font-size: clamp(2rem, 4vw, 3.4rem); font-weight: 800; line-height: 1.15; m
   color: var(--green); font-size: 1.3rem; flex-shrink: 0;
 }
 
-/* ── Section 6: AI Grading ── */
+/* ── Section 7: AI Grading ── */
 .grade-bar-container {
   margin-top: 28px; width: 400px; max-width: 90%;
 }
@@ -242,7 +282,7 @@ h2 { font-size: clamp(2rem, 4vw, 3.4rem); font-weight: 800; line-height: 1.15; m
 }
 .scale-block.show { opacity: 1; transform: scaleY(1); }
 
-/* ── Section 7: CTA ── */
+/* ── Section 8: CTA ── */
 .cta-btn {
   display: inline-block;
   padding: 18px 48px;
@@ -311,14 +351,14 @@ h2 { font-size: clamp(2rem, 4vw, 3.4rem); font-weight: 800; line-height: 1.15; m
     <div class="countdown-unit"><div class="num" id="cd-min">--</div><div class="lbl">Min</div></div>
     <div class="countdown-unit"><div class="num" id="cd-sec">--</div><div class="lbl">Sec</div></div>
   </div>
-  <p class="exam-date">Part 2 — Written Exam — April 22, 2026</p>
+  <p class="exam-date">Part 2 — Written Exam — April 23, 2026</p>
 </div>
 
-<!-- Section 2: 20 Scenarios -->
+<!-- Section 2: Full Exam Simulation -->
 <div class="section" id="scenarios">
-  <p class="label" style="color:var(--blue)">Written Exam Prep</p>
-  <h2>20 Timed Written Scenarios</h2>
-  <p class="subtitle">Practice the exact format of Part 2.<br>AI-graded using I/O Solutions methodology &amp; the R.E.A.C.T.I.O.N. framework.</p>
+  <p class="label" style="color:var(--blue)">Full Part 2 Exam Simulation</p>
+  <h2>90+ Questions &bull; 6 Exam Types</h2>
+  <p class="subtitle">I/O-style mixed-method detective exam &mdash; ranking, MCQ, legal traps, digital evidence, and timed written scenarios. All AI-graded with I/O Solutions differential weighting &amp; the R.E.A.C.T.I.O.N. framework.</p>
   <div class="framework-letters" id="framework">
     <span>R</span><span>E</span><span>A</span><span>C</span><span>T</span>
     <span>I</span><span>O</span><span>N</span>
@@ -349,23 +389,71 @@ h2 { font-size: clamp(2rem, 4vw, 3.4rem); font-weight: 800; line-height: 1.15; m
   </div>
 </div>
 
-<!-- Section 5: Pricing -->
+<!-- Section 5: Exam Types -->
+<div class="section" id="examtypes">
+  <p class="label" style="color:var(--blue)">NEW &mdash; Mixed-Method Exam</p>
+  <h2>6 Question Types. One Study Guide.</h2>
+  <p class="subtitle">Mirrors the real I/O Solutions detective exam format.</p>
+  <div class="exam-grid" id="exam-grid">
+    <div class="exam-tile" style="border-color:rgba(96,165,250,0.3)">
+      <div class="tile-icon" style="color:#60a5fa">&#x2195;</div>
+      <div class="tile-title" style="color:#60a5fa">Ranking</div>
+      <div class="tile-count">20 Questions</div>
+    </div>
+    <div class="exam-tile" style="border-color:rgba(34,197,94,0.3)">
+      <div class="tile-icon" style="color:#22c55e">&#x2713;</div>
+      <div class="tile-title" style="color:#22c55e">Most Appropriate</div>
+      <div class="tile-count">10 Questions</div>
+    </div>
+    <div class="exam-tile" style="border-color:rgba(248,113,113,0.3)">
+      <div class="tile-icon" style="color:#f87171">&#x2717;</div>
+      <div class="tile-title" style="color:#f87171">Least Appropriate</div>
+      <div class="tile-count">10 Questions</div>
+    </div>
+    <div class="exam-tile" style="border-color:rgba(251,191,36,0.3)">
+      <div class="tile-icon" style="color:#fbbf24">&#x26A0;</div>
+      <div class="tile-title" style="color:#fbbf24">Legal Trap</div>
+      <div class="tile-count">30 Questions</div>
+    </div>
+    <div class="exam-tile" style="border-color:rgba(167,139,250,0.3)">
+      <div class="tile-icon" style="color:#a78bfa">&#x1F4F1;</div>
+      <div class="tile-title" style="color:#a78bfa">Digital Evidence</div>
+      <div class="tile-count">10 Questions</div>
+    </div>
+    <div class="exam-tile" style="border-color:rgba(251,146,60,0.3)">
+      <div class="tile-icon" style="color:#fb923c">&#x1F4DD;</div>
+      <div class="tile-title" style="color:#fb923c">Mini Scenarios</div>
+      <div class="tile-count">10 + Full 20-min</div>
+    </div>
+  </div>
+</div>
+
+<!-- Section 6: Pricing -->
 <div class="section" id="pricing">
   <p class="label" style="color:var(--green)">All-Access</p>
   <h2>Everything You Need</h2>
-  <div class="price-tag">$25</div>
-  <p class="price-note">One-time payment &mdash; lifetime access</p>
-  <p class="price-note" style="color:#4ade80;margin-top:8px;font-weight:700">Try 1 Scenario FREE &mdash; No Payment Required</p>
-  <ul class="value-list" id="value-list">
-    <li><span class="check">&#x2713;</span> 20 Timed Written Scenarios</li>
-    <li><span class="check">&#x2713;</span> AI-Powered Grading &amp; Feedback</li>
-    <li><span class="check">&#x2713;</span> Bot 9165 AI Mentor</li>
-    <li><span class="check">&#x2713;</span> 160+ Practice Questions &amp; Flashcards</li>
-    <li><span class="check">&#x2713;</span> Progress Tracking &amp; Leaderboard</li>
-  </ul>
+  <div class="pricing-layout">
+    <div class="pricing-text">
+      <div class="price-tag">$25</div>
+      <p class="price-note">One-time payment &mdash; lifetime access</p>
+      <p class="price-note" style="color:#4ade80;margin-top:8px;font-weight:700">Try 1 Scenario FREE &mdash; No Payment Required</p>
+      <ul class="value-list" id="value-list">
+        <li><span class="check">&#x2713;</span> 90+ Part 2 Exam Questions (6 types)</li>
+        <li><span class="check">&#x2713;</span> 20 Full Timed Written Scenarios</li>
+        <li><span class="check">&#x2713;</span> 30 Legal Trap Questions</li>
+        <li><span class="check">&#x2713;</span> AI-Powered Grading &amp; I/O Scoring</li>
+        <li><span class="check">&#x2713;</span> Bot 9165 AI Mentor on Every Screen</li>
+        <li><span class="check">&#x2713;</span> 160+ Practice Questions &amp; Flashcards</li>
+        <li><span class="check">&#x2713;</span> Audio Narration &amp; Leaderboard</li>
+      </ul>
+    </div>
+    <div class="pricing-image">
+      <img src="detective-newspaper.png" alt="Detective Times - Bernstein Regular Course Fee: $2,395">
+    </div>
+  </div>
 </div>
 
-<!-- Section 6: AI Grading -->
+<!-- Section 7: AI Grading -->
 <div class="section" id="grading">
   <p class="label" style="color:var(--blue)">Smart Feedback</p>
   <h2>Instant AI-Powered Grading</h2>
@@ -383,13 +471,20 @@ h2 { font-size: clamp(2rem, 4vw, 3.4rem); font-weight: 800; line-height: 1.15; m
   </div>
 </div>
 
-<!-- Section 7: CTA -->
+<!-- Section 8: CTA -->
 <div class="section" id="cta">
-  <p class="label" style="color:var(--amber)">April 22nd Is Coming</p>
+  <p class="label" style="color:var(--amber)">April 23rd Is Coming</p>
   <h1>Don't Walk In Unprepared</h1>
   <p class="subtitle" style="margin-bottom:8px">The written portion is where most candidates struggle.<br>Start training now.</p>
   <a href="https://detectiveexamstudyguide.com" class="cta-btn" target="_blank">Try Your First Scenario Free</a>
   <p class="byline">Built by officers, for officers.</p>
+</div>
+
+<!-- Section 9: Goodbye -->
+<div class="section" id="goodbye" style="padding-bottom:60px">
+  <video autoplay loop muted playsinline style="max-width:400px;width:90%;border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,0.4)">
+    <source src="goodbye-wave.mp4" type="video/mp4">
+  </video>
 </div>
 
 <script>
@@ -494,6 +589,15 @@ h2 { font-size: clamp(2rem, 4vw, 3.4rem); font-weight: 800; line-height: 1.15; m
       }
     }
 
+    if (id === 'examtypes') {
+      var tiles = sectionEl.querySelectorAll('.exam-tile');
+      for (var i = 0; i < tiles.length; i++) {
+        (function(el, delay) {
+          setTimeout(function() { el.classList.add('show'); }, delay);
+        })(tiles[i], 200 + i * 200);
+      }
+    }
+
     if (id === 'pricing') {
       var items = sectionEl.querySelectorAll('.value-list li');
       for (var i = 0; i < items.length; i++) {
@@ -538,6 +642,10 @@ h2 { font-size: clamp(2rem, 4vw, 3.4rem); font-weight: 800; line-height: 1.15; m
       var els = sectionEl.querySelectorAll('.card');
       for (var i = 0; i < els.length; i++) els[i].classList.remove('show');
     }
+    if (id === 'examtypes') {
+      var els = sectionEl.querySelectorAll('.exam-tile');
+      for (var i = 0; i < els.length; i++) els[i].classList.remove('show');
+    }
     if (id === 'pricing') {
       var els = sectionEl.querySelectorAll('.value-list li');
       for (var i = 0; i < els.length; i++) els[i].classList.remove('show');
@@ -563,7 +671,7 @@ h2 { font-size: clamp(2rem, 4vw, 3.4rem); font-weight: 800; line-height: 1.15; m
   setTimeout(function() { animateSection(0); }, 300);
 
   // ── Countdown to April 22, 2026 ──
-  var examDate = new Date('2026-04-22T08:00:00').getTime();
+  var examDate = new Date('2026-04-23T08:00:00').getTime();
   function updateCountdown() {
     var now = new Date().getTime();
     var diff = examDate - now;

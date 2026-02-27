@@ -177,6 +177,21 @@ class ChatbotResponse(BaseModel):
     bot_response: str
     hints_given: int = 0
 
+class RankingSubmit(BaseModel):
+    question_id: str
+    user_order: List[int]  # User's ranking as list of item indices (0-based)
+    time_taken: int  # seconds
+
+class ExamAnswerSubmit(BaseModel):
+    question_id: str
+    selected_answer: str  # "A", "B", "C", or "D"
+    time_taken: int  # seconds
+
+class MiniScenarioSubmit(BaseModel):
+    question_id: str
+    user_response: str
+    time_taken: int  # seconds
+
 # ========== AUTH HELPERS ==========
 
 def hash_password(password: str) -> str:
@@ -1938,6 +1953,359 @@ async def bootstrap_admin(email: str):
     if result.modified_count > 0:
         return {"status": "success", "message": f"User {email} promoted to admin"}
     raise HTTPException(status_code=404, detail="User not found")
+
+
+# ========== RANKING QUESTIONS ==========
+
+def grade_ranking(user_order: List[int], correct_order: List[int]) -> Dict[str, Any]:
+    """Grade a ranking response using I/O Solutions differential weighting.
+
+    For each item, score is based on displacement from correct position:
+      displacement 0 = +2 (correct position)
+      displacement 1 = +1 (close)
+      displacement 2 =  0 (neutral)
+      displacement 3 = -1 (counterproductive)
+      displacement 4+ = -2 (harmful)
+
+    Returns per-item scores and a normalized total (0-100).
+    """
+    weight_map = {0: 2, 1: 1, 2: 0, 3: -1}
+    num_items = len(correct_order)
+    item_scores = []
+
+    for i in range(num_items):
+        # Find where the user placed item i
+        user_pos = user_order.index(i) if i in user_order else num_items - 1
+        correct_pos = correct_order.index(i) if i in correct_order else num_items - 1
+        displacement = abs(user_pos - correct_pos)
+        score = weight_map.get(displacement, -2)
+        item_scores.append({
+            "item_index": i,
+            "user_position": user_pos + 1,      # 1-based for display
+            "correct_position": correct_pos + 1,  # 1-based for display
+            "displacement": displacement,
+            "score": score
+        })
+
+    total_raw = sum(s["score"] for s in item_scores)
+    max_possible = num_items * 2   # all +2
+    min_possible = num_items * -2  # all -2
+    # Normalize to 0-100
+    normalized = round(((total_raw - min_possible) / (max_possible - min_possible)) * 100) if max_possible != min_possible else 0
+
+    return {
+        "item_scores": item_scores,
+        "total_raw": total_raw,
+        "max_possible": max_possible,
+        "normalized_score": normalized
+    }
+
+
+@api_router.post("/rankings/submit")
+async def submit_ranking(data: RankingSubmit, user: User = Depends(require_user)):
+    # Get the question
+    question = await db.questions.find_one({"question_id": data.question_id, "type": "ranking"}, {"_id": 0})
+    if not question:
+        raise HTTPException(status_code=404, detail="Ranking question not found")
+
+    correct_order = question.get("correct_order", [])
+    items = question.get("items", [])
+
+    if len(data.user_order) != len(correct_order):
+        raise HTTPException(status_code=400, detail=f"Expected {len(correct_order)} items in ranking, got {len(data.user_order)}")
+
+    # Grade using I/O differential weighting
+    result = grade_ranking(data.user_order, correct_order)
+
+    # Enrich item scores with labels and text
+    for item_score in result["item_scores"]:
+        idx = item_score["item_index"]
+        if idx < len(items):
+            item_score["label"] = items[idx]["label"]
+            item_score["text"] = items[idx]["text"]
+
+    # Save response
+    response_id = f"rrank_{uuid.uuid4().hex[:12]}"
+    now = datetime.now(timezone.utc)
+
+    await db.ranking_responses.insert_one({
+        "response_id": response_id,
+        "user_id": user.user_id,
+        "question_id": data.question_id,
+        "user_order": data.user_order,
+        "correct_order": correct_order,
+        "item_scores": result["item_scores"],
+        "total_raw": result["total_raw"],
+        "normalized_score": result["normalized_score"],
+        "time_taken": data.time_taken,
+        "submitted_at": now
+    })
+
+    # Update user progress
+    await db.user_progress.update_one(
+        {"user_id": user.user_id, "question_id": data.question_id},
+        {
+            "$set": {
+                "last_score": result["normalized_score"],
+                "last_attempted": now
+            },
+            "$inc": {"attempts": 1},
+            "$setOnInsert": {
+                "progress_id": f"prog_{uuid.uuid4().hex[:12]}",
+                "user_id": user.user_id,
+                "question_id": data.question_id,
+                "bookmarked": False,
+                "created_at": now
+            }
+        },
+        upsert=True
+    )
+
+    return {
+        "response_id": response_id,
+        "normalized_score": result["normalized_score"],
+        "total_raw": result["total_raw"],
+        "max_possible": result["max_possible"],
+        "item_scores": result["item_scores"],
+        "explanation": question.get("explanation", "")
+    }
+
+
+@api_router.get("/rankings/history")
+async def get_ranking_history(user: User = Depends(require_user)):
+    responses = await db.ranking_responses.find(
+        {"user_id": user.user_id},
+        {"_id": 0}
+    ).sort("submitted_at", -1).limit(50).to_list(50)
+    return responses
+
+
+# ========== MIXED EXAM (MCQ) ENDPOINTS ==========
+
+@api_router.post("/exam/submit")
+async def submit_exam_answer(data: ExamAnswerSubmit, user: User = Depends(require_user)):
+    """Grade a most_appropriate, least_appropriate, legal_trap, or digital_evidence question."""
+    question = await db.questions.find_one(
+        {"question_id": data.question_id, "type": {"$in": ["most_appropriate", "least_appropriate", "legal_trap", "digital_evidence"]}},
+        {"_id": 0}
+    )
+    if not question:
+        raise HTTPException(status_code=404, detail="Exam question not found")
+
+    correct_answer = question.get("correct_answer", "")
+    io_scores = question.get("io_scores", {})
+    is_correct = data.selected_answer == correct_answer
+
+    # Get I/O score for the selected answer
+    io_score = io_scores.get(data.selected_answer, 0)
+    max_score = 2  # +2 is always max
+
+    # Normalize to 0-100
+    normalized = round(((io_score - (-2)) / (max_score - (-2))) * 100)
+
+    response_id = f"exam_{uuid.uuid4().hex[:12]}"
+    now = datetime.now(timezone.utc)
+
+    await db.exam_responses.insert_one({
+        "response_id": response_id,
+        "user_id": user.user_id,
+        "question_id": data.question_id,
+        "question_type": question["type"],
+        "selected_answer": data.selected_answer,
+        "correct_answer": correct_answer,
+        "is_correct": is_correct,
+        "io_score": io_score,
+        "normalized_score": normalized,
+        "time_taken": data.time_taken,
+        "submitted_at": now
+    })
+
+    # Update user progress
+    await db.user_progress.update_one(
+        {"user_id": user.user_id, "question_id": data.question_id},
+        {
+            "$set": {"last_score": normalized, "last_attempted": now},
+            "$inc": {"attempts": 1},
+            "$setOnInsert": {
+                "progress_id": f"prog_{uuid.uuid4().hex[:12]}",
+                "user_id": user.user_id,
+                "question_id": data.question_id,
+                "bookmarked": False,
+                "created_at": now
+            }
+        },
+        upsert=True
+    )
+
+    # Build per-option feedback
+    option_feedback = []
+    for opt in question.get("options", []):
+        label = opt["label"]
+        score = io_scores.get(label, 0)
+        option_feedback.append({
+            "label": label,
+            "text": opt["text"],
+            "io_score": score,
+            "is_correct": label == correct_answer,
+            "is_selected": label == data.selected_answer
+        })
+
+    return {
+        "response_id": response_id,
+        "is_correct": is_correct,
+        "selected_answer": data.selected_answer,
+        "correct_answer": correct_answer,
+        "io_score": io_score,
+        "normalized_score": normalized,
+        "explanation": question.get("explanation", ""),
+        "reference": question.get("reference", ""),
+        "option_feedback": option_feedback
+    }
+
+
+@api_router.get("/exam/history")
+async def get_exam_history(user: User = Depends(require_user)):
+    responses = await db.exam_responses.find(
+        {"user_id": user.user_id},
+        {"_id": 0}
+    ).sort("submitted_at", -1).limit(100).to_list(100)
+    return responses
+
+
+# ========== MINI SCENARIO ENDPOINTS ==========
+
+@api_router.post("/mini-scenarios/submit")
+async def submit_mini_scenario(data: MiniScenarioSubmit, user: User = Depends(require_user)):
+    """Grade a mini scenario using AI (shorter than full 20-min scenarios)."""
+    question = await db.questions.find_one({"question_id": data.question_id, "type": "mini_scenario"}, {"_id": 0})
+    if not question:
+        raise HTTPException(status_code=404, detail="Mini scenario not found")
+
+    # Grade with OpenAI
+    try:
+        from openai import AsyncOpenAI
+
+        api_key = OPENAI_API_KEY or EMERGENT_LLM_KEY
+        if not api_key:
+            raise Exception("No API key configured")
+
+        client = AsyncOpenAI(api_key=api_key, base_url="https://api.openai.com/v1")
+
+        prompt = f"""Grade this detective exam mini-scenario response using the R.E.A.C.T.I.O.N. framework.
+
+SCENARIO:
+{question['content']}
+
+CORRECT ANSWER/KEY POINTS:
+{question.get('answer', 'Use your best judgment based on CPD procedures and Illinois law')}
+
+STUDENT RESPONSE:
+{data.user_response}
+
+This is a MINI SCENARIO — the student was asked to provide 8-12 bullet points of investigative steps. Grade based on:
+1. Correct prioritization (most critical actions first)
+2. Completeness across R.E.A.C.T.I.O.N. categories
+3. Scenario-specific actions (not generic responses)
+
+Use I/O Solutions differential weighting:
++2 = Critical actions correctly prioritized
++1 = Good actions included but lower priority
+ 0 = Neutral or unnecessary actions
+-1 = Actions that could compromise the investigation
+-2 = Actions that are harmful or violate procedure
+
+GRADE: [number 0-100]
+FEEDBACK:
+**R – Respond & Render Aid**
+- [assessment of student's actions in this area]
+
+**E – Establish the Scene**
+- [assessment]
+
+**A – Arrest/Detain & Advise**
+- [assessment]
+
+**C – Collect/Identify Witnesses**
+- [assessment]
+
+**T – Take Notes & Document**
+- [assessment]
+
+**I – Inventory & Process Evidence**
+- [assessment]
+
+**O – Obtain Legal/Consult**
+- [assessment]
+
+**N – Next Steps & Notification**
+- [assessment]
+
+**Overall:** [brief summary with strongest areas, gaps, and specific recommendations]"""
+
+        response = await client.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {"role": "system", "content": "You are an expert grader for CPD detective exam mini-scenarios. Grade using the R.E.A.C.T.I.O.N. framework with I/O Solutions differential weighting. Be specific and reference the scenario facts."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.3,
+            max_tokens=2000
+        )
+
+        ai_response = response.choices[0].message.content
+        grade = None
+        feedback = ai_response
+
+        if "GRADE:" in ai_response:
+            parts = ai_response.split("GRADE:", 1)[1].split("FEEDBACK:", 1)
+            if len(parts) == 2:
+                try:
+                    grade = float(parts[0].strip())
+                    feedback = parts[1].strip()
+                except (ValueError, IndexError):
+                    pass
+
+    except Exception as e:
+        logging.error(f"Mini scenario AI grading error: {e}")
+        grade = None
+        feedback = "Unable to grade automatically. Please review with instructor."
+
+    response_id = f"mresp_{uuid.uuid4().hex[:12]}"
+    now = datetime.now(timezone.utc)
+
+    await db.scenario_responses.insert_one({
+        "response_id": response_id,
+        "user_id": user.user_id,
+        "question_id": data.question_id,
+        "user_response": data.user_response,
+        "ai_grade": grade,
+        "ai_feedback": feedback,
+        "time_taken": data.time_taken,
+        "is_mini": True,
+        "submitted_at": now
+    })
+
+    await db.user_progress.update_one(
+        {"user_id": user.user_id, "question_id": data.question_id},
+        {
+            "$set": {"last_score": grade, "last_attempted": now},
+            "$inc": {"attempts": 1},
+            "$setOnInsert": {
+                "progress_id": f"prog_{uuid.uuid4().hex[:12]}",
+                "user_id": user.user_id,
+                "question_id": data.question_id,
+                "bookmarked": False,
+                "created_at": now
+            }
+        },
+        upsert=True
+    )
+
+    return {
+        "response_id": response_id,
+        "grade": grade,
+        "feedback": feedback
+    }
 
 
 app.include_router(api_router)

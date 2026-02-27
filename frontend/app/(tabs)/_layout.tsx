@@ -49,7 +49,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="scenarios"
         options={{
-          title: 'Scenarios',
+          title: 'Part 2',
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="document-text" size={size} color={color} />
           ),

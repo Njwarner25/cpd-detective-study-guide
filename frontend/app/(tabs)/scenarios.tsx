@@ -6,6 +6,16 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useRouter } from 'expo-router';
 import { questionService } from '../../services/api';
 
+// Section config for each exam type
+const EXAM_SECTIONS = [
+  { type: 'ranking', catId: 'cat_ranking', title: 'Ranking', icon: 'swap-vertical', color: '#60a5fa', desc: 'Rank actions in correct priority order', tag: 'Rank 6 items', route: '/ranking-question', paramKey: 'questionId' },
+  { type: 'most_appropriate', catId: 'cat_most_appropriate', title: 'Most Appropriate', icon: 'checkmark-circle', color: '#22c55e', desc: 'Select the BEST action for the scenario', tag: '4 options', route: '/exam-question', paramKey: 'questionId' },
+  { type: 'least_appropriate', catId: 'cat_least_appropriate', title: 'Least Appropriate', icon: 'alert-circle', color: '#f87171', desc: 'Select the WORST action for the scenario', tag: '4 options', route: '/exam-question', paramKey: 'questionId' },
+  { type: 'legal_trap', catId: 'cat_legal_trap', title: 'Legal Trap', icon: 'warning', color: '#fbbf24', desc: 'Tricky legal and constitutional questions', tag: 'High stakes', route: '/exam-question', paramKey: 'questionId' },
+  { type: 'digital_evidence', catId: 'cat_digital_evidence', title: 'Digital Evidence', icon: 'phone-portrait', color: '#a78bfa', desc: 'Digital evidence handling scenarios', tag: '4 options', route: '/exam-question', paramKey: 'questionId' },
+  { type: 'mini_scenario', catId: 'cat_mini_scenario', title: 'Mini Scenarios', icon: 'document-text', color: '#fb923c', desc: 'Short written scenarios with AI grading', tag: '10 min', route: '/mini-scenario', paramKey: 'scenarioId' },
+];
+
 export default function Scenarios() {
   const { sessionToken, hasPaid, isGuest } = useAuth();
   const router = useRouter();
@@ -14,7 +24,14 @@ export default function Scenarios() {
   const [showGrading, setShowGrading] = useState(false);
   const [showFramework, setShowFramework] = useState(false);
 
-  useEffect(() => { loadScenarios(); }, [sessionToken]);
+  // Exam sections state
+  const [examData, setExamData] = useState<Record<string, any[]>>({});
+  const [examLoading, setExamLoading] = useState<Record<string, boolean>>({});
+
+  useEffect(() => {
+    loadScenarios();
+    EXAM_SECTIONS.forEach(sec => loadExamSection(sec.type, sec.catId));
+  }, [sessionToken]);
 
   const loadScenarios = async () => {
     if (!sessionToken) return;
@@ -25,14 +42,30 @@ export default function Scenarios() {
     finally { setLoading(false); }
   };
 
+  const loadExamSection = async (type: string, catId: string) => {
+    if (!sessionToken) return;
+    setExamLoading(prev => ({ ...prev, [type]: true }));
+    try {
+      const data = await questionService.getQuestions(type, catId, sessionToken || undefined);
+      setExamData(prev => ({ ...prev, [type]: data || [] }));
+    } catch (e) { console.error(e); }
+    finally { setExamLoading(prev => ({ ...prev, [type]: false })); }
+  };
+
   const startScenario = (scenario: any, index: number) => {
-    // Allow first scenario (free trial) for everyone
     if (index === 0) {
       router.push({ pathname: '/practice-scenario', params: { scenarioId: scenario.question_id, title: scenario.title } });
       return;
     }
     if (!hasPaid) { router.push('/upgrade'); return; }
     router.push({ pathname: '/practice-scenario', params: { scenarioId: scenario.question_id, title: scenario.title } });
+  };
+
+  const startExamQuestion = (question: any, section: typeof EXAM_SECTIONS[0]) => {
+    if (!hasPaid) { router.push('/upgrade'); return; }
+    const params: any = { title: question.title, questionType: section.type };
+    params[section.paramKey] = question.question_id;
+    router.push({ pathname: section.route as any, params });
   };
 
   const isPremium = hasPaid;
@@ -44,8 +77,8 @@ export default function Scenarios() {
         {/* Header */}
         <View style={s.header}>
           <View style={s.premBadge}><Ionicons name="star" size={14} color="#fbbf24" /><Text style={s.premTxt}>PREMIUM</Text></View>
-          <Text style={s.title}>Detective Scenarios</Text>
-          <Text style={s.subtitle}>Timed written scenarios graded using the I/O Solutions methodology</Text>
+          <Text style={s.title}>Part 2 {'\u2014'} Detective Exam</Text>
+          <Text style={s.subtitle}>I/O Solutions mixed-method exam simulation with AI grading</Text>
         </View>
 
         {/* ===== HOW YOU'RE GRADED ===== */}
@@ -74,25 +107,14 @@ export default function Scenarios() {
               <View style={s.pointRow}><View style={[s.pointBadge,{backgroundColor:'#991b1b'}]}><Text style={s.pointVal}>-1</Text></View><Text style={s.pointLabel}>Counterproductive {'\u2014'} could compromise the investigation or violate procedure</Text></View>
               <View style={s.pointRow}><View style={[s.pointBadge,{backgroundColor:'#7f1d1d'}]}><Text style={s.pointVal}>-2</Text></View><Text style={s.pointLabel}>Harmful {'\u2014'} directly damages the case, endangers safety, or violates legal requirements</Text></View>
 
-              <Text style={s.gradingSectionHead}>Assessor Checklist {'\u2014'} What They Look For</Text>
-              <Text style={s.gradingText}>
-                Assessors are trained to evaluate your behavioral actions {'\u2014'} what you would actually do as the responding detective, not theoretical knowledge. Your written response is compared line-by-line against the Mandatory Courses of Action checklist. Points are awarded for each required action you include and deducted for harmful ones.
-              </Text>
-
-              <Text style={s.gradingSectionHead}>Format Matters</Text>
-              <Text style={s.gradingBullet}>{'\u2022'} When the question asks for a list of actions, write a numbered or bulleted list {'\u2014'} narrative paragraphs may not be scored</Text>
-              <Text style={s.gradingBullet}>{'\u2022'} When told to select a specific number of answers, selecting more than that number results in an automatic zero for that question {'\u2014'} even if all your selections are correct</Text>
-              <Text style={s.gradingBullet}>{'\u2022'} Selecting fewer than the specified number earns partial credit for correct selections</Text>
-              <Text style={s.gradingBullet}>{'\u2022'} When a question asks you to explain your reasoning, you must provide a rationale or you will not receive full credit</Text>
-
               <Text style={s.gradingSectionHead}>How Our AI Grading Works</Text>
               <Text style={s.gradingText}>
-                Our AI grading system mirrors the I/O Solutions methodology. After you submit your written response, the AI evaluates it against the same type of Mandatory Courses of Action checklist that real assessors use. You receive a point breakdown showing which +2 and +1 actions you hit, which you missed, and any actions that would have cost you points {'\u2014'} so you know exactly where to improve.
+                Our AI grading system mirrors the I/O Solutions methodology. After you submit your response, the AI evaluates it against the same type of Mandatory Courses of Action checklist that real assessors use. You receive a point breakdown so you know exactly where to improve.
               </Text>
 
               <View style={s.tipBox}>
                 <Ionicons name="bulb-outline" size={16} color="#fbbf24" />
-                <Text style={s.tipText}>Key mindset: "What would I actually do as the responding Detective?" Your score depends on demonstrating the right behavioral actions in the right priority order {'\u2014'} not on how much you know.</Text>
+                <Text style={s.tipText}>Key mindset: "What would I actually do as the responding Detective?" Your score depends on demonstrating the right behavioral actions in the right priority order.</Text>
               </View>
             </View>
           )}
@@ -131,9 +153,15 @@ export default function Scenarios() {
           )}
         </TouchableOpacity>
 
-        {/* ===== Scenario List ===== */}
+        {/* ===== SECTION: Full Written Scenarios (20 min) ===== */}
+        <View style={s.sectionHeader}>
+          <Ionicons name="create-outline" size={18} color="#60a5fa" />
+          <Text style={s.sectionTitle}>Written Scenarios</Text>
+        </View>
+        <Text style={s.sectionDesc}>Full 20-minute timed scenarios with AI grading, audio narration, and Bot 9165 hints.</Text>
+
         {loading ? (
-          <ActivityIndicator size="large" color="#60a5fa" style={{marginTop:40}} />
+          <ActivityIndicator size="large" color="#60a5fa" style={{marginTop:20}} />
         ) : (
           <View>
             <Text style={s.sectionLabel}>{scenarios.length} Scenarios Available</Text>
@@ -163,6 +191,7 @@ export default function Scenarios() {
                       <View style={s.tagRow}>
                         <View style={s.tag}><Ionicons name="time-outline" size={12} color="#94a3b8" /><Text style={s.tagTxt}>20 min</Text></View>
                         <View style={s.tag}><Ionicons name="volume-high-outline" size={12} color="#94a3b8" /><Text style={s.tagTxt}>Audio</Text></View>
+                        <View style={s.tag}><Ionicons name="chatbubble-ellipses-outline" size={12} color="#94a3b8" /><Text style={s.tagTxt}>Bot 9165</Text></View>
                         {sc.difficulty && <View style={[s.diffBadge,sc.difficulty==='Hard'?s.diffH:s.diffM]}><Text style={s.diffTxt}>{sc.difficulty}</Text></View>}
                       </View>
                     </View>
@@ -175,14 +204,82 @@ export default function Scenarios() {
                 </TouchableOpacity>
               );
             })}
-            {!isPremium && (
-              <TouchableOpacity style={s.unlockBtn} onPress={() => router.push('/upgrade')}>
-                <Ionicons name="star" size={16} color="#000" />
-                <Text style={s.unlockTxt}>Unlock Premium {'\u2014'} $25.00</Text>
-              </TouchableOpacity>
-            )}
           </View>
         )}
+
+        {/* ===== EXAM SECTIONS ===== */}
+        {EXAM_SECTIONS.map((section) => {
+          const questions = examData[section.type] || [];
+          const isLoading = examLoading[section.type];
+          const isMini = section.type === 'mini_scenario';
+
+          return (
+            <View key={section.type}>
+              <View style={s.divider} />
+              <View style={s.sectionHeader}>
+                <Ionicons name={section.icon as any} size={18} color={section.color} />
+                <Text style={s.sectionTitle}>{section.title}</Text>
+              </View>
+              <Text style={s.sectionDesc}>
+                {section.desc}
+                {isMini ? '. These shorter scenarios help you practice hitting all R.E.A.C.T.I.O.N. steps without the pressure of a full 20-minute exam.' : ''}
+              </Text>
+
+              {isLoading ? (
+                <ActivityIndicator size="small" color="#60a5fa" style={{marginTop:12, marginBottom:12}} />
+              ) : questions.length > 0 ? (
+                <View>
+                  <Text style={s.sectionLabel}>{questions.length} Questions Available</Text>
+                  {questions.map((q: any, i: number) => {
+                    const isLocked = !isPremium;
+                    return (
+                      <TouchableOpacity
+                        key={q._id || q.question_id || i}
+                        style={[s.card, isLocked && s.lockedCard]}
+                        onPress={() => isLocked ? router.push('/upgrade') : startExamQuestion(q, section)}
+                        activeOpacity={isLocked ? 0.5 : 0.7}
+                      >
+                        <View style={s.cardRow}>
+                          <View style={[s.numBadge, isLocked && s.lockNum, {backgroundColor: section.color + '22'}]}>
+                            <Ionicons name={section.icon as any} size={14} color={section.color} />
+                          </View>
+                          <View style={{flex:1}}>
+                            <Text style={[s.cardTitle, isLocked && {color:'#94a3b8'}, {marginBottom:0}]}>{q.title}</Text>
+                            <View style={s.tagRow}>
+                              <View style={s.tag}><Text style={s.tagTxt}>{section.tag}</Text></View>
+                              {isMini && <View style={s.tag}><Ionicons name="volume-high-outline" size={12} color="#94a3b8" /><Text style={s.tagTxt}>Audio</Text></View>}
+                              {isMini && <View style={s.tag}><Ionicons name="chatbubble-ellipses-outline" size={12} color="#94a3b8" /><Text style={s.tagTxt}>Bot 9165</Text></View>}
+                              {!isMini && <View style={s.tag}><Ionicons name="chatbubble-ellipses-outline" size={12} color="#94a3b8" /><Text style={s.tagTxt}>Bot 9165</Text></View>}
+                              {q.difficulty && <View style={[s.diffBadge,q.difficulty==='hard'?s.diffH:s.diffM]}><Text style={s.diffTxt}>{q.difficulty}</Text></View>}
+                            </View>
+                          </View>
+                          {isLocked ? (
+                            <Ionicons name="lock-closed" size={16} color="#64748b" />
+                          ) : (
+                            <Ionicons name="chevron-forward" size={20} color="#64748b" />
+                          )}
+                        </View>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              ) : (
+                <Text style={s.emptyTxt}>Coming soon</Text>
+              )}
+            </View>
+          );
+        })}
+
+        {/* Bottom unlock */}
+        {!isPremium && (
+          <View style={{marginTop: 16}}>
+            <TouchableOpacity style={s.unlockBtn} onPress={() => router.push('/upgrade')}>
+              <Ionicons name="star" size={16} color="#000" />
+              <Text style={s.unlockTxt}>Unlock All Sections {'\u2014'} $25.00</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
       </ScrollView>
     </SafeAreaView>
   );
@@ -216,23 +313,32 @@ const s = StyleSheet.create({
   fwLetter:{fontSize:14,fontWeight:'800',color:'#60a5fa'},
   fwTitle:{fontSize:13,fontWeight:'700',color:'#e2e8f0'},
   fwDesc:{fontSize:11,color:'#94a3b8',lineHeight:16},
-  sectionLabel:{fontSize:14,fontWeight:'700',color:'#94a3b8',marginBottom:10},
+
+  // Section headers
+  sectionHeader:{flexDirection:'row',alignItems:'center',gap:8,marginBottom:4,marginTop:4},
+  sectionTitle:{fontSize:18,fontWeight:'800',color:'#f1f5f9'},
+  sectionDesc:{fontSize:12,color:'#94a3b8',lineHeight:18,marginBottom:10},
+  sectionLabel:{fontSize:13,fontWeight:'700',color:'#64748b',marginBottom:8},
+
+  // Cards
   card:{backgroundColor:'#1e293b',borderRadius:12,padding:14,marginBottom:8},
   cardRow:{flexDirection:'row',alignItems:'center',gap:10},
   numBadge:{width:32,height:32,borderRadius:16,backgroundColor:'#1e3a5f',alignItems:'center',justifyContent:'center'},
   numTxt:{fontSize:14,fontWeight:'800',color:'#60a5fa'},
   cardTitle:{fontSize:14,fontWeight:'600',color:'#f1f5f9',marginBottom:4},
-  tagRow:{flexDirection:'row',alignItems:'center',gap:6},
+  tagRow:{flexDirection:'row',alignItems:'center',gap:6,flexWrap:'wrap'},
   tag:{flexDirection:'row',alignItems:'center',gap:3},
   tagTxt:{fontSize:11,color:'#94a3b8'},
   diffBadge:{paddingHorizontal:8,paddingVertical:2,borderRadius:6},
   diffH:{backgroundColor:'#7f1d1d'},
   diffM:{backgroundColor:'#1e3a5f'},
   diffTxt:{fontSize:11,color:'#fff',fontWeight:'600'},
-  unlockBtn:{flexDirection:'row',alignItems:'center',justifyContent:'center',backgroundColor:'#fbbf24',paddingHorizontal:24,paddingVertical:12,borderRadius:30,gap:8,marginTop:12,marginBottom:20},
+  unlockBtn:{flexDirection:'row',alignItems:'center',justifyContent:'center',backgroundColor:'#fbbf24',paddingHorizontal:24,paddingVertical:12,borderRadius:30,gap:8,marginTop:4,marginBottom:20},
   unlockTxt:{fontSize:16,fontWeight:'800',color:'#000'},
   lockedCard:{opacity:0.5},
   lockNum:{backgroundColor:'#334155'},
   freeTrialBadge:{backgroundColor:'#166534',paddingHorizontal:8,paddingVertical:2,borderRadius:6},
   freeTrialTxt:{fontSize:10,fontWeight:'800',color:'#4ade80'},
+  divider:{height:1,backgroundColor:'#334155',marginVertical:20},
+  emptyTxt:{fontSize:13,color:'#64748b',textAlign:'center',marginTop:8,marginBottom:8},
 });

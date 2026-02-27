@@ -363,6 +363,57 @@ export const adminService = {
     },
 };
 
+// Ranking Service
+export const rankingService = {
+    async submitResponse(questionId: string, userOrder: number[], timeTaken: number, token?: string) {
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+        const response = await api.post('/rankings/submit', {
+            question_id: questionId,
+            user_order: userOrder,
+            time_taken: timeTaken
+        }, { headers });
+        return response.data;
+    },
+
+    async getHistory(token?: string) {
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+        const response = await api.get('/rankings/history', { headers });
+        return response.data;
+    },
+};
+
+// Exam Service (Most Appropriate, Least Appropriate, Legal Trap, Digital Evidence)
+export const examService = {
+    async submitAnswer(questionId: string, selectedAnswer: string, timeTaken: number, token?: string) {
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+        const response = await api.post('/exam/submit', {
+            question_id: questionId,
+            selected_answer: selectedAnswer,
+            time_taken: timeTaken
+        }, { headers });
+        return response.data;
+    },
+
+    async getHistory(token?: string) {
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+        const response = await api.get('/exam/history', { headers });
+        return response.data;
+    },
+};
+
+// Mini Scenario Service
+export const miniScenarioService = {
+    async submitResponse(questionId: string, userResponse: string, timeTaken: number, token?: string) {
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+        const response = await api.post('/mini-scenarios/submit', {
+            question_id: questionId,
+            user_response: userResponse,
+            time_taken: timeTaken
+        }, { headers });
+        return response.data;
+    },
+};
+
 export default api;
 
 // ========== PAYMENT SERVICE (Stripe Integration) ==========

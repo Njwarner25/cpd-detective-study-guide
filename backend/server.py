@@ -499,13 +499,20 @@ async def debug_scenario_titles():
         {"type": "scenario"},
         {"_id": 0, "title": 1, "category_id": 1}
     ).to_list(100)
-    # Get first scenario's answer as sample
+    # Get first scenario's full doc to see field names and answer format
     sample = await db.questions.find_one(
         {"type": "scenario"},
-        {"_id": 0, "title": 1, "answer": 1}
+        {"_id": 0}
     )
-    sample_answer = sample.get("answer", "")[:500] if sample else ""
-    return {"count": len(scenarios), "scenarios": scenarios, "sample_answer_preview": sample_answer}
+    if sample:
+        # Show all field names and truncated answer
+        fields = list(sample.keys())
+        answer_raw = sample.get("answer", sample.get("model_answer", ""))
+        answer_preview = str(answer_raw)[:800] if answer_raw else "NO ANSWER FIELD"
+    else:
+        fields = []
+        answer_preview = "NO SCENARIOS FOUND"
+    return {"count": len(scenarios), "scenarios": scenarios, "fields": fields, "sample_answer_preview": answer_preview}
 
 # ========== VERSION CHECK ENDPOINT ==========
 def compare_versions(v1: str, v2: str) -> int:

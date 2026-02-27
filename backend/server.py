@@ -882,6 +882,18 @@ async def get_scenario_history(user: User = Depends(require_user)):
 
 # ========== CHATBOT ENDPOINT ==========
 
+@api_router.get("/chatbot/debug")
+async def chatbot_debug():
+    """Temporary debug endpoint - remove after fixing"""
+    has_key = bool(ANTHROPIC_API_KEY)
+    key_prefix = ANTHROPIC_API_KEY[:12] + "..." if ANTHROPIC_API_KEY else "NOT SET"
+    try:
+        import anthropic
+        anthropic_version = anthropic.__version__
+    except Exception as e:
+        anthropic_version = f"import failed: {e}"
+    return {"has_key": has_key, "key_prefix": key_prefix, "anthropic_version": anthropic_version}
+
 @api_router.post("/chatbot/message")
 async def chatbot_message(data: ChatbotMessage, user: User = Depends(require_user)):
     """Bot 9165 - AI mentor for scenario practice"""
@@ -958,9 +970,9 @@ YOUR RULES:
     except HTTPException:
         raise
     except Exception as e:
-        logging.error(f"Chatbot error: {e}")
+        logging.error(f"Chatbot error ({type(e).__name__}): {e}", exc_info=True)
         return ChatbotResponse(
-            bot_response="I'm having trouble connecting right now. Try asking me again in a moment!",
+            bot_response=f"I'm having trouble connecting right now. Error: {type(e).__name__}: {str(e)[:200]}",
             hints_given=0
         )
 

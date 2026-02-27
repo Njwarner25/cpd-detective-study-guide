@@ -494,12 +494,18 @@ async def migrate_reaction_answers():
 
 @api_router.get("/debug-scenario-titles")
 async def debug_scenario_titles():
-    """Temporary: list all scenario titles in the database"""
+    """Temporary: list all scenario titles and a sample answer"""
     scenarios = await db.questions.find(
         {"type": "scenario"},
         {"_id": 0, "title": 1, "category_id": 1}
     ).to_list(100)
-    return {"count": len(scenarios), "scenarios": scenarios}
+    # Get first scenario's answer as sample
+    sample = await db.questions.find_one(
+        {"type": "scenario"},
+        {"_id": 0, "title": 1, "answer": 1}
+    )
+    sample_answer = sample.get("answer", "")[:500] if sample else ""
+    return {"count": len(scenarios), "scenarios": scenarios, "sample_answer_preview": sample_answer}
 
 # ========== VERSION CHECK ENDPOINT ==========
 def compare_versions(v1: str, v2: str) -> int:

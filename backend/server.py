@@ -885,14 +885,18 @@ async def get_scenario_history(user: User = Depends(require_user)):
 @api_router.get("/chatbot/debug")
 async def chatbot_debug():
     """Temporary debug endpoint - remove after fixing"""
-    has_key = bool(ANTHROPIC_API_KEY)
-    key_prefix = ANTHROPIC_API_KEY[:12] + "..." if ANTHROPIC_API_KEY else "NOT SET"
+    # Re-read at request time in case it was set after startup
+    live_key = os.environ.get('ANTHROPIC_API_KEY')
+    has_key = bool(live_key)
+    key_prefix = live_key[:12] + "..." if live_key else "NOT SET"
+    # Also check for common misspellings
+    all_env_keys = [k for k in os.environ.keys() if 'ANTHRO' in k.upper() or 'API_KEY' in k.upper()]
     try:
         import anthropic
         anthropic_version = anthropic.__version__
     except Exception as e:
         anthropic_version = f"import failed: {e}"
-    return {"has_key": has_key, "key_prefix": key_prefix, "anthropic_version": anthropic_version}
+    return {"has_key": has_key, "key_prefix": key_prefix, "anthropic_version": anthropic_version, "env_keys_with_api": all_env_keys}
 
 @api_router.post("/chatbot/message")
 async def chatbot_message(data: ChatbotMessage, user: User = Depends(require_user)):

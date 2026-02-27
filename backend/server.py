@@ -462,7 +462,11 @@ async def health_check():
     try:
         # Test database connection
         await db.command("ping")
-        return {"status": "healthy", "database": "connected"}
+        return {
+            "status": "healthy",
+            "database": "connected",
+            "tts_provider": "elevenlabs" if ELEVENLABS_API_KEY else ("openai" if (OPENAI_API_KEY or EMERGENT_LLM_KEY) else "none"),
+        }
     except Exception as e:
         return {"status": "unhealthy", "database": str(e)}
 

@@ -602,9 +602,22 @@ async def get_questions(
         )
         has_premium = payment is not None
 
+    # Identify first scenario in cat_detective_part2 for free trial
+    first_scenario_id = None
+    if category_id == "cat_detective_part2" and type == "scenario":
+        scenario_list = [q for q in questions]
+        if scenario_list:
+            first_scenario_id = scenario_list[0].get("question_id")
+
     for q in questions:
         is_premium = q.get("is_premium", False)
         q["is_locked"] = is_premium and not has_premium
+
+        # Free trial: unlock the first scenario for all users
+        if q.get("question_id") == first_scenario_id and first_scenario_id is not None:
+            q["is_locked"] = False
+            q["is_free_trial"] = True
+
         if q["is_locked"]:
             q["answer"] = None
             q["model_answer"] = None
@@ -624,7 +637,18 @@ async def get_question(question_id: str, user: User = Depends(require_user)):
             {"user_id": user.user_id, "status": "completed"}, {"_id": 0}
         )
         if not payment:
-            raise HTTPException(status_code=403, detail="Premium access required. Please upgrade to access this scenario.")
+            # Allow free trial: check if this is the first scenario in cat_detective_part2
+            is_free_trial = False
+            if question.get("category_id") == "cat_detective_part2" and question.get("type") == "scenario":
+                first_scenario = await db.questions.find_one(
+                    {"category_id": "cat_detective_part2", "type": "scenario"},
+                    {"_id": 0, "question_id": 1},
+                    sort=[("created_at", 1)]
+                )
+                if first_scenario and first_scenario.get("question_id") == question_id:
+                    is_free_trial = True
+            if not is_free_trial:
+                raise HTTPException(status_code=403, detail="Premium access required. Please upgrade to access this scenario.")
 
     return question
 

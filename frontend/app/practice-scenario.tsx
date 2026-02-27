@@ -55,7 +55,7 @@ const DETECTIVES_FRAMEWORK = [
 ];
 
 export default function PracticeScenario() {
-  const { sessionToken } = useAuth();
+  const { sessionToken, hasPaid } = useAuth();
   const router = useRouter();
   const params = useLocalSearchParams();
   const [scenario, setScenario] = useState<any>(null);
@@ -516,6 +516,18 @@ export default function PracticeScenario() {
               </>
             )}
           </View>
+
+          {!hasPaid && (
+            <View style={styles.upsellCard}>
+              <Ionicons name="trophy-outline" size={28} color="#fbbf24" />
+              <Text style={styles.upsellTitle}>You just completed 1 of 20 scenarios</Text>
+              <Text style={styles.upsellDesc}>Unlock all 20 scenarios with AI grading, curveball events, and Detective Bot for just $25</Text>
+              <TouchableOpacity style={styles.upsellBtn} onPress={() => router.push('/upgrade')}>
+                <Ionicons name="star" size={16} color="#000" />
+                <Text style={styles.upsellBtnTxt}>Unlock Premium {'\u2014'} $25.00</Text>
+              </TouchableOpacity>
+            </View>
+          )}
 
           <TouchableOpacity style={styles.doneButton} onPress={() => router.back()}>
             <Text style={styles.doneButtonText}>Back to Scenarios</Text>
@@ -1136,6 +1148,44 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#94a3b8',
     lineHeight: 22,
+  },
+  upsellCard: {
+    backgroundColor: '#1e293b',
+    borderRadius: 12,
+    padding: 20,
+    marginTop: 20,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#fbbf24',
+  },
+  upsellTitle: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#f1f5f9',
+    marginTop: 8,
+    marginBottom: 6,
+    textAlign: 'center',
+  },
+  upsellDesc: {
+    fontSize: 13,
+    color: '#94a3b8',
+    textAlign: 'center',
+    lineHeight: 20,
+    marginBottom: 14,
+  },
+  upsellBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fbbf24',
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 30,
+    gap: 8,
+  },
+  upsellBtnTxt: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#000',
   },
   doneButton: {
     backgroundColor: '#2563eb',

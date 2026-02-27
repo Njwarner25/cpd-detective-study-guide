@@ -25,8 +25,13 @@ export default function Scenarios() {
     finally { setLoading(false); }
   };
 
-  const startScenario = (scenario: any) => {
-    if (!hasPaid && !isGuest) { router.push('/upgrade'); return; }
+  const startScenario = (scenario: any, index: number) => {
+    // Allow first scenario (free trial) for everyone
+    if (index === 0) {
+      router.push({ pathname: '/practice-scenario', params: { scenarioId: scenario.question_id, title: scenario.title } });
+      return;
+    }
+    if (!hasPaid) { router.push('/upgrade'); return; }
     router.push({ pathname: '/practice-scenario', params: { scenarioId: scenario.question_id, title: scenario.title } });
   };
 
@@ -131,48 +136,53 @@ export default function Scenarios() {
         {/* ===== Scenario List ===== */}
         {loading ? (
           <ActivityIndicator size="large" color="#60a5fa" style={{marginTop:40}} />
-        ) : !isPremium ? (
-          <View style={s.lockOverlay}>
-            <Ionicons name="lock-closed" size={48} color="#fbbf24" />
-            <Text style={s.lockTitle}>Premium Content</Text>
-            <Text style={s.lockDesc}>Unlock {scenarios.length} timed detective scenarios with AI grading, curveball events, and text-to-speech narration.</Text>
-            <TouchableOpacity style={s.unlockBtn} onPress={() => router.push('/upgrade')}>
-              <Ionicons name="star" size={16} color="#000" />
-              <Text style={s.unlockTxt}>Unlock Premium {'\u2014'} $25.00</Text>
-            </TouchableOpacity>
-            {scenarios.slice(0,3).map((sc: any, i: number) => (
-              <View key={i} style={s.lockCard}>
-                <View style={s.cardRow}>
-                  <View style={[s.numBadge,s.lockNum]}><Text style={s.numTxt}>{i+1}</Text></View>
-                  <View style={{flex:1}}>
-                    <Text style={s.lockCardTitle}>{sc.title}</Text>
-                    <Text style={s.lockCardDesc}>{sc.is_complex ? '20 min' : '15 min'} {'\u2022'} {sc.difficulty || 'Standard'}</Text>
-                  </View>
-                  <Ionicons name="lock-closed" size={16} color="#64748b" />
-                </View>
-              </View>
-            ))}
-            <Text style={s.moreText}>+ {Math.max(0,scenarios.length-3)} more scenarios...</Text>
-          </View>
         ) : (
           <View>
             <Text style={s.sectionLabel}>{scenarios.length} Scenarios Available</Text>
-            {scenarios.map((sc: any, i: number) => (
-              <TouchableOpacity key={sc._id||i} style={s.card} onPress={() => startScenario(sc)} activeOpacity={0.7}>
-                <View style={s.cardRow}>
-                  <View style={s.numBadge}><Text style={s.numTxt}>{i+1}</Text></View>
-                  <View style={{flex:1}}>
-                    <Text style={s.cardTitle}>{sc.title}</Text>
-                    <View style={s.tagRow}>
-                      <View style={s.tag}><Ionicons name="time-outline" size={12} color="#94a3b8" /><Text style={s.tagTxt}>{sc.is_complex ? '20 min' : '15 min'}</Text></View>
-                      <View style={s.tag}><Ionicons name="volume-high-outline" size={12} color="#94a3b8" /><Text style={s.tagTxt}>Audio</Text></View>
-                      {sc.difficulty && <View style={[s.diffBadge,sc.difficulty==='Hard'?s.diffH:s.diffM]}><Text style={s.diffTxt}>{sc.difficulty}</Text></View>}
+            {scenarios.map((sc: any, i: number) => {
+              const isFreeTrial = i === 0;
+              const isLocked = !isPremium && !isFreeTrial;
+              return (
+                <TouchableOpacity
+                  key={sc._id||i}
+                  style={[s.card, isLocked && s.lockedCard]}
+                  onPress={() => isLocked ? router.push('/upgrade') : startScenario(sc, i)}
+                  activeOpacity={isLocked ? 0.5 : 0.7}
+                >
+                  <View style={s.cardRow}>
+                    <View style={[s.numBadge, isLocked && s.lockNum]}>
+                      <Text style={s.numTxt}>{i+1}</Text>
                     </View>
+                    <View style={{flex:1}}>
+                      <View style={{flexDirection:'row',alignItems:'center',gap:6,marginBottom:4}}>
+                        <Text style={[s.cardTitle, isLocked && {color:'#94a3b8'}, {marginBottom:0}]}>{sc.title}</Text>
+                        {isFreeTrial && !isPremium && (
+                          <View style={s.freeTrialBadge}>
+                            <Text style={s.freeTrialTxt}>FREE TRIAL</Text>
+                          </View>
+                        )}
+                      </View>
+                      <View style={s.tagRow}>
+                        <View style={s.tag}><Ionicons name="time-outline" size={12} color="#94a3b8" /><Text style={s.tagTxt}>20 min</Text></View>
+                        <View style={s.tag}><Ionicons name="volume-high-outline" size={12} color="#94a3b8" /><Text style={s.tagTxt}>Audio</Text></View>
+                        {sc.difficulty && <View style={[s.diffBadge,sc.difficulty==='Hard'?s.diffH:s.diffM]}><Text style={s.diffTxt}>{sc.difficulty}</Text></View>}
+                      </View>
+                    </View>
+                    {isLocked ? (
+                      <Ionicons name="lock-closed" size={16} color="#64748b" />
+                    ) : (
+                      <Ionicons name="chevron-forward" size={20} color="#64748b" />
+                    )}
                   </View>
-                  <Ionicons name="chevron-forward" size={20} color="#64748b" />
-                </View>
+                </TouchableOpacity>
+              );
+            })}
+            {!isPremium && (
+              <TouchableOpacity style={s.unlockBtn} onPress={() => router.push('/upgrade')}>
+                <Ionicons name="star" size={16} color="#000" />
+                <Text style={s.unlockTxt}>Unlock Premium {'\u2014'} $25.00</Text>
               </TouchableOpacity>
-            ))}
+            )}
           </View>
         )}
       </ScrollView>
@@ -221,14 +231,10 @@ const s = StyleSheet.create({
   diffH:{backgroundColor:'#7f1d1d'},
   diffM:{backgroundColor:'#1e3a5f'},
   diffTxt:{fontSize:11,color:'#fff',fontWeight:'600'},
-  lockOverlay:{alignItems:'center',padding:20,marginTop:10},
-  lockTitle:{fontSize:20,fontWeight:'800',color:'#fbbf24',marginTop:10,marginBottom:6},
-  lockDesc:{fontSize:13,color:'#94a3b8',textAlign:'center',marginBottom:16,lineHeight:20},
-  unlockBtn:{flexDirection:'row',alignItems:'center',backgroundColor:'#fbbf24',paddingHorizontal:24,paddingVertical:12,borderRadius:30,gap:8,marginBottom:20},
+  unlockBtn:{flexDirection:'row',alignItems:'center',justifyContent:'center',backgroundColor:'#fbbf24',paddingHorizontal:24,paddingVertical:12,borderRadius:30,gap:8,marginTop:12,marginBottom:20},
   unlockTxt:{fontSize:16,fontWeight:'800',color:'#000'},
-  lockCard:{backgroundColor:'#1e293b',borderRadius:12,padding:14,marginBottom:8,opacity:0.5,width:'100%'},
+  lockedCard:{opacity:0.5},
   lockNum:{backgroundColor:'#334155'},
-  lockCardTitle:{fontSize:14,fontWeight:'600',color:'#94a3b8',marginBottom:2},
-  lockCardDesc:{fontSize:12,color:'#64748b'},
-  moreText:{fontSize:13,color:'#64748b',marginTop:4},
+  freeTrialBadge:{backgroundColor:'#166534',paddingHorizontal:8,paddingVertical:2,borderRadius:6},
+  freeTrialTxt:{fontSize:10,fontWeight:'800',color:'#4ade80'},
 });

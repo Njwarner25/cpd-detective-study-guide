@@ -186,6 +186,29 @@ export default function PracticeScenario() {
   };
 
   // ── TTS (Web Speech API for web, can extend for native) ──
+  const getBestVoice = (): SpeechSynthesisVoice | null => {
+    if (Platform.OS !== 'web' || !('speechSynthesis' in window)) return null;
+    const voices = window.speechSynthesis.getVoices();
+    // Prefer high-quality English voices in priority order
+    const preferred = [
+      'Google US English',
+      'Google UK English Male',
+      'Google UK English Female',
+      'Microsoft David',
+      'Microsoft Mark',
+      'Microsoft Zira',
+      'Samantha',
+      'Daniel',
+      'Alex',
+    ];
+    for (const name of preferred) {
+      const match = voices.find(v => v.name.includes(name));
+      if (match) return match;
+    }
+    // Fallback: any English voice
+    return voices.find(v => v.lang.startsWith('en')) || null;
+  };
+
   const toggleTTS = (text: string) => {
     if (Platform.OS === 'web' && 'speechSynthesis' in window) {
       if (isTTSPlaying) {
@@ -193,7 +216,10 @@ export default function PracticeScenario() {
       } else {
         stopTTS();
         const utterance = new SpeechSynthesisUtterance(text);
-        utterance.rate = 0.9;
+        utterance.rate = 0.95;
+        utterance.pitch = 1.0;
+        const voice = getBestVoice();
+        if (voice) utterance.voice = voice;
         utterance.onend = () => setIsTTSPlaying(false);
         utterance.onerror = () => setIsTTSPlaying(false);
         ttsRef.current = utterance;

@@ -63,8 +63,11 @@ export default function DetectiveBotBubble({ onPress, hintCount = 0 }: Detective
           </View>
         )}
       </TouchableOpacity>
-      <View style={styles.tooltip}>
-        <Text style={styles.tooltipText}>Click me if you need help!</Text>
+      {/* Comic book speech bubble */}
+      <View style={styles.speechBubble}>
+        <Text style={styles.speechText}>Click me if you{'\n'}need help!</Text>
+        {/* Triangle pointer */}
+        <View style={styles.speechArrow} />
       </View>
     </Animated.View>
   );
@@ -119,19 +122,40 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: 'bold',
   },
-  tooltip: {
+  speechBubble: {
     position: 'absolute',
     right: 84,
-    top: 20,
-    backgroundColor: '#3b82f6',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 8,
-    whiteSpace: 'nowrap',
+    top: 6,
+    backgroundColor: '#ffffff',
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 16,
+    borderWidth: 2,
+    borderColor: '#1e293b',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
   },
-  tooltipText: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: '600',
+  speechText: {
+    color: '#1e293b',
+    fontSize: 13,
+    fontWeight: '800',
+    textAlign: 'center',
+    lineHeight: 18,
+  },
+  speechArrow: {
+    position: 'absolute',
+    right: -10,
+    top: 14,
+    width: 0,
+    height: 0,
+    borderTopWidth: 8,
+    borderBottomWidth: 8,
+    borderLeftWidth: 10,
+    borderTopColor: 'transparent',
+    borderBottomColor: 'transparent',
+    borderLeftColor: '#1e293b',
   },
 });

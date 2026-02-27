@@ -1,4 +1,5 @@
 import asyncio
+import json
 from motor.motor_asyncio import AsyncIOMotorClient
 import os
 from datetime import datetime, timezone
@@ -1218,40 +1219,52 @@ async def seed_scenarios():
 Security cameras captured the incident. A witness in the parking lot observed a dark-colored sedan speed away from the area shortly after the robbery. The clerk is shaken but cooperative.
 
 As the lead detective, outline your investigative plan for the first 48 hours. What are your immediate priorities? What evidence will you collect? How will you identify and apprehend the suspect?""",
-            "answer": """IMMEDIATE ACTIONS (First 2 Hours):
-1. Secure crime scene, establish perimeter
-2. Ensure victim receives any needed medical attention
-3. Obtain detailed statement from clerk while memory fresh
-4. Canvas for additional witnesses in parking lot and nearby businesses
-5. Issue flash message with suspect and vehicle description
-6. Request K-9 track if suspect fled on foot recently
-7. Check for similar pattern robberies in area
-
-EVIDENCE COLLECTION:
-1. Obtain all surveillance video (store and nearby businesses)
-2. Process counter/register area for fingerprints
-3. Preserve register for potential DNA evidence
-4. Photograph scene from multiple angles
-5. Collect any physical evidence left by suspect
-6. Document victim's injuries or distress
-
-FOLLOW-UP INVESTIGATION (24-48 Hours):
-1. Analyze video with tech unit for suspect/vehicle details
-2. Enter suspect description in robbery pattern database
-3. Check pawn databases for any activity
-4. Review recent robbery arrests for similar MO
-5. Contact confidential informants
-6. Issue BOLO for vehicle description
-7. Monitor social media for suspect activity
-8. Coordinate with robbery unit on known offenders
-9. Check for NIBIN hits if weapon later recovered
-10. Review license plate readers in area
-
-CASE DOCUMENTATION:
-1. Complete comprehensive case report
-2. Update crime analysis with pattern information
-3. Prepare photo array if suspect identified
-4. Coordinate with ASA on charges when appropriate""",
+            "answer": json.dumps({
+                "modelAnswer": {
+                    "R": [
+                        "Secure crime scene, establish perimeter",
+                        "Ensure victim receives any needed medical attention",
+                        "Issue flash message with suspect and vehicle description",
+                        "Request K-9 track if suspect fled on foot recently"
+                    ],
+                    "E": [
+                        "Secure crime scene, establish perimeter around convenience store",
+                        "Check for similar pattern robberies in area"
+                    ],
+                    "C": [
+                        "Obtain detailed statement from clerk while memory fresh",
+                        "Canvas for additional witnesses in parking lot and nearby businesses"
+                    ],
+                    "T": [
+                        "Photograph scene from multiple angles",
+                        "Document victim's injuries or distress",
+                        "Complete comprehensive case report",
+                        "Update crime analysis with pattern information"
+                    ],
+                    "I": [
+                        "Obtain all surveillance video (store and nearby businesses)",
+                        "Process counter/register area for fingerprints",
+                        "Preserve register for potential DNA evidence",
+                        "Collect any physical evidence left by suspect",
+                        "Check for NIBIN hits if weapon later recovered",
+                        "Review license plate readers in area"
+                    ],
+                    "O": [
+                        "Coordinate with ASA on charges when appropriate",
+                        "Prepare photo array if suspect identified"
+                    ],
+                    "N": [
+                        "Analyze video with tech unit for suspect/vehicle details",
+                        "Enter suspect description in robbery pattern database",
+                        "Check pawn databases for any activity",
+                        "Review recent robbery arrests for similar MO",
+                        "Contact confidential informants",
+                        "Issue BOLO for vehicle description",
+                        "Monitor social media for suspect activity",
+                        "Coordinate with robbery unit on known offenders"
+                    ]
+                }
+            }),
             "explanation": "Tests knowledge of robbery investigation procedures, evidence preservation, witness management, and resource coordination.",
             "difficulty": "hard",
             "reference": "General Order G05-03: Robbery Investigation"
@@ -1268,52 +1281,64 @@ CASE DOCUMENTATION:
 The husband has visible scratches on his forearms. He claims these are from playing with their dog. The couple has a history of domestic disturbances, including two prior police responses in the past year, though no arrests were made.
 
 How do you proceed with this investigation? What evidence will you collect? How do you handle the husband?""",
-            "answer": """IMMEDIATE SCENE ACTIONS:
-1. Secure scene as homicide until determined otherwise
-2. Separate husband from scene - do NOT let him contaminate evidence
-3. Request homicide detectives and crime scene unit
-4. Notify Medical Examiner immediately
-5. Begin crime scene log - document all persons present
-6. Do NOT move body without ME approval
-7. Identify and separate all potential witnesses
-
-HUSBAND HANDLING:
-1. He is not free to leave - invoke investigative detention
-2. Document his clothing, injuries (photograph scratches)
-3. Obtain his voluntary statement before advising Miranda if non-custodial
-4. If probable cause develops, arrest and then Miranda
-5. Collect clothing as evidence (get search warrant if necessary)
-6. Obtain DNA/fingernail scrapings with warrant or consent
-7. Check hands for defensive injuries
-8. Timeline his whereabouts - verify alibi
-
-EVIDENCE COLLECTION:
-1. Extensive photography of victim and entire scene
-2. Document position of body, any disturbance
-3. Collect potential murder weapon(s)
-4. Swab blood evidence, document spatter patterns
-5. Process for fingerprints throughout
-6. Collect victim's fingernail scrapings for DNA
-7. Document signs of struggle
-8. Collect husband's clothing and swab scratches for victim DNA
-9. Seize all electronic devices (cell phones, computers) - warrant required
-10. Photograph dog, document any dog injuries
-
-BACKGROUND INVESTIGATION:
-1. Pull all prior domestic calls to address
-2. Interview neighbors who heard argument
-3. Interview family, friends about relationship history
-4. Subpoena phone records for both parties
-5. Check for protective orders or pending divorce
-6. Review social media accounts
-7. Check for life insurance policies
-8. Investigate financial situation
-
-COORDINATION:
-1. Work with ME on autopsy findings
-2. Request expedited DNA analysis
-3. Coordinate with State's Attorney on charging
-4. Document everything for domestic violence prosecution protocol""",
+            "answer": json.dumps({
+                "modelAnswer": {
+                    "R": [
+                        "Secure scene as homicide until determined otherwise",
+                        "Request homicide detectives and crime scene unit",
+                        "Notify Medical Examiner immediately",
+                        "Do NOT move body without ME approval"
+                    ],
+                    "E": [
+                        "Separate husband from scene - do NOT let him contaminate evidence",
+                        "Begin crime scene log - document all persons present",
+                        "Identify and separate all potential witnesses"
+                    ],
+                    "A": [
+                        "Husband is not free to leave - invoke investigative detention",
+                        "Obtain his voluntary statement before advising Miranda if non-custodial",
+                        "If probable cause develops, arrest and then Miranda",
+                        "Timeline his whereabouts - verify alibi"
+                    ],
+                    "C": [
+                        "Interview neighbors who heard argument",
+                        "Interview family, friends about relationship history",
+                        "Pull all prior domestic calls to address",
+                        "Check for protective orders or pending divorce",
+                        "Review social media accounts"
+                    ],
+                    "T": [
+                        "Extensive photography of victim and entire scene",
+                        "Document position of body, any disturbance",
+                        "Document his clothing, injuries (photograph scratches)",
+                        "Document signs of struggle",
+                        "Photograph dog, document any dog injuries",
+                        "Document everything for domestic violence prosecution protocol"
+                    ],
+                    "I": [
+                        "Collect potential murder weapon(s)",
+                        "Swab blood evidence, document spatter patterns",
+                        "Process for fingerprints throughout",
+                        "Collect victim's fingernail scrapings for DNA",
+                        "Collect husband's clothing and swab scratches for victim DNA",
+                        "Obtain DNA/fingernail scrapings with warrant or consent",
+                        "Check hands for defensive injuries",
+                        "Seize all electronic devices (cell phones, computers) - warrant required",
+                        "Request expedited DNA analysis"
+                    ],
+                    "O": [
+                        "Collect clothing as evidence (get search warrant if necessary)",
+                        "Subpoena phone records for both parties",
+                        "Coordinate with State's Attorney on charging",
+                        "Work with ME on autopsy findings"
+                    ],
+                    "N": [
+                        "Check for life insurance policies",
+                        "Investigate financial situation",
+                        "Review social media accounts for relationship history"
+                    ]
+                }
+            }),
             "explanation": "Tests homicide investigation procedures, domestic violence awareness, evidence collection, and suspect handling while building case.",
             "difficulty": "hard",
             "reference": "General Order G05-03: Death Investigation, G04-04: Domestic Violence"
@@ -1330,46 +1355,53 @@ COORDINATION:
 A witness at the most recent burglary saw a white work van in the alley behind the targeted home about 30 minutes before the homeowner discovered the break-in. The witness could not provide a plate number but described seeing two males, one with a distinctive sleeve tattoo.
 
 As the detective assigned to this pattern, how would you approach connecting these cases and identifying the suspects?""",
-            "answer": """PATTERN ANALYSIS:
-1. Create detailed matrix of all six burglaries
-2. Map locations - identify geographic cluster
-3. Analyze exact entry methods, tools used
-4. Compare items taken - specific preferences
-5. Review MO details for unique signatures
-6. Check for any forensic evidence connections
-7. Timeline analysis - day of week, time patterns
-8. Identify why these homes were selected (vacant, routine)
-
-SUSPECT IDENTIFICATION:
-1. Canvas all six neighborhoods for van sightings
-2. Check traffic cameras for white work vans in area during burglary times
-3. Review license plate readers for patterns
-4. Check pawn shops for stolen items
-5. Alert informants about pattern and tattoo description
-6. Search databases for burglars with similar MO
-7. Check probation/parole records for residential burglars
-8. Query CLEAR for tattoo description
-9. Review recent burglary arrests in surrounding districts
-
-ENHANCED SURVEILLANCE:
-1. Identify potential target area based on pattern
-2. Request plainclothes surveillance during peak hours
-3. Coordinate with district tactical teams
-4. Alert patrol to watch for white vans in residential areas
-5. Consider bait house operation if approved
-
-EVIDENCE COORDINATION:
-1. Ensure all fingerprints from six scenes processed for comparison
-2. Check for tool mark matches between scenes
-3. Any DNA evidence cross-referenced
-4. Review surveillance footage from all scenes
-5. Create comprehensive photo array when suspect identified
-
-PREVENTION:
-1. Alert neighborhood watch groups
-2. Issue community notification via social media
-3. Provide prevention tips (lock windows, timers for lights)
-4. Request increased patrol visibility during peak hours""",
+            "answer": json.dumps({
+                "modelAnswer": {
+                    "R": [
+                        "Create detailed matrix of all six burglaries",
+                        "Map locations - identify geographic cluster",
+                        "Timeline analysis - day of week, time patterns",
+                        "Identify why these homes were selected (vacant, routine)"
+                    ],
+                    "E": [
+                        "Analyze exact entry methods, tools used",
+                        "Compare items taken - specific preferences",
+                        "Review MO details for unique signatures",
+                        "Check for any forensic evidence connections"
+                    ],
+                    "C": [
+                        "Canvas all six neighborhoods for van sightings",
+                        "Alert informants about pattern and tattoo description",
+                        "Check probation/parole records for residential burglars",
+                        "Query CLEAR for tattoo description",
+                        "Review recent burglary arrests in surrounding districts"
+                    ],
+                    "T": [
+                        "Review surveillance footage from all scenes",
+                        "Check traffic cameras for white work vans in area during burglary times",
+                        "Review license plate readers for patterns",
+                        "Create comprehensive photo array when suspect identified"
+                    ],
+                    "I": [
+                        "Ensure all fingerprints from six scenes processed for comparison",
+                        "Check for tool mark matches between scenes",
+                        "Any DNA evidence cross-referenced",
+                        "Check pawn shops for stolen items",
+                        "Search databases for burglars with similar MO"
+                    ],
+                    "N": [
+                        "Identify potential target area based on pattern",
+                        "Request plainclothes surveillance during peak hours",
+                        "Coordinate with district tactical teams",
+                        "Alert patrol to watch for white vans in residential areas",
+                        "Consider bait house operation if approved",
+                        "Alert neighborhood watch groups",
+                        "Issue community notification via social media",
+                        "Provide prevention tips (lock windows, timers for lights)",
+                        "Request increased patrol visibility during peak hours"
+                    ]
+                }
+            }),
             "explanation": "Tests pattern analysis, investigative coordination across multiple cases, and proactive investigation techniques.",
             "difficulty": "medium",
             "reference": "General Order G05-03: Property Crimes Investigation"
@@ -1386,57 +1418,66 @@ PREVENTION:
 She delayed reporting for 12 hours because she was ashamed and unsure if anyone would believe her. She has since showered and changed clothes. She is visibly upset and considering not pursuing charges because she "can't prove anything."
 
 How do you handle this sensitive investigation? What evidence can still be collected? How do you support the victim while building the case?""",
-            "answer": """IMMEDIATE VICTIM SUPPORT:
-1. Express belief and empathy - no judgment
-2. Explain that showering doesn't eliminate all evidence
-3. Explain she has options - evidence collection doesn't require prosecution decision
-4. Connect with victim advocate immediately
-5. Let her make informed choices, respect autonomy
-6. Provide written information on resources/rights
-7. Reassure that intoxication does not equal consent
-
-EVIDENCE COLLECTION:
-1. SANE exam - still valuable even after shower
-   - DNA may persist in body cavities up to 5-7 days
-   - Document any injuries, even minor
-   - Toxicology for drug-facilitated assault
-2. Collect clothing worn to party (even if different from now)
-3. Photograph any visible injuries
-4. Document her emotional state and demeanor
-5. Obtain her detailed statement when ready
-
-INVESTIGATION:
-1. Identify party location and attendees
-2. Locate "Derek" - check with party host, social media
-3. Canvas for witnesses who saw them together
-4. Identify whose house/room she woke in
-5. Obtain video/photos from party (phones, social media)
-6. Secure any digital communications
-7. Check for surveillance cameras near party location
-8. Interview witnesses about victim's level of intoxication
-9. Interview suspect - document any admissions about intoxication level
-
-LEGAL ELEMENTS:
-1. Document evidence of inability to consent due to intoxication
-2. Determine if drugs may have been used (toxicology)
-3. Witness statements about victim's condition
-4. Any statements by suspect about victim's state
-5. Medical evidence of assault
-
-VICTIM-CENTERED APPROACH:
-1. Keep victim informed of investigation progress
-2. Let her set pace when possible
-3. Coordinate with SVU and victim services
-4. Prepare her for what to expect in process
-5. Document her wishes regarding prosecution
-6. Provide safety planning if suspect may have contact
-
-SUSPECT INTERVIEW STRATEGY:
-1. Approach without revealing full case
-2. Establish timeline and opportunity
-3. Let him describe events before revealing details
-4. Document any admissions about her intoxication
-5. If interview reveals probable cause, arrest and Miranda""",
+            "answer": json.dumps({
+                "modelAnswer": {
+                    "R": [
+                        "Express belief and empathy - no judgment",
+                        "Explain that showering doesn't eliminate all evidence",
+                        "Explain she has options - evidence collection doesn't require prosecution decision",
+                        "Connect with victim advocate immediately",
+                        "Let her make informed choices, respect autonomy",
+                        "Provide written information on resources/rights",
+                        "Reassure that intoxication does not equal consent"
+                    ],
+                    "E": [
+                        "Identify party location and attendees",
+                        "Identify whose house/room she woke in",
+                        "Check for surveillance cameras near party location"
+                    ],
+                    "A": [
+                        "Approach suspect without revealing full case",
+                        "Establish timeline and opportunity",
+                        "Let him describe events before revealing details",
+                        "Document any admissions about her intoxication",
+                        "If interview reveals probable cause, arrest and Miranda"
+                    ],
+                    "C": [
+                        "Locate Derek - check with party host, social media",
+                        "Canvas for witnesses who saw them together",
+                        "Interview witnesses about victim's level of intoxication",
+                        "Interview suspect - document any admissions about intoxication level",
+                        "Obtain her detailed statement when ready"
+                    ],
+                    "T": [
+                        "Photograph any visible injuries",
+                        "Document her emotional state and demeanor",
+                        "Document evidence of inability to consent due to intoxication",
+                        "Document her wishes regarding prosecution"
+                    ],
+                    "I": [
+                        "SANE exam - still valuable even after shower",
+                        "DNA may persist in body cavities up to 5-7 days",
+                        "Document any injuries, even minor",
+                        "Toxicology for drug-facilitated assault",
+                        "Collect clothing worn to party (even if different from now)",
+                        "Obtain video/photos from party (phones, social media)",
+                        "Secure any digital communications",
+                        "Medical evidence of assault",
+                        "Determine if drugs may have been used (toxicology)"
+                    ],
+                    "O": [
+                        "Witness statements about victim's condition",
+                        "Any statements by suspect about victim's state",
+                        "Coordinate with SVU and victim services"
+                    ],
+                    "N": [
+                        "Keep victim informed of investigation progress",
+                        "Let her set pace when possible",
+                        "Prepare her for what to expect in process",
+                        "Provide safety planning if suspect may have contact"
+                    ]
+                }
+            }),
             "explanation": "Tests victim-centered approach, sexual assault investigation protocols, evidence collection after delay, and building case without traditional evidence.",
             "difficulty": "hard",
             "reference": "Special Order S04-06: Sexual Assault Response"
@@ -1453,62 +1494,55 @@ SUSPECT INTERVIEW STRATEGY:
 You push past him, secure the gun, and during a protective sweep find cocaine on the kitchen counter and ammunition in a bedroom closet. The male is arrested for weapons and drug offenses.
 
 Analyze the legality of your entry and search. What, if any, evidence will be suppressed? What should you have done differently?""",
-            "answer": """FOURTH AMENDMENT ANALYSIS:
-
-INITIAL ENTRY - PROBLEMATIC:
-The warrantless entry into a home is presumptively unconstitutional. Exceptions must apply.
-
-EXIGENT CIRCUMSTANCES ANALYSIS:
-For entry to be valid, need probable cause + exigency:
-
-ARGUED EXIGENCIES:
-1. Shots fired call - provides reason to investigate, but you arrived at scene, didn't observe active shooting
-2. Yelling heard - suggests disturbance but not necessarily emergency
-3. Cannabis smell - in Illinois post-legalization, cannabis odor alone is NOT an exigent circumstance
-4. Gun in plain view - gun alone (without threat) does not create emergency
-5. Subject at door - no one in apparent danger
-
-LIKELY SUPPRESSION:
-✗ Gun on coffee table - seized during unlawful entry
-✗ Cocaine in kitchen - fruit of unlawful entry
-✗ Ammunition in closet - exceeded any protective sweep authority
-
-WHAT SHOULD HAVE BEEN DONE:
-
-OPTION 1 - SECURE AND GET WARRANT:
-1. Subject denies entry but is not threatening
-2. You can secure the scene (prevent destruction of evidence)
-3. Station officer at door to ensure no one leaves
-4. Call supervisor and ASA
-5. Apply for search warrant based on observations:
-   - Shots fired call response
-   - Yelling heard
-   - Gun observed in plain view
-6. Execute warrant once obtained
-7. All evidence admissible
-
-OPTION 2 - ARTICULATE TRUE EXIGENCY:
-If genuine emergency exists (e.g., you hear someone inside screaming for help, sounds of struggle), document:
-- Specific facts showing imminent danger
-- Why entry was immediately necessary
-- What threat existed to persons
-- Why waiting for warrant was not feasible
-
-EXCEPTION NOT APPLICABLE HERE:
-- Hot pursuit: No - suspect at door, not fleeing
-- Emergency aid: No - no one in apparent distress
-- Imminent evidence destruction: Weak - subject wasn't destroying anything
-- Prevent escape: No - subject was conversing at door
-
-CONSEQUENCE OF CURRENT ACTIONS:
-- All evidence likely suppressed
-- Case dismissed
-- Potential civil rights lawsuit
-- Violation of CPD policy
-- COPA review likely
-
-LESSON:
-When time permits, ALWAYS get a warrant for home entry. The home receives highest Fourth Amendment protection. "I saw contraband" is not an emergency. Secure scene and seek judicial authorization.""",
+            "answer": json.dumps({
+                "modelAnswer": {
+                    "R": [
+                        "The warrantless entry into a home is presumptively unconstitutional - exceptions must apply",
+                        "Shots fired call provides reason to investigate, but you arrived at scene and didn't observe active shooting",
+                        "Yelling heard suggests disturbance but not necessarily emergency",
+                        "Cannabis smell - in Illinois post-legalization, cannabis odor alone is NOT an exigent circumstance",
+                        "Gun in plain view alone (without threat) does not create emergency",
+                        "Subject at door - no one in apparent danger"
+                    ],
+                    "E": [
+                        "For entry to be valid, need probable cause plus exigency",
+                        "Hot pursuit exception not applicable - suspect at door, not fleeing",
+                        "Emergency aid exception not applicable - no one in apparent distress",
+                        "Imminent evidence destruction weak - subject wasn't destroying anything",
+                        "Prevent escape not applicable - subject was conversing at door"
+                    ],
+                    "A": [
+                        "The home receives highest Fourth Amendment protection",
+                        "Warrantless entry requires articulated exigent circumstances",
+                        "You can secure the scene and station officer at door to prevent evidence destruction"
+                    ],
+                    "T": [
+                        "Document specific facts showing imminent danger if claiming exigency",
+                        "Document why entry was immediately necessary",
+                        "Document what threat existed to persons",
+                        "Document why waiting for warrant was not feasible"
+                    ],
+                    "I": [
+                        "Gun on coffee table - seized during unlawful entry, likely suppressed",
+                        "Cocaine in kitchen - fruit of unlawful entry, likely suppressed",
+                        "Ammunition in closet - exceeded any protective sweep authority, likely suppressed",
+                        "All evidence likely suppressed under exclusionary rule"
+                    ],
+                    "O": [
+                        "Secure scene and call supervisor and ASA",
+                        "Apply for search warrant based on observations: shots fired call, yelling heard, gun in plain view",
+                        "Execute warrant once obtained - all evidence then admissible",
+                        "When time permits, ALWAYS get a warrant for home entry"
+                    ],
+                    "N": [
+                        "All evidence likely suppressed leading to case dismissal",
+                        "Potential civil rights lawsuit",
+                        "Violation of CPD policy",
+                        "COPA review likely",
+                        "Lesson: 'I saw contraband' is not an emergency - secure scene and seek judicial authorization"
+                    ]
+                }
+            }),
             "explanation": "Tests Fourth Amendment knowledge, warrantless entry exceptions, and proper procedure when observing evidence in home.",
             "difficulty": "hard",
             "reference": "4th Amendment, Kentucky v. King, General Order G06-01-03"
@@ -1525,70 +1559,73 @@ When time permits, ALWAYS get a warrant for home entry. The home receives highes
 No one is talking. The surviving victims claim they "didn't see anything." Cell phone video posted to social media 30 minutes later shows part of the incident from across the street, but the account is anonymous. Gang graffiti in the area suggests this corner is disputed territory.
 
 How do you approach this complex investigation where witnesses are uncooperative and gang dynamics are at play?""",
-            "answer": """IMMEDIATE SCENE ACTIONS:
-1. Establish expanded perimeter - evidence likely spread
-2. Request crime scene unit and additional detectives
-3. Document all persons in area before they leave
-4. Medical examiner notification for DOA
-5. Assign officers to hospitals with surviving victims
-6. Recover all shell casings with proper documentation
-7. Request ShotSpotter data for exact shot timing/locations
-8. Canvass for surveillance cameras (business, residential, city)
-9. Document gang graffiti and territorial markers
-
-WITNESS STRATEGY:
-1. Understand reluctance is fear-based, not hostile
-2. Separate potential witnesses for individual contact
-3. Provide business cards - may cooperate later
-4. Look for witnesses from windows, parked cars
-5. Identify anonymous caller who reported shots
-6. Check if anyone sought medical attention who left scene
-7. Use Crime Stoppers for anonymous tips
-
-SOCIAL MEDIA INVESTIGATION:
-1. Preserve the anonymous video immediately (screenshot, screen record)
-2. Issue preservation letter to platform
-3. Work with tech unit to identify account owner
-4. Search for additional posts about incident
-5. Monitor gang members' social media for admissions
-6. Look for rival gang taunting or claiming credit
-
-VICTIM APPROACH:
-1. Hospital bedside interviews when medically cleared
-2. Have victim advocate present
-3. Explain safety resources available
-4. Offer to relocate family if cooperation given
-5. Non-fatal victims may become cooperative later
-6. Document any spontaneous statements to medical staff
-
-GANG INTELLIGENCE:
-1. Coordinate with gang intelligence unit
-2. Identify which gangs claim this territory
-3. Check for recent gang conflicts or retaliations
-4. Review recent arrests of gang members
-5. Identify any ongoing feuds
-6. Check for social media "beefs" between groups
-
-FORENSIC INVESTIGATION:
-1. Match shell casings to prior shooting cases (NIBIN)
-2. Compare bullets recovered from victims
-3. Check if vehicle identified through surveillance
-4. Process scene for DNA, fingerprints despite low probability
-5. Analyze ShotSpotter for number of shooters
-
-LONG-TERM STRATEGY:
-1. This investigation may take months
-2. Cultivate confidential informants
-3. Monitor for retaliation incidents
-4. Build case through circumstantial evidence
-5. Consider federal prosecution for gang conspiracy
-6. Coordinate with U.S. Attorney if appropriate
-
-DOCUMENTATION:
-1. Comprehensive evidence preservation
-2. Document all tips regardless of source
-3. Create timeline with all evidence
-4. Maintain informant confidentiality""",
+            "answer": json.dumps({
+                "modelAnswer": {
+                    "R": [
+                        "Establish expanded perimeter - evidence likely spread",
+                        "Request crime scene unit and additional detectives",
+                        "Medical examiner notification for DOA",
+                        "Assign officers to hospitals with surviving victims",
+                        "Request ShotSpotter data for exact shot timing/locations"
+                    ],
+                    "E": [
+                        "Document all persons in area before they leave",
+                        "Canvass for surveillance cameras (business, residential, city)",
+                        "Document gang graffiti and territorial markers",
+                        "Recover all shell casings with proper documentation"
+                    ],
+                    "C": [
+                        "Understand reluctance is fear-based, not hostile",
+                        "Separate potential witnesses for individual contact",
+                        "Provide business cards - may cooperate later",
+                        "Look for witnesses from windows, parked cars",
+                        "Identify anonymous caller who reported shots",
+                        "Check if anyone sought medical attention who left scene",
+                        "Use Crime Stoppers for anonymous tips",
+                        "Hospital bedside interviews when medically cleared",
+                        "Have victim advocate present",
+                        "Explain safety resources available",
+                        "Offer to relocate family if cooperation given",
+                        "Non-fatal victims may become cooperative later",
+                        "Document any spontaneous statements to medical staff"
+                    ],
+                    "T": [
+                        "Comprehensive evidence preservation",
+                        "Document all tips regardless of source",
+                        "Create timeline with all evidence",
+                        "Maintain informant confidentiality",
+                        "Preserve the anonymous video immediately (screenshot, screen record)"
+                    ],
+                    "I": [
+                        "Match shell casings to prior shooting cases (NIBIN)",
+                        "Compare bullets recovered from victims",
+                        "Check if vehicle identified through surveillance",
+                        "Process scene for DNA, fingerprints despite low probability",
+                        "Analyze ShotSpotter for number of shooters",
+                        "Issue preservation letter to social media platform",
+                        "Work with tech unit to identify account owner",
+                        "Search for additional posts about incident",
+                        "Monitor gang members' social media for admissions",
+                        "Look for rival gang taunting or claiming credit"
+                    ],
+                    "O": [
+                        "Coordinate with gang intelligence unit",
+                        "Identify which gangs claim this territory",
+                        "Check for recent gang conflicts or retaliations",
+                        "Review recent arrests of gang members",
+                        "Identify any ongoing feuds",
+                        "Check for social media beefs between groups",
+                        "Consider federal prosecution for gang conspiracy",
+                        "Coordinate with U.S. Attorney if appropriate"
+                    ],
+                    "N": [
+                        "This investigation may take months",
+                        "Cultivate confidential informants",
+                        "Monitor for retaliation incidents",
+                        "Build case through circumstantial evidence"
+                    ]
+                }
+            }),
             "explanation": "Tests gang-related investigation strategies, witness reluctance handling, social media evidence, and multi-victim scene management.",
             "difficulty": "hard",
             "reference": "General Order G05-03: Homicide Investigation, Gang Intelligence Protocols"
@@ -1605,70 +1642,75 @@ DOCUMENTATION:
 DCFS has been notified and is conducting a parallel investigation. You are assigned to conduct the criminal investigation.
 
 How do you approach this sensitive investigation involving a child victim? What evidence do you need? How do you coordinate with DCFS while building a criminal case?""",
-            "answer": """IMMEDIATE COORDINATION:
-1. Contact DCFS investigator - coordinate, don't duplicate
-2. Determine if child is in immediate danger
-3. If danger present, protective custody may be needed
-4. Establish information sharing protocol with DCFS
-5. Joint investigation preferred when possible
-
-FORENSIC INTERVIEW:
-1. Refer to Child Advocacy Center for forensic interview
-2. DO NOT conduct your own detailed interview first - one interview protects child and case
-3. Observe forensic interview behind glass
-4. Forensic interviewer is trained for child witnesses
-5. Interview will be recorded for court use
-6. Avoid leading questions, multiple interviews
-
-MEDICAL EVIDENCE:
-1. Refer for medical examination by child abuse specialist
-2. Document all injuries with photographs
-3. Medical opinion on whether injuries consistent with explanation
-4. Determine age of injuries - are there healing injuries?
-5. Full body examination for hidden injuries
-6. Growth chart review for malnutrition signs
-
-INVESTIGATION:
-1. Interview teacher and school personnel
-2. Obtain school records - attendance, behavior changes
-3. Interview mother separately from boyfriend
-4. Interview boyfriend separately
-5. Background checks on all adults in home
-6. Check for prior DCFS history
-7. Check for prior police calls to address
-8. Interview neighbors about household
-9. Obtain medical records for child's prior injuries
-10. Interview child's other contacts (relatives, friends' parents)
-
-SUSPECT INTERVIEWS:
-1. Non-custodial interview preferred initially
-2. Let suspect explain injuries before revealing evidence
-3. Document inconsistencies in explanations
-4. Be aware of who has access to child
-5. Determine primary caregiver
-6. If probable cause, arrest and continue with Miranda
-
-EVIDENCE COLLECTION:
-1. Photograph all injuries with scale
-2. Document home conditions
-3. Seize any implements that may have caused injuries
-4. Preserve child's clothing if relevant
-5. Document sleeping arrangements
-6. Note cleanliness, food availability
-
-ONGOING PROTECTION:
-1. Ensure safety plan in place with DCFS
-2. If arrest made, seek no-contact order
-3. Monitor for witness intimidation
-4. Keep child informed in age-appropriate way
-5. Connect family with victim services
-
-PROSECUTION:
-1. Work closely with ASA specializing in child abuse
-2. Prepare child for court process
-3. Consider use of recorded forensic interview at trial
-4. Address hearsay exceptions for child statements
-5. Expert testimony on abuse indicators""",
+            "answer": json.dumps({
+                "modelAnswer": {
+                    "R": [
+                        "Contact DCFS investigator - coordinate, don't duplicate",
+                        "Determine if child is in immediate danger",
+                        "If danger present, protective custody may be needed",
+                        "Establish information sharing protocol with DCFS",
+                        "Joint investigation preferred when possible"
+                    ],
+                    "E": [
+                        "Document home conditions",
+                        "Document sleeping arrangements",
+                        "Note cleanliness, food availability"
+                    ],
+                    "A": [
+                        "Non-custodial interview preferred initially",
+                        "Let suspect explain injuries before revealing evidence",
+                        "Document inconsistencies in explanations",
+                        "Be aware of who has access to child",
+                        "Determine primary caregiver",
+                        "If probable cause, arrest and continue with Miranda"
+                    ],
+                    "C": [
+                        "Refer to Child Advocacy Center for forensic interview",
+                        "DO NOT conduct your own detailed interview first - one interview protects child and case",
+                        "Observe forensic interview behind glass",
+                        "Forensic interviewer is trained for child witnesses",
+                        "Interview will be recorded for court use",
+                        "Avoid leading questions, multiple interviews",
+                        "Interview teacher and school personnel",
+                        "Obtain school records - attendance, behavior changes",
+                        "Interview mother separately from boyfriend",
+                        "Interview boyfriend separately",
+                        "Interview neighbors about household",
+                        "Interview child's other contacts (relatives, friends' parents)"
+                    ],
+                    "T": [
+                        "Photograph all injuries with scale",
+                        "Document all injuries with photographs",
+                        "Medical opinion on whether injuries consistent with explanation",
+                        "Determine age of injuries - are there healing injuries?",
+                        "Full body examination for hidden injuries",
+                        "Growth chart review for malnutrition signs"
+                    ],
+                    "I": [
+                        "Refer for medical examination by child abuse specialist",
+                        "Seize any implements that may have caused injuries",
+                        "Preserve child's clothing if relevant",
+                        "Background checks on all adults in home",
+                        "Check for prior DCFS history",
+                        "Check for prior police calls to address",
+                        "Obtain medical records for child's prior injuries"
+                    ],
+                    "O": [
+                        "Work closely with ASA specializing in child abuse",
+                        "Prepare child for court process",
+                        "Consider use of recorded forensic interview at trial",
+                        "Address hearsay exceptions for child statements",
+                        "Expert testimony on abuse indicators",
+                        "If arrest made, seek no-contact order"
+                    ],
+                    "N": [
+                        "Ensure safety plan in place with DCFS",
+                        "Monitor for witness intimidation",
+                        "Keep child informed in age-appropriate way",
+                        "Connect family with victim services"
+                    ]
+                }
+            }),
             "explanation": "Tests child abuse investigation protocols, multi-agency coordination, forensic interview principles, and child-sensitive approaches.",
             "difficulty": "hard",
             "reference": "Special Order S04-06: Child Abuse Investigation, DCFS Protocols"
@@ -1685,76 +1727,58 @@ PROSECUTION:
 During the interview, which lasts 4 hours with one bathroom break and no food, John asks to stop at one point, saying, "I'm tired, can we do this tomorrow?" You say, "We're almost done, just a few more questions," and continue. He then provides additional details about how he selected the victim's home.
 
 Analyze the legal issues with this confession. Will it be admissible?""",
-            "answer": """MIRANDA INVOCATION ANALYSIS:
-
-ISSUE 1: AMBIGUOUS INVOCATION OF COUNSEL
-Statement: "maybe I should have a lawyer"
-
-ANALYSIS:
-- Under Davis v. United States, invocation must be unambiguous
-- "Maybe I should have a lawyer" is ambiguous
-- Police may seek clarification
-- Your response "that's up to you" is permissible
-- Subsequent clear waiver "I'll talk" is valid
-- THIS PORTION LIKELY SURVIVES
-
-ISSUE 2: VOLUNTARINESS CONCERNS
-
-FACTORS AGAINST VOLUNTARINESS:
-1. Four-hour interrogation - lengthy but not per se unconstitutional
-2. Only one bathroom break - concerning
-3. No food provided - concerning
-4. Request to stop: "Can we do this tomorrow?" - THIS IS PROBLEMATIC
-5. Response "we're almost done" could be considered coercive
-
-INVOCATION OF RIGHT TO SILENCE:
-- "Can we do this tomorrow?" is ambiguous
-- Not a clear invocation of right to silence
-- BUT combined with stated fatigue, shows duress
-- Statements after this point MORE vulnerable to suppression
-
-TOTALITY OF CIRCUMSTANCES:
-- Duration + lack of food/breaks + tired request = coercive environment
-- Even if valid waiver initially, voluntariness can erode
-- Statements made under fatigue/duress may be excluded
-
-LIKELY OUTCOME:
-1. Initial confession (before "tired" statement) - likely ADMISSIBLE
-   - Ambiguous counsel reference properly handled
-   - Clear subsequent waiver
-
-2. Statements after "I'm tired, can we do this tomorrow?" - VULNERABLE
-   - Could be found involuntary
-   - "We're almost done" could be seen as coercive
-   - Additional details may be suppressed
-
-WHAT YOU SHOULD HAVE DONE:
-
-WHEN HE MENTIONED ATTORNEY:
-- Clarification appropriate: "Are you asking for an attorney or do you want to talk to me?"
-- Get clear answer before proceeding
-- Your approach was acceptable
-
-DURING INTERVIEW:
-1. Provide food and water
-2. Regular breaks (every 1-2 hours)
-3. Document all breaks given
-4. When he asked to stop due to fatigue:
-   - STOP QUESTIONING
-   - Let him rest or resume another day
-   - Continuing undermines voluntariness
-
-WHEN HE SAID HE WAS TIRED:
-- Proper response: "We can stop now and continue tomorrow"
-- His request was not unambiguous, but prudent to honor
-- Continuing risks entire confession
-
-BEST PRACTICE:
-- Shorter, focused interviews
-- Document all comfort provided
-- Take "I'm tired" seriously
-- Record everything to prove voluntariness
-- When in doubt, stop and resume later""",
+            "answer": json.dumps({
+                "modelAnswer": {
+                    "R": [
+                        "Under Davis v. United States, Miranda invocation must be unambiguous",
+                        "'Maybe I should have a lawyer' is ambiguous - police may seek clarification",
+                        "Your response 'that's up to you' is permissible",
+                        "Subsequent clear waiver 'I'll talk' is valid",
+                        "Initial Miranda portion likely survives challenge"
+                    ],
+                    "A": [
+                        "Clarification appropriate: 'Are you asking for an attorney or do you want to talk to me?'",
+                        "Get clear answer before proceeding",
+                        "When he asked to stop due to fatigue - STOP QUESTIONING",
+                        "Let him rest or resume another day",
+                        "Continuing undermines voluntariness of entire confession"
+                    ],
+                    "C": [
+                        "'Can we do this tomorrow?' is ambiguous invocation of right to silence",
+                        "Combined with stated fatigue, shows duress",
+                        "Statements after this point MORE vulnerable to suppression",
+                        "Four-hour interrogation - lengthy but not per se unconstitutional"
+                    ],
+                    "T": [
+                        "Only one bathroom break - concerning for voluntariness",
+                        "No food provided - concerning for voluntariness",
+                        "Duration plus lack of food/breaks plus tired request equals coercive environment",
+                        "Even if valid waiver initially, voluntariness can erode",
+                        "Document all breaks given and comfort provided",
+                        "Record everything to prove voluntariness"
+                    ],
+                    "I": [
+                        "Initial confession (before tired statement) - likely ADMISSIBLE",
+                        "Ambiguous counsel reference properly handled with clear subsequent waiver",
+                        "Statements after 'I'm tired, can we do this tomorrow?' - VULNERABLE to suppression",
+                        "'We're almost done' could be seen as coercive",
+                        "Additional details about home selection may be suppressed"
+                    ],
+                    "O": [
+                        "Provide food and water during interviews",
+                        "Regular breaks every 1-2 hours",
+                        "Proper response to fatigue: 'We can stop now and continue tomorrow'",
+                        "His request was not unambiguous, but prudent to honor",
+                        "Continuing risks entire confession being suppressed"
+                    ],
+                    "N": [
+                        "Shorter, focused interviews are best practice",
+                        "Take 'I'm tired' seriously",
+                        "When in doubt, stop and resume later",
+                        "Statements made under fatigue/duress may be excluded"
+                    ]
+                }
+            }),
             "explanation": "Tests Miranda invocation standards, confession voluntariness factors, and proper interrogation procedures.",
             "difficulty": "hard",
             "reference": "5th Amendment, Davis v. United States, General Order G06-01-02"
@@ -1771,83 +1795,84 @@ BEST PRACTICE:
 A civilian witness in a nearby apartment says she saw the shooting from her window and claims the subject's hands were empty and raised when he was shot. The subject's family, who arrived at the scene, is demanding answers.
 
 How do you handle this sensitive and complex investigation?""",
-            "answer": """IMMEDIATE SCENE MANAGEMENT:
-1. Ensure all life-saving measures provided to subject
-2. Separate Officer Davis from scene immediately
-3. DO NOT interview Officer Davis - he has right to representation and 24-hour review period
-4. Officer Kim also separated but can be briefly interviewed
-5. Notify COPA immediately - they have primary jurisdiction on OIS
-6. Notify command staff through chain
-7. Request crime scene unit
-8. Establish expanded perimeter - alley and surrounding area
-
-EVIDENCE COLLECTION:
-1. Comprehensive search for weapon - expand search area
-2. Officer Davis's weapon recovered and inventoried
-3. Document exact position of body
-4. Document distance from Officer Davis's position
-5. Shell casing locations
-6. Body-worn camera footage - preserve immediately
-7. Search subject's body and clothing
-8. Canvas entire area for surveillance cameras
-9. ShotSpotter data if available
-10. Photograph and document everything
-
-WITNESS MANAGEMENT:
-1. Civilian witness - detailed statement immediately
-2. Document her vantage point - what she could actually see
-3. Officer Kim statement on what he observed (not opinions)
-4. Canvas for additional witnesses
-5. Keep witnesses separated
-6. Obtain contact information from all
-
-FAMILY HANDLING:
-1. Compassion is paramount
-2. Do not provide details of investigation
-3. Connect with victim services
-4. Document any statements they make (spontaneous)
-5. Do not allow access to scene
-
-INVESTIGATION PROTOCOLS:
-1. COPA will conduct independent investigation
-2. Detective Division conducts criminal investigation in parallel
-3. Officer Davis entitled to:
-   - Union representation
-   - 24-hour review period before statement (if invoked)
-   - Access to BWC before statement
-4. Administrative investigation separate from criminal
-
-THE MISSING GUN ISSUE:
-1. Expand search extensively - weapons can be thrown
-2. Check dumpsters, bushes, under vehicles
-3. Did subject have accomplices who may have retrieved weapon?
-4. Interview subject's associates about weapon possession
-5. Check subject's criminal history for weapons offenses
-6. Social media may show prior weapon possession
-7. Absence of gun doesn't mean it wasn't there - continue searching
-
-CREDIBILITY ASSESSMENT:
-1. Civilian witness distance and lighting conditions
-2. What was her actual view - obstructions?
-3. Officer Kim's corroboration of "gun" statement
-4. Body-worn camera footage is critical evidence
-5. Forensic evidence of subject's hand position (GSR)
-6. Look for corroborating or contradicting evidence
-
-DOCUMENTATION:
-1. Complete and comprehensive reports
-2. All evidence properly inventoried
-3. Video evidence preserved with chain of custody
-4. Witness statements in their own words
-5. Scene diagrams and measurements
-6. All notifications documented with times
-
-COMMUNITY RELATIONS:
-1. PIO should handle media inquiries
-2. Department policy on releasing BWC
-3. Community meetings may be necessary
-4. Transparency builds trust
-5. Investigation integrity is priority""",
+            "answer": json.dumps({
+                "modelAnswer": {
+                    "R": [
+                        "Ensure all life-saving measures provided to subject",
+                        "Separate Officer Davis from scene immediately",
+                        "DO NOT interview Officer Davis - he has right to representation and 24-hour review period",
+                        "Notify COPA immediately - they have primary jurisdiction on OIS",
+                        "Notify command staff through chain"
+                    ],
+                    "E": [
+                        "Request crime scene unit",
+                        "Establish expanded perimeter - alley and surrounding area",
+                        "Officer Kim also separated but can be briefly interviewed"
+                    ],
+                    "A": [
+                        "Officer Davis entitled to union representation",
+                        "24-hour review period before statement (if invoked)",
+                        "Access to BWC before statement",
+                        "Administrative investigation separate from criminal",
+                        "COPA will conduct independent investigation",
+                        "Detective Division conducts criminal investigation in parallel"
+                    ],
+                    "C": [
+                        "Civilian witness - detailed statement immediately",
+                        "Document her vantage point - what she could actually see",
+                        "Officer Kim statement on what he observed (not opinions)",
+                        "Canvas for additional witnesses",
+                        "Keep witnesses separated",
+                        "Obtain contact information from all",
+                        "Civilian witness distance and lighting conditions",
+                        "What was her actual view - obstructions?",
+                        "Officer Kim's corroboration of 'gun' statement"
+                    ],
+                    "T": [
+                        "Document exact position of body",
+                        "Document distance from Officer Davis's position",
+                        "Shell casing locations documented",
+                        "Body-worn camera footage - preserve immediately",
+                        "Photograph and document everything",
+                        "Complete and comprehensive reports",
+                        "Video evidence preserved with chain of custody",
+                        "Witness statements in their own words",
+                        "Scene diagrams and measurements",
+                        "All notifications documented with times"
+                    ],
+                    "I": [
+                        "Comprehensive search for weapon - expand search area",
+                        "Officer Davis's weapon recovered and inventoried",
+                        "Search subject's body and clothing",
+                        "Canvas entire area for surveillance cameras",
+                        "ShotSpotter data if available",
+                        "Expand search extensively - weapons can be thrown",
+                        "Check dumpsters, bushes, under vehicles",
+                        "Forensic evidence of subject's hand position (GSR)",
+                        "Body-worn camera footage is critical evidence",
+                        "All evidence properly inventoried"
+                    ],
+                    "O": [
+                        "Did subject have accomplices who may have retrieved weapon?",
+                        "Interview subject's associates about weapon possession",
+                        "Check subject's criminal history for weapons offenses",
+                        "Social media may show prior weapon possession",
+                        "Absence of gun doesn't mean it wasn't there - continue searching"
+                    ],
+                    "N": [
+                        "Compassion is paramount with family",
+                        "Do not provide details of investigation to family",
+                        "Connect family with victim services",
+                        "Do not allow family access to scene",
+                        "PIO should handle media inquiries",
+                        "Department policy on releasing BWC",
+                        "Community meetings may be necessary",
+                        "Transparency builds trust",
+                        "Investigation integrity is priority",
+                        "Look for corroborating or contradicting evidence"
+                    ]
+                }
+            }),
             "explanation": "Tests OIS investigation protocols, officer rights, evidence collection, community relations, and multi-agency coordination.",
             "difficulty": "hard",
             "reference": "General Order G03-06: Firearm Discharge, COPA Protocols"
@@ -1864,76 +1889,51 @@ COMMUNITY RELATIONS:
 Your K-9 unit is 15 minutes away. The driver has a valid license and clean driving record.
 
 Can you extend the stop to wait for the K-9? What are your options? What legal standards apply?""",
-            "answer": """LEGAL FRAMEWORK:
-
-RODRIGUEZ v. UNITED STATES (2015):
-- A traffic stop cannot be extended beyond time needed to complete the stop's mission
-- K-9 sniff that prolongs stop beyond ordinary time = unconstitutional unless you have reasonable suspicion of drug activity
-- Nervous behavior alone may not be sufficient
-
-CURRENT SITUATION ANALYSIS:
-
-OBSERVATIONS SUPPORTING SUSPICION:
-+ Extreme nervousness (sweating, shaking, no eye contact)
-+ Cross-country travel (drug courier indicator)
-+ Strong air freshener (masking odor indicator)
-+ Energy drinks/fast food (non-stop travel indicator)
-
-OBSERVATIONS AGAINST:
-- Valid license and registration
-- Clean driving record
-- Lawful explanation for travel
-- Nervousness normal during police contact
-
-CAN YOU EXTEND THE STOP?
-
-OPTION 1: DEVELOP RS DURING NORMAL STOP
-- While processing license/writing citation, you can:
-  - Ask questions about travel (origin, destination, purpose)
-  - Look for inconsistencies in story
-  - Observe vehicle contents in plain view
-  - Note if story makes sense
-- This does NOT extend the stop
-
-OPTION 2: K-9 DURING NORMAL PROCESSING TIME
-- If K-9 arrives while you are still completing normal tasks, sniff is permissible
-- 15 minutes likely exceeds normal stop time for taillight
-- Cannot artificially slow down to wait
-
-OPTION 3: REASONABLE SUSPICION DETERMINATION
-If you can articulate reasonable suspicion based on:
-- Nervousness + travel pattern + indicators of drug activity
-- You MAY briefly extend stop for K-9
-- Document specific facts supporting RS
-- Totality of circumstances analysis
-
-WHAT YOU SHOULD DO:
-
-DURING NORMAL STOP TIME:
-1. Process license and registration normally
-2. Ask conversational questions about trip
-3. Note responses and any inconsistencies
-4. Observe anything in plain view
-5. If story has inconsistencies, document them
-
-DECISION POINT:
-If you find additional indicators (inconsistent story, visible contraband, admission):
-- RS exists, extend for K-9 justified
-
-If just nervousness and travel pattern:
-- Risky to extend - these factors common in innocent travelers
-- Issue warning/citation and release
-- Document observations for future reference if same vehicle
-- Consider alerting agencies in travel direction
-
-IF CONSENT REQUESTED:
-- You may ask for consent to search
-- Must be voluntary, not coerced
-- If granted, document clearly
-- If refused, cannot use refusal as RS
-
-BEST PRACTICE:
-Without stronger indicators than nervousness and travel, complete stop and release. Document observations in case vehicle encountered again. Weak RS leads to suppressed evidence and civil liability.""",
+            "answer": json.dumps({
+                "modelAnswer": {
+                    "R": [
+                        "Extreme nervousness observed: sweating, shaking, no eye contact",
+                        "Cross-country travel from California to New York (drug courier indicator)",
+                        "Strong air freshener smell (masking odor indicator)",
+                        "Energy drinks/fast food suggest non-stop travel",
+                        "Valid license and registration - clean driving record",
+                        "Nervousness is normal during police contact"
+                    ],
+                    "A": [
+                        "Rodriguez v. United States (2015): traffic stop cannot be extended beyond time needed to complete the stop's mission",
+                        "K-9 sniff that prolongs stop beyond ordinary time is unconstitutional unless you have reasonable suspicion",
+                        "Nervous behavior alone may not be sufficient for reasonable suspicion",
+                        "If K-9 arrives during normal processing, sniff is permissible",
+                        "15 minutes likely exceeds normal stop time for taillight",
+                        "Cannot artificially slow down processing to wait for K-9"
+                    ],
+                    "T": [
+                        "Process license and registration normally",
+                        "Ask conversational questions about trip during normal processing",
+                        "Note responses and any inconsistencies",
+                        "Observe anything in plain view",
+                        "Document specific facts supporting reasonable suspicion",
+                        "Document observations for future reference if same vehicle encountered"
+                    ],
+                    "I": [
+                        "If additional indicators found (inconsistent story, visible contraband, admission) - RS exists, extend for K-9 justified",
+                        "If just nervousness and travel pattern - risky to extend, common in innocent travelers",
+                        "Totality of circumstances analysis required"
+                    ],
+                    "O": [
+                        "You may ask for consent to search - must be voluntary, not coerced",
+                        "If consent granted, document clearly",
+                        "If consent refused, cannot use refusal as reasonable suspicion",
+                        "Consider alerting agencies in travel direction"
+                    ],
+                    "N": [
+                        "Without stronger indicators than nervousness and travel, complete stop and release",
+                        "Weak RS leads to suppressed evidence and civil liability",
+                        "Issue warning/citation and release if RS insufficient",
+                        "Best practice: document everything in case vehicle encountered again"
+                    ]
+                }
+            }),
             "explanation": "Tests Rodriguez v. U.S. application, reasonable suspicion development, and Fourth Amendment traffic stop standards.",
             "difficulty": "hard",
             "reference": "Rodriguez v. United States, 4th Amendment, General Order G06-01"
@@ -1950,90 +1950,72 @@ Without stronger indicators than nervousness and travel, complete stop and relea
 The business owner provides you with screenshots of the messages. The email came from a generic Gmail address. The social media messages came from an account with a fake name and profile photo.
 
 How do you investigate this digital evidence case? What legal process is required? How do you identify the anonymous sender?""",
-            "answer": """EVIDENCE PRESERVATION:
-
-IMMEDIATE ACTIONS:
-1. Do NOT rely solely on screenshots - get originals
-2. Preserve original emails with full headers
-3. Document social media profile before it's deleted
-4. Screenshot all posts, followers, following
-5. Check if accounts still active
-6. Note exact URLs and usernames
-7. Document timeline of threats and vandalism
-
-LEGAL PROCESS FOR RECORDS:
-
-GMAIL RECORDS:
-1. Send preservation letter to Google immediately
-2. This preserves records for 90 days (extendable)
-3. Search warrant required for content of emails
-4. Warrant application needs:
-   - Probable cause linking account to crime
-   - Specific records sought
-   - Account identifiers
-5. Google may provide: subscriber info, IP logs, account activity, email content
-
-SOCIAL MEDIA (Facebook/Instagram/Twitter):
-1. Preservation letter to platform
-2. Search warrant for content
-3. May get: account info, IP addresses, login history, messages, posts
-4. Platforms have law enforcement portals
-5. Subpoena may get basic subscriber info (varies by platform)
-
-IP ADDRESS ANALYSIS:
-1. IP addresses from email headers
-2. IP logs from social media logins
-3. Subpoena to ISP for subscriber info
-4. Be aware of:
-   - VPN usage masks real IP
-   - Public WiFi complicates identification
-   - Dynamic IPs require exact time stamp
-
-INVESTIGATION:
-
-VICTIMOLOGY:
-1. Who would threaten this business?
-2. Any disputes with employees, competitors, customers?
-3. Prior complaints or conflicts?
-4. Financial issues that might relate to "pay up"?
-
-CONNECTING VANDALISM:
-1. Surveillance from business
-2. Any evidence left at vandalism scene
-3. Method of vandalism match threats?
-4. Timeline supports same actor
-
-LINGUISTIC ANALYSIS:
-1. Compare threat language to known communications
-2. Spelling/grammar patterns
-3. Phrase usage that might identify writer
-4. Time of day messages sent
-
-PARALLEL INVESTIGATION:
-1. While awaiting records, investigate traditionally
-2. Interview employees, former employees
-3. Business competitors
-4. Anyone with access who might know vulnerabilities
-5. Check for similar threats to other businesses
-
-ONCE SUSPECT IDENTIFIED:
-1. Search warrant for suspect's devices
-2. Compare writing samples
-3. Check for saved threatening messages
-4. Browser history showing accounts
-5. Interview with confrontation of evidence
-
-CHARGES:
-1. Intimidation (720 ILCS 5/12-6)
-2. Criminal damage to property
-3. Computer tampering if applicable
-4. Possibly extortion if "pay up" demand
-
-DOCUMENTATION:
-1. Screenshot/preserve everything at each step
-2. Hash values for digital evidence integrity
-3. Maintain chain of custody for all records
-4. Expert may be needed to explain at trial""",
+            "answer": json.dumps({
+                "modelAnswer": {
+                    "R": [
+                        "Do NOT rely solely on screenshots - get originals",
+                        "Preserve original emails with full headers",
+                        "Document social media profile before it's deleted",
+                        "Screenshot all posts, followers, following",
+                        "Check if accounts still active",
+                        "Note exact URLs and usernames",
+                        "Document timeline of threats and vandalism"
+                    ],
+                    "E": [
+                        "Surveillance from business for vandalism",
+                        "Any evidence left at vandalism scene",
+                        "Method of vandalism match threats?",
+                        "Timeline supports same actor"
+                    ],
+                    "C": [
+                        "Who would threaten this business?",
+                        "Any disputes with employees, competitors, customers?",
+                        "Prior complaints or conflicts?",
+                        "Financial issues that might relate to 'pay up'?",
+                        "Interview employees, former employees",
+                        "Business competitors",
+                        "Anyone with access who might know vulnerabilities",
+                        "Check for similar threats to other businesses"
+                    ],
+                    "T": [
+                        "Screenshot/preserve everything at each step",
+                        "Hash values for digital evidence integrity",
+                        "Maintain chain of custody for all records",
+                        "Expert may be needed to explain at trial",
+                        "Compare threat language to known communications",
+                        "Spelling/grammar patterns analysis",
+                        "Phrase usage that might identify writer",
+                        "Time of day messages sent"
+                    ],
+                    "I": [
+                        "IP addresses from email headers",
+                        "IP logs from social media logins",
+                        "VPN usage masks real IP - be aware",
+                        "Public WiFi complicates identification",
+                        "Dynamic IPs require exact time stamp",
+                        "Search warrant for suspect's devices once identified",
+                        "Compare writing samples",
+                        "Check for saved threatening messages",
+                        "Browser history showing accounts"
+                    ],
+                    "O": [
+                        "Send preservation letter to Google immediately - preserves records for 90 days",
+                        "Search warrant required for content of emails",
+                        "Warrant needs probable cause linking account to crime, specific records sought, account identifiers",
+                        "Google may provide: subscriber info, IP logs, account activity, email content",
+                        "Preservation letter to social media platform",
+                        "Search warrant for social media content",
+                        "Subpoena to ISP for subscriber info",
+                        "Platforms have law enforcement portals",
+                        "Charges: Intimidation (720 ILCS 5/12-6), criminal damage, computer tampering, possibly extortion"
+                    ],
+                    "N": [
+                        "While awaiting records, investigate traditionally",
+                        "Interview with confrontation of evidence once suspect identified",
+                        "Parallel investigation to build case during legal process delays"
+                    ]
+                }
+            }),
             "explanation": "Tests digital evidence investigation, legal process for electronic records, and anonymous suspect identification.",
             "difficulty": "medium",
             "reference": "Special Order S06-06: Digital Evidence, 18 USC 2703"
@@ -2050,100 +2032,85 @@ DOCUMENTATION:
 There are no signs of forced entry or struggle in the apartment. Sarah's last known activity was a credit card purchase at a nearby gas station at 8 PM two days ago.
 
 How do you approach this missing person investigation? At what point does this become a criminal investigation?""",
-            "answer": """INITIAL CLASSIFICATION:
-
-HIGH-RISK INDICATORS PRESENT:
-✓ Purse and phone left behind - out of character
-✓ Car still at residence
-✓ No contact with anyone
-✓ Failed to appear at work (unusual)
-✓ Recent relationship conflict
-✓ Angry communications from ex-boyfriend
-
-CLASSIFICATION: HIGH-RISK MISSING PERSON
-Treat as potential foul play from outset
-
-IMMEDIATE ACTIONS:
-1. Enter into LEADS/NCIC immediately
-2. Issue BOLO with photo
-3. Notify command - potential criminal case
-4. Request additional investigative resources
-5. Check hospitals and morgue
-6. Check jail systems
-
-APARTMENT INVESTIGATION:
-1. Treat as potential crime scene
-2. Process for evidence - fingerprints, DNA, blood
-3. Luminol test for cleaned blood
-4. Examine all electronics left behind
-5. Check for any diary, notes, calendar
-6. Interview roommate thoroughly
-7. Document condition of apartment
-8. Check if any items missing that she would take
-
-GAS STATION:
-1. Obtain surveillance video immediately
-2. Was she alone? Any other vehicles?
-3. Did she appear distressed?
-4. Direction of travel after?
-5. Witnesses at gas station
-
-EX-BOYFRIEND INVESTIGATION:
-1. This is your primary person of interest
-2. Interview immediately - where was he at 8 PM that night?
-3. Obtain his phone for angry messages
-4. Check his car and residence (consent or warrant)
-5. Verify alibi completely
-6. Check his GPS/phone location data
-7. Social media monitoring
-8. Prior DV history?
-
-DIGITAL INVESTIGATION:
-1. Search warrant for Sarah's phone records
-2. Text messages with ex-boyfriend
-3. Last location data from phone
-4. Social media account activity
-5. Email accounts
-6. Dating apps (was she meeting someone new?)
-7. Bank/credit card records for activity after gas station
-
-EXPANDED INVESTIGATION:
-1. Canvas entire apartment complex
-2. Interview all friends and family
-3. Interview coworkers
-4. Check surveillance along route from gas station to home
-5. K-9 search if evidence of foul play develops
-6. Check sex offender registry in area
-7. Any similar missing persons in region?
-
-MEDIA/FAMILY:
-1. Coordinate with PIO on media release
-2. Photo and description to media
-3. Family may help with social media sharing
-4. Keep family informed but don't compromise investigation
-5. Consider tip line
-
-TRANSITION TO CRIMINAL CASE:
-Case becomes criminal investigation when:
-1. Evidence of foul play discovered
-2. Probable cause to believe crime occurred
-3. Body discovered
-4. Witness reports abduction
-5. Suspect provides incriminating evidence
-
-CURRENT STATUS:
-Based on circumstances, this should be investigated as probable foul play:
-- Ex-boyfriend angry and threatening
-- Personal items left behind
-- No voluntary indicators
-- Completely out of character
-
-DOCUMENTATION:
-1. Timeline of last known activities
-2. All interviews documented
-3. Evidence properly preserved
-4. Chain of custody maintained
-5. Regular updates to command""",
+            "answer": json.dumps({
+                "modelAnswer": {
+                    "R": [
+                        "Purse and phone left behind - out of character",
+                        "Car still at residence",
+                        "No contact with anyone",
+                        "Failed to appear at work (unusual)",
+                        "Recent relationship conflict with angry communications from ex-boyfriend",
+                        "Classification: HIGH-RISK MISSING PERSON - treat as potential foul play from outset",
+                        "Enter into LEADS/NCIC immediately",
+                        "Issue BOLO with photo",
+                        "Notify command - potential criminal case",
+                        "Request additional investigative resources",
+                        "Check hospitals and morgue",
+                        "Check jail systems"
+                    ],
+                    "E": [
+                        "Treat apartment as potential crime scene",
+                        "Document condition of apartment",
+                        "Check if any items missing that she would take",
+                        "Obtain gas station surveillance video immediately",
+                        "Was she alone at gas station? Any other vehicles?",
+                        "Did she appear distressed?",
+                        "Direction of travel after gas station?"
+                    ],
+                    "A": [
+                        "Ex-boyfriend is primary person of interest",
+                        "Interview immediately - where was he at 8 PM that night?",
+                        "Obtain his phone for angry messages",
+                        "Check his car and residence (consent or warrant)",
+                        "Verify alibi completely",
+                        "Check his GPS/phone location data",
+                        "Social media monitoring of ex-boyfriend",
+                        "Prior DV history?"
+                    ],
+                    "C": [
+                        "Interview roommate thoroughly",
+                        "Witnesses at gas station",
+                        "Canvas entire apartment complex",
+                        "Interview all friends and family",
+                        "Interview coworkers",
+                        "Check sex offender registry in area",
+                        "Any similar missing persons in region?"
+                    ],
+                    "T": [
+                        "Timeline of last known activities",
+                        "All interviews documented",
+                        "Evidence properly preserved",
+                        "Chain of custody maintained",
+                        "Regular updates to command"
+                    ],
+                    "I": [
+                        "Process apartment for evidence - fingerprints, DNA, blood",
+                        "Luminol test for cleaned blood",
+                        "Examine all electronics left behind",
+                        "Check for any diary, notes, calendar",
+                        "K-9 search if evidence of foul play develops",
+                        "Check surveillance along route from gas station to home"
+                    ],
+                    "O": [
+                        "Search warrant for Sarah's phone records",
+                        "Text messages with ex-boyfriend",
+                        "Last location data from phone",
+                        "Social media account activity",
+                        "Email accounts",
+                        "Dating apps (was she meeting someone new?)",
+                        "Bank/credit card records for activity after gas station",
+                        "Case becomes criminal investigation when evidence of foul play discovered, body found, witness reports abduction, or suspect provides incriminating evidence"
+                    ],
+                    "N": [
+                        "Coordinate with PIO on media release",
+                        "Photo and description to media",
+                        "Family may help with social media sharing",
+                        "Keep family informed but don't compromise investigation",
+                        "Consider tip line",
+                        "Based on circumstances, investigate as probable foul play"
+                    ]
+                }
+            }),
             "explanation": "Tests missing person protocols, criminal investigation transition, suspect development, and multi-faceted investigation approach.",
             "difficulty": "hard",
             "reference": "General Order G04-01: Missing Persons, G05-03: Homicide Investigation"

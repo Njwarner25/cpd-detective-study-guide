@@ -1014,7 +1014,7 @@ async def text_to_speech(data: TTSRequest, user: User = Depends(require_user)):
         client = AsyncOpenAI(api_key=api_key)
 
         response = await client.audio.speech.create(
-            model="tts-1",
+            model="tts-1-hd",
             voice=data.voice,
             input=text,
             response_format="mp3",

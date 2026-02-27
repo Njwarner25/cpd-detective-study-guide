@@ -96,6 +96,33 @@ export default function PracticeScenario() {
     if (!scenario?.answer) return '';
     try {
       const parsed = typeof scenario.answer === 'string' ? JSON.parse(scenario.answer) : scenario.answer;
+
+      const REACTION_LABELS: Record<string, string> = {
+        R: 'R - Respond & Render Aid',
+        E: 'E - Establish the Scene',
+        A: 'A - Arrest/Detain & Advise',
+        C: 'C - Collect/Identify Witnesses',
+        T: 'T - Take Notes & Document',
+        I: 'I - Inventory & Process Evidence',
+        O: 'O - Obtain Legal/Consult',
+        N: 'N - Next Steps & Notification',
+      };
+
+      // New format: modelAnswer is an object with REACTION keys
+      if (parsed?.modelAnswer && !Array.isArray(parsed.modelAnswer) && typeof parsed.modelAnswer === 'object') {
+        let output = '';
+        for (const [key, label] of Object.entries(REACTION_LABELS)) {
+          const items = parsed.modelAnswer[key];
+          if (items && items.length > 0) {
+            output += '**' + label + '**\n';
+            items.forEach((item: string) => { output += '• ' + item + '\n'; });
+            output += '\n';
+          }
+        }
+        return output.trim();
+      }
+
+      // Legacy fallback: modelAnswer is a flat array — use keyword matching
       if (parsed?.modelAnswer && Array.isArray(parsed.modelAnswer)) {
         const sections = [
           { header: 'R - Respond & Render Aid', keywords: ['safety', 'medical', 'ambulance', 'render aid', 'cfd', 'fire department', 'ems', 'arrive', 'approach', 'officer safety'] },
@@ -133,6 +160,7 @@ export default function PracticeScenario() {
         });
         return output.trim();
       }
+
       return typeof scenario.answer === 'string' ? scenario.answer : JSON.stringify(scenario.answer);
     } catch {
       return scenario.answer;

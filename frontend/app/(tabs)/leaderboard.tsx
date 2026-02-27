@@ -7,6 +7,8 @@ import {
   StyleSheet,
   ActivityIndicator,
   RefreshControl,
+  Alert,
+  Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -24,6 +26,7 @@ export default function Leaderboard() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [resetting, setResetting] = useState(false);
 
   useEffect(() => {
     loadLeaderboard();
@@ -49,6 +52,45 @@ export default function Leaderboard() {
     setRefreshing(true);
     loadLeaderboard();
   }, []);
+
+  const handleResetScores = () => {
+    const doReset = async () => {
+      setResetting(true);
+      try {
+        await statsService.resetScores(sessionToken || undefined);
+        await loadLeaderboard();
+        if (Platform.OS === 'web') {
+          window.alert('Your scenario scores have been reset successfully.');
+        } else {
+          Alert.alert('Reset Complete', 'Your scenario scores have been reset successfully.');
+        }
+      } catch (error) {
+        console.error('Failed to reset scores:', error);
+        if (Platform.OS === 'web') {
+          window.alert('Failed to reset scores. Please try again.');
+        } else {
+          Alert.alert('Error', 'Failed to reset scores. Please try again.');
+        }
+      } finally {
+        setResetting(false);
+      }
+    };
+
+    if (Platform.OS === 'web') {
+      if (window.confirm('Reset Scenario Scores\n\nThis will permanently delete all your scenario scores and remove you from the rankings. This cannot be undone.\n\nAre you sure?')) {
+        doReset();
+      }
+    } else {
+      Alert.alert(
+        'Reset Scenario Scores',
+        'This will permanently delete all your scenario scores and remove you from the rankings. This cannot be undone.',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'Reset', style: 'destructive', onPress: doReset }
+        ]
+      );
+    }
+  };
 
   const getRankIcon = (rank: number) => {
     if (rank === 1) return { name: 'trophy', color: '#fbbf24' };
@@ -136,6 +178,26 @@ export default function Leaderboard() {
             </>
           )}
 
+          {/* Scenario Rankings Info */}
+          <View style={styles.scenarioInfoBanner}>
+            <Ionicons name="document-text-outline" size={20} color="#60a5fa" />
+            <Text style={styles.scenarioInfoText}>
+              Rankings are based on scenario scores only. Complete scenarios to climb the ranks!
+            </Text>
+          </View>
+
+          {/* Reset Scores */}
+          <TouchableOpacity
+            style={styles.resetButton}
+            onPress={handleResetScores}
+            disabled={resetting}
+          >
+            <Ionicons name="refresh-circle-outline" size={18} color="#ef4444" />
+            <Text style={styles.resetButtonText}>
+              {resetting ? 'Resetting...' : 'Reset My Scenario Scores'}
+            </Text>
+          </TouchableOpacity>
+
           {/* Leaderboard Table */}
           <View style={styles.tableContainer}>
             <Text style={styles.tableTitle}>Top Performers</Text>
@@ -187,7 +249,7 @@ export default function Leaderboard() {
           </View>
 
           <Text style={styles.disclaimer}>
-            Rankings are based on scenario response scores graded by AI.
+            Scenario rankings only. Scores are graded by AI based on your scenario responses.
           </Text>
         </ScrollView>
       )}
@@ -380,6 +442,40 @@ const styles = StyleSheet.create({
     color: '#10b981',
     fontWeight: '600',
     textAlign: 'center',
+  },
+  scenarioInfoBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#1e293b',
+    borderRadius: 12,
+    padding: 14,
+    marginBottom: 12,
+    gap: 10,
+    borderWidth: 1,
+    borderColor: '#334155',
+  },
+  scenarioInfoText: {
+    flex: 1,
+    fontSize: 13,
+    color: '#94a3b8',
+    lineHeight: 18,
+  },
+  resetButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingVertical: 10,
+    marginBottom: 16,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#7f1d1d',
+    backgroundColor: '#1c1917',
+  },
+  resetButtonText: {
+    fontSize: 14,
+    color: '#ef4444',
+    fontWeight: '500',
   },
   disclaimer: {
     fontSize: 12,

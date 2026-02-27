@@ -1185,38 +1185,72 @@ Sergeant Davis informs you that both witnesses are still at the scene and the su
         "answer": json.dumps({
             "modelAnswer": {
                 "R": [
-                    "A showup would be most appropriate given the suspect was detained within a short time frame (15 minutes) following the offense",
-                    "Per S06-02, showups are used only when the suspect is detained within a short time frame, generally within one hour of the offense"
+                    "Ensure store clerk Maria Garcia is assessed for any injuries or shock from the armed robbery",
+                    "Document Maria Garcia's physical and emotional condition",
+                    "Ensure customer Thomas Williams is assessed and his condition documented",
+                    "Confirm the detained suspect Roberto Martinez is secured and his condition documented",
+                    "Obtain preliminary statement from Maria Garcia once stable"
                 ],
                 "E": [
-                    "Evaluate timing - suspect detained 15 minutes after offense, within the one-hour rule for showups",
-                    "Do not present the same suspect to the same witness more than once"
+                    "Speak with Sergeant Davis and responding officers for full initial briefing",
+                    "Establish inner and outer perimeters around the convenience store crime scene",
+                    "Separate Maria Garcia and Thomas Williams immediately to prevent witness contamination",
+                    "Assign officers to secure the scene while identification procedure is coordinated",
+                    "Keep Roberto Martinez at the detention location — separate from witnesses",
+                    "Establish detective command post for coordinating the identification process"
                 ],
                 "A": [
-                    "Separate the witnesses immediately to prevent communication",
-                    "Transport witnesses to the location of the suspect (not vice versa, unless the scene is the crime location)"
+                    "A show-up identification is most appropriate given the proximity in time (15 minutes) and distance (1 mile)",
+                    "Show-ups must be conducted within a reasonable time after the crime — 15 minutes qualifies",
+                    "Before conducting the show-up, document Roberto Martinez's appearance and any distinguishing features",
+                    "Photograph Martinez before the identification to preserve his appearance at the time of the show-up",
+                    "If positive identification is made, arrest Martinez and advise Miranda before any custodial interrogation",
+                    "Document any spontaneous statements made by Martinez"
                 ],
                 "C": [
-                    "Caution each witness that the person they are about to see may or may not be the perpetrator",
-                    "An independent administrator should coordinate when feasible",
-                    "Keep witnesses separated before, during, and after the showup",
-                    "Do not allow witnesses to confer",
-                    "Follow Limited English Proficiency directive if applicable for Ms. Garcia"
+                    "Interview Maria Garcia and Thomas Williams completely separately — do NOT allow them to discuss the robbery",
+                    "Before the show-up, document each witness's independent description of the suspect",
+                    "The identification procedure should be administered by an officer NOT involved in the investigation (blind administration preferred)",
+                    "Give proper admonishment: the suspect may or may not be present, it is equally important to clear innocent persons",
+                    "Instruct witnesses that they should not feel pressured to make an identification",
+                    "Conduct the show-up with one witness at a time — never present the suspect to both witnesses simultaneously",
+                    "After identification, ask each witness to state their level of certainty",
+                    "Instruct witnesses not to discuss their identifications with each other afterward"
                 ],
                 "T": [
-                    "If positive: Document time and location, description given by witness, description of suspect prior to showup, officers present, outcome, and exact words used by witness in original case report or supplemental",
-                    "If negative: Document encounter on Investigatory Stop Report (CPD-11.910) and reference in original report",
-                    "Document the exact words used by each witness during identification"
+                    "Document each witness's pre-identification description of the suspect in writing",
+                    "Photograph Roberto Martinez as he appears at the time of the show-up",
+                    "Document the exact time, location, and conditions of the show-up (lighting, distance, weather)",
+                    "Record each witness's identification statement verbatim including certainty level",
+                    "Complete all required CPD identification procedure forms",
+                    "Document the officer administering the procedure and all persons present",
+                    "Record the timeline: crime time, stop time, identification time",
+                    "Preserve body-worn camera footage of the identification procedure"
+                ],
+                "I": [
+                    "Process the convenience store crime scene for physical evidence: fingerprints, DNA, surveillance video",
+                    "Obtain and preserve all surveillance camera footage from the store",
+                    "Process Martinez's vehicle for any evidence linking to the robbery (weapon, proceeds, mask)",
+                    "Photograph and inventory any items found in Martinez's possession or vehicle",
+                    "Preserve all physical evidence with proper chain of custody",
+                    "Request Forensic Services Division for scene processing"
                 ],
                 "O": [
-                    "The showup must be conducted within a reasonable time to be legally valid",
-                    "Per Kirby v. Illinois, suspects are not entitled to counsel prior to adversarial criminal proceedings",
-                    "Failure to follow proper procedures can lead to inadmissibility of identification",
-                    "Avoid any suggestive behavior that could taint the identification"
+                    "Consult ASA regarding charges based on the identification and evidence",
+                    "Ensure the show-up procedure complies with CPD General Order and Illinois case law (Neil v. Biggers factors)",
+                    "Legal considerations: necessity of the show-up, suggestiveness, reliability of the identification",
+                    "Conduct LEADS and CLEAR checks on Roberto Martinez",
+                    "Ensure 4th Amendment compliance with the vehicle stop and detention",
+                    "Ensure 5th and 6th Amendment protections during any interrogation"
                 ],
                 "N": [
-                    "Inform the zone via radio whether the showup was positive or negative",
-                    "Follow LEP directive if applicable for Ms. Garcia"
+                    "If positive identification is made, prepare case for felony review and charging",
+                    "If no identification is made, release Martinez and continue investigation through other leads",
+                    "Continue processing the crime scene regardless of identification outcome",
+                    "Check for any other robberies matching Martinez's description or vehicle",
+                    "Prepare complete case file documenting the identification procedure for court",
+                    "Follow up with both witnesses for complete formal statements",
+                    "Coordinate court preparation and witness availability"
                 ]
             }
         }),
@@ -1251,51 +1285,73 @@ Your supervisor has authorized you to prepare a photo lineup to present to Mrs. 
         "answer": json.dumps({
             "modelAnswer": {
                 "R": [
-                    "Recognize that a photo lineup is needed because significant time has passed since the offense",
-                    "A showup would not be appropriate as the suspect was not detained near the time of the crime"
+                    "Contact Mrs. Patricia Chen and assess her emotional condition and readiness for a photo lineup",
+                    "Document Mrs. Chen's current physical and emotional state",
+                    "Ensure Mrs. Chen has not been exposed to any photos or media coverage of the suspect",
+                    "Confirm that Mrs. Chen is willing and able to participate in the identification procedure",
+                    "Review Mrs. Chen's original description of the suspect for consistency"
                 ],
                 "E": [
-                    "Compose lineup with minimum of 6 photographs (1 suspect + minimum 5 fillers)",
-                    "Photos must be uniquely numbered, contemporary, same size and basic composition",
-                    "Do not mix color and black & white photos",
-                    "Do not mix mug shots with other photo types",
-                    "Cover any portions that provide identifying information",
-                    "Fillers should match race, sex, approximate height, weight, age, and physical appearance",
-                    "Fillers should match any descriptive features given by the witness (including visible tattoo)",
-                    "Suspect should not appear substantially different from fillers based on eyewitness description",
-                    "Avoid fillers who too closely resemble the suspect, making distinction difficult",
-                    "If the witness has viewed a previous lineup for this case, use different fillers"
+                    "Prepare the photo lineup well in advance before bringing Mrs. Chen in",
+                    "Minimum 6 photographs required for a CPD photo lineup (1 suspect + 5 fillers minimum)",
+                    "Arrange a private, comfortable location for conducting the lineup procedure",
+                    "Ensure an independent administrator (blind or blinded procedure) is available to conduct the lineup",
+                    "Review all three burglary reports to understand the full pattern before proceeding"
                 ],
                 "A": [
-                    "Must be conducted by an independent administrator not participating in the investigation",
-                    "If independent administrator unavailable, use a procedure (automated program or folder method) that prevents the administrator from knowing the suspect's position",
-                    "Supervisory approval required if no independent administrator is used"
+                    "Select filler photographs that match the witness's description: white male, early 30s, average height",
+                    "Critical: fillers should also have visible forearm tattoos to avoid making Wilson's tattoo a distinguishing outlier",
+                    "Do NOT use fillers who look drastically different from Wilson — they should be similar in age, build, and features",
+                    "Fillers should come from the same photo source (booking photos or similar quality/background)",
+                    "Ensure Wilson's photo does not stand out due to different background, lighting, or photo quality",
+                    "Do NOT inform Mrs. Chen that you have a suspect — maintain neutral posture"
                 ],
                 "C": [
-                    "Present Photo/Live Lineup Advisory Form (CPD-11.900) before lineup",
-                    "Instruct witness that the suspect may or may not be present in the photos",
-                    "Present photos simultaneously to the witness",
-                    "Nothing should be communicated that might influence the identification",
-                    "No comment on outcomes in presence of witness",
-                    "Audio/video record if practical and witness consents"
+                    "An independent administrator who does NOT know which photo is the suspect should conduct the lineup (double-blind preferred)",
+                    "If double-blind is not possible, use a blinded procedure (folder shuffle method)",
+                    "Give Mrs. Chen the standard admonishment BEFORE showing any photos",
+                    "Admonishment must include: the suspect may or may not be in the photos, it is important to clear innocent persons",
+                    "Instruct Mrs. Chen that the investigation will continue regardless of her identification",
+                    "Present photos sequentially (one at a time) or simultaneously per CPD protocol",
+                    "Do NOT provide any feedback, verbal or non-verbal, during or after the identification",
+                    "Document Mrs. Chen's identification statement verbatim, including her level of certainty"
                 ],
                 "T": [
-                    "Complete Photo/Live Lineup Advisory Form (CPD-11.900)",
-                    "Complete Supplementary Report (CPD-11.411-A or B) including date, time, location of lineup",
-                    "Document administrator information and witness information",
-                    "Document information about each participant (name, sex, race, etc.)",
-                    "Document whether identification was made and any statements made by witness",
-                    "Confirm photos/recordings taken"
+                    "Document Mrs. Chen's original description of the suspect before showing the lineup",
+                    "Complete CPD Photo Lineup Form with all required information",
+                    "Document the composition of the lineup: Wilson's position number and all filler sources",
+                    "Record Mrs. Chen's exact response verbatim — whether identification is positive, negative, or uncertain",
+                    "Document the administrator's name and their relationship to the case (should be none)",
+                    "Document the date, time, and location of the procedure",
+                    "Photograph or copy the lineup as it was presented to the witness",
+                    "Document the confidence statement immediately after any identification"
                 ],
                 "I": [
-                    "All photos used must be inventoried regardless of outcome"
+                    "Preserve the physical photo lineup as evidence",
+                    "If positive identification: search Wilson's residence (with warrant) for stolen property, tools, and clothing",
+                    "Collect and compare latent prints from all three burglary scenes to Wilson's known prints",
+                    "Check tool mark evidence from the burglary entry points for comparison",
+                    "Photograph Wilson's left forearm tattoo for comparison to witness description",
+                    "Process any additional evidence linking Wilson to the burglaries",
+                    "Maintain chain of custody for all evidence including the lineup materials"
                 ],
                 "O": [
-                    "If positive identification: Do not provide any information about the person identified until lineup is completed; continue investigation with this evidence",
-                    "If no identification: Document that no identification was made; this does not mean the suspect is cleared; continue investigation with other evidence"
+                    "If positive identification: consult ASA regarding charges for all three burglaries",
+                    "Request search warrant for Wilson's residence, vehicle, and electronic devices",
+                    "Conduct LEADS and CLEAR checks on Wilson for prior burglary convictions and arrest history",
+                    "Run LEADS query on stolen property from all three burglaries",
+                    "Ensure the photo lineup procedure complies with CPD General Order and Manson v. Brathwaite reliability factors",
+                    "Ensure 4th Amendment compliance with any subsequent searches"
                 ],
                 "N": [
-                    "Complete all required documentation and inventory photos in either case"
+                    "If positive identification: arrest Wilson and prepare case for felony review",
+                    "If no identification: continue investigation — the identification is one piece of evidence",
+                    "Check pawn shops and online marketplaces for stolen property from all three burglaries",
+                    "Check if Wilson has access to a vehicle or residence near the burglary pattern area",
+                    "Interview Wilson's associates and known contacts",
+                    "Monitor for additional burglaries matching the pattern",
+                    "Prepare complete case file documenting the identification procedure for prosecution",
+                    "Follow up with all three burglary victims regarding stolen property recovery"
                 ]
             }
         }),
@@ -1330,50 +1386,81 @@ Officer Rodriguez informs you that Mrs. Martinez has an Emergency Order of Prote
         "answer": json.dumps({
             "modelAnswer": {
                 "R": [
-                    "Ensure scene is secure and all parties are safe",
-                    "Ensure medical attention is offered/provided to Mrs. Martinez",
-                    "Ensure children are safe and attended to"
+                    "Ensure Jennifer Martinez receives immediate medical attention for facial injuries (swelling around left eye, cut on lip)",
+                    "Document Jennifer's injuries with photographs from multiple angles with and without scale",
+                    "Assess the two children (ages 8 and 5) for physical injuries and emotional trauma",
+                    "Arrange for a forensic interviewer or child specialist to assess the children if needed",
+                    "Request EMS for medical evaluation of Jennifer's injuries if not already done",
+                    "Obtain preliminary statement from Jennifer once medically stable and in a safe environment"
                 ],
                 "E": [
-                    "Separate all parties (husband, wife, children)",
-                    "Verify the Emergency Order of Protection through LEADS/Law Enforcement Agencies Data System",
-                    "Begin evidence collection (photograph injuries, scene)"
+                    "Establish the scene: separate Carlos Martinez from Jennifer and the children immediately",
+                    "Confirm with Officer Rodriguez that Carlos was served with the Emergency Order of Protection yesterday",
+                    "Verify the Order of Protection is active and valid — obtain a copy if available",
+                    "Secure the residence as a crime scene — document the condition of each room",
+                    "Identify where in the home the assault occurred and preserve that area",
+                    "Determine where the children were (hallway) when they witnessed the attack",
+                    "Assign an officer to stay with the children in a safe area away from both parents"
                 ],
                 "A": [
-                    "Domestic Battery (720 ILCS 5/12-3.2) for the physical attack",
-                    "Violation of Order of Protection (720 ILCS 5/12-3.4) - he violated the order by being at the residence",
-                    "Aggravated Domestic Battery (if injuries are severe) (720 ILCS 5/12-3.3)",
-                    "His probation status from previous domestic battery should be noted",
-                    "Potential charges related to children witnessing the violence"
+                    "Carlos MUST be arrested — mandatory arrest when probable cause exists for DV battery",
+                    "Multiple charges apply: Domestic Battery (720 ILCS 5/12-3.2), Violation of Order of Protection (720 ILCS 5/12-3.4), Aggravated Domestic Battery if great bodily harm",
+                    "Violation of OP while on probation for prior DV battery is a Class 4 felony",
+                    "Carlos's intoxication is an aggravating factor — document his level of intoxication",
+                    "Photograph Carlos including his hands, knuckles, and any defensive injuries",
+                    "Advise Miranda prior to any custodial interrogation",
+                    "Document any spontaneous statements Carlos makes at the scene or during transport",
+                    "Contact Carlos's probation officer regarding the new arrest and OP violation"
                 ],
                 "C": [
-                    "Interview Mrs. Martinez privately, minimize trauma",
-                    "Use trauma-informed interview techniques",
-                    "Document her exact words regarding the assault",
-                    "For children (ages 8 and 5): Contact DCFS per protocol",
-                    "Children should be interviewed by trained professionals (consider Chicago Children's Advocacy Center)",
-                    "Do NOT interview children in presence of either parent if they witnessed the violence"
+                    "Interview Jennifer in a private, safe setting away from Carlos and the children",
+                    "Obtain a complete statement: what was said, the sequence of blows, and where the attack occurred",
+                    "Interview the children with age-appropriate techniques and a trained interviewer if available",
+                    "Determine what the children witnessed — they saw part of the attack from the hallway",
+                    "Interview Officer Rodriguez and other responding officers about scene conditions upon arrival",
+                    "Check for neighbors who may have heard or witnessed the disturbance",
+                    "Obtain any 911 recordings — who called and what was reported",
+                    "Ask Jennifer about the history of abuse, prior incidents, and whether the children have been abused"
                 ],
                 "T": [
-                    "Domestic Incident Notice to be provided to victim",
-                    "General Offense Case Report documenting all aspects",
-                    "Photograph all injuries",
-                    "Document exact statements from all parties"
+                    "Photograph Jennifer's injuries: swelling around left eye, cut on lip, and any other marks",
+                    "Photograph the scene of the assault including any overturned furniture or broken items",
+                    "Photograph Carlos's hands, knuckles, and clothing for evidence of the attack",
+                    "Document Carlos's level of intoxication and behavior at the scene",
+                    "Record all actions in case report following domestic violence protocol",
+                    "Document the existence and service of the Emergency Order of Protection",
+                    "Document Carlos's prior domestic battery conviction and current probation status",
+                    "Preserve copies of the OP, probation records, and prior call history",
+                    "Review and secure all responding officers' body-worn camera footage"
+                ],
+                "I": [
+                    "Collect and preserve any physical evidence from the assault (broken objects, blood, torn clothing)",
+                    "Preserve Jennifer's clothing if it has blood or other forensic evidence",
+                    "Photograph and collect any weapons or objects used in the assault",
+                    "Obtain a copy of the Emergency Order of Protection and service documentation",
+                    "Preserve the 911 call recording",
+                    "Secure body-worn camera footage from all responding officers",
+                    "Maintain chain of custody for all evidence"
                 ],
                 "O": [
-                    "Notify the court that issued the Order of Protection of the violation",
-                    "Notify Probation/Parole of violation",
-                    "DCFS notification required as children witnessed domestic violence",
-                    "Notify appropriate Bureau of Detectives Area"
+                    "Notify ASA regarding charges: Domestic Battery, Violation of Order of Protection, possible Aggravated DV Battery",
+                    "The OP violation while on probation elevates charges — consult ASA on felony charging",
+                    "Request a no-bond hold given the OP violation, prior conviction, and probation status",
+                    "Conduct LEADS and CLEAR checks on Carlos for full criminal history",
+                    "Notify Carlos's probation officer of the new arrest",
+                    "DCFS notification is required since children witnessed domestic violence",
+                    "Ensure all constitutional protections are observed during interrogation"
                 ],
                 "N": [
-                    "Provide Mrs. Martinez with Domestic Incident Notice",
-                    "Explain the Order of Protection process (Emergency can become Interim/Plenary)",
-                    "Connect with victim services and advocacy organizations",
-                    "Discuss safety planning (safe place to go, important documents, emergency contacts)",
-                    "Explain criminal justice process and what to expect",
-                    "Provide resources for domestic violence counseling",
-                    "Address immediate safety of children"
+                    "Provide Jennifer with the Domestic Violence Rights Pamphlet as required by law",
+                    "Connect Jennifer with domestic violence victim advocate services",
+                    "Offer Jennifer transportation to a domestic violence shelter if she feels unsafe at home",
+                    "Advise Jennifer about the process for obtaining a Plenary Order of Protection",
+                    "Develop a safety plan with Jennifer and the children",
+                    "Arrange follow-up contact with Jennifer to check on her safety and the children",
+                    "Prepare complete case file for felony review including prior history documentation",
+                    "Coordinate with the children's school about the situation if appropriate",
+                    "Refer media inquiries to Office of Communications"
                 ]
             }
         }),
@@ -1408,60 +1495,79 @@ You arrive at the school at 0815 hours. Dr. Johnson provides you with screenshot
         "answer": json.dumps({
             "modelAnswer": {
                 "R": [
-                    "Ensure scene is secure and students are safe",
-                    "Report to the Bureau of Patrol supervisor on scene"
+                    "Respond to Lincoln Elementary School and coordinate with school administration on lockdown status",
+                    "Assess the threat level: is there an immediate danger to students and staff?",
+                    "Ensure all students and staff are accounted for and in secure locations",
+                    "Coordinate with school resource officer if one is assigned",
+                    "Document Dr. Sarah Johnson's account of discovering the threat and the school's response",
+                    "Assess whether additional police resources are needed to secure the school"
                 ],
                 "E": [
-                    "Obtain original screenshots and document all evidence",
-                    "Request preservation of social media evidence (contact provider)",
-                    "Review school security camera footage",
-                    "Check school technology resources (was school WiFi used?)"
+                    "Review the threatening message: 'Lincoln will pay for what they did to me. Tomorrow everyone will know my pain'",
+                    "Assess the specificity and credibility of the threat — it references a specific target and timeframe ('tomorrow')",
+                    "Establish a command post at the school for coordination with school administration",
+                    "Determine whether the lockdown should continue or can be modified based on threat assessment",
+                    "Identify all persons recently expelled, suspended, or disciplined by the school",
+                    "Review Marcus Thompson's disciplinary hearing statements: 'they would be sorry'",
+                    "Establish timeline: threat posted at 0245 hours, account created yesterday, school discovered this morning"
                 ],
                 "A": [
-                    "Miranda warnings are required before custodial interrogation",
-                    "Contact parents/guardians - they have right to be present",
-                    "Per Illinois law, juveniles require additional protections",
-                    "All custodial interrogations of juveniles must be digitally recorded",
-                    "Use age-appropriate, trauma-informed interview techniques",
-                    "Do not use coercive tactics",
-                    "Consider having a youth officer or detective trained in juvenile interviews"
+                    "Marcus Thompson is a juvenile (14 years old) — heightened protections apply throughout",
+                    "Before approaching Marcus, obtain his home address and determine his current location",
+                    "Contact Marcus's parents/guardians FIRST — they must be notified before any questioning",
+                    "Marcus has the right to counsel before questioning (juvenile protections under Illinois law)",
+                    "If Marcus is the poster, conduct interview with parent present in age-appropriate manner",
+                    "Do NOT interrogate Marcus at school — bring to station with parent for proper juvenile interview",
+                    "If probable cause exists, juvenile petition process applies — no adult arrest",
+                    "Document any spontaneous statements made by Marcus"
                 ],
                 "C": [
-                    "Canvass for witnesses (students/staff who might have information)",
-                    "Interview potential suspects about their social media activity",
-                    "Check if any known associates can identify the account",
-                    "Contact Bureau of Detectives Crime Analysis Technical Group for assistance",
-                    "Request emergency disclosure from social media platform (Meta/Facebook Threat Operations)"
+                    "Interview Dr. Johnson about Marcus's expulsion, disciplinary hearing, and specific threats made",
+                    "Interview teachers and staff who were present at Marcus's disciplinary hearing",
+                    "Interview Marcus's classmates about his behavior, statements, and social media activity",
+                    "Interview Marcus's parents about his behavior since the expulsion and any concerning statements",
+                    "Check if other students or staff have received threats or concerning communications",
+                    "Preserve screenshots of the threatening social media post and the 'JusticeForMe2026' account",
+                    "Check if anyone saw Marcus with a phone or computer at the relevant times"
                 ],
                 "T": [
-                    "Document all digital evidence including screenshots and timestamps",
-                    "Document all statements from witnesses and suspects",
-                    "Document complete timeline of events"
+                    "Preserve screenshots of the threatening message with timestamps and account details",
+                    "Document the 'JusticeForMe2026' account profile information, creation date, and activity history",
+                    "Document Marcus's disciplinary records and exact statements at the hearing",
+                    "Document the timeline: expulsion date, account creation, threat posting time, school discovery",
+                    "Record all investigative actions in case report",
+                    "Document school administration actions taken in response to the threat",
+                    "Photograph school grounds and any security measures in place"
                 ],
                 "I": [
-                    "Request Forensic Services for digital evidence",
-                    "Obtain subpoena or search warrant for subscriber information and IP logs"
+                    "Preserve all digital evidence: social media post, account metadata, screenshots",
+                    "Request emergency preservation from the social media platform before data is deleted",
+                    "Obtain the IP address and device information used to create the account and post the message",
+                    "If Marcus is identified as the poster, secure his phone, computer, and any devices with a warrant",
+                    "Conduct forensic extraction of Marcus's devices for evidence of account creation and posting",
+                    "Preserve school records related to Marcus's expulsion and prior conduct",
+                    "Maintain chain of custody for all digital and physical evidence"
                 ],
                 "O": [
-                    "Disorderly Conduct (720 ILCS 5/26-1) - false threat",
-                    "Potentially Threatening Public Official (if applicable)",
-                    "Computer Fraud/Unauthorized Access if school systems were compromised",
-                    "At age 14, generally processed through juvenile court",
-                    "Fingerprinting only if felony and authorized by watch operations lieutenant",
-                    "Juvenile has right to counsel",
-                    "DCFS assessment may be appropriate",
-                    "Juvenile records have special confidentiality requirements"
+                    "Request emergency disclosure from the social media platform for subscriber info and IP data (exigent circumstances given imminent threat)",
+                    "If emergency disclosure is refused, obtain emergency search warrant for the account information",
+                    "Subpoena ISP records to trace the IP address to a physical location",
+                    "If Marcus is identified: consult ASA regarding juvenile charges",
+                    "Potential charges: Disorderly Conduct — Threat (720 ILCS 5/26-1), Intimidation (720 ILCS 5/12-6)",
+                    "Juvenile considerations: station adjustment vs. juvenile petition, age-appropriate processing",
+                    "Coordinate with school district legal counsel regarding student records and privacy (FERPA)",
+                    "Notify DCFS if investigation reveals concerning home environment"
                 ],
                 "N": [
-                    "Notify watch operations lieutenant",
-                    "Contact Bureau of Detectives for assignment if serious",
-                    "Coordinate with School Resource Officers",
-                    "Notify CPIC for threat assessment",
-                    "Consider FBI notification if terrorism nexus suspected",
-                    "Coordinate with Chicago Public Schools administration",
-                    "Alert DCFS if child welfare concerns arise",
-                    "Parents must be notified",
-                    "Possible diversion program consideration"
+                    "Coordinate with school administration on threat assessment and when to lift lockdown",
+                    "Conduct a thorough threat assessment — is the threat credible and is there means/intent to carry it out?",
+                    "Coordinate with school district safety team for ongoing security measures",
+                    "Notify school district administration about the investigation",
+                    "If Marcus is identified, coordinate with juvenile probation and the school on conditions",
+                    "Refer media inquiries to Office of Communications",
+                    "Avoid identifying Marcus publicly — juvenile privacy protections apply",
+                    "Follow up with school administration on safety plan and return-to-normal procedures",
+                    "Prepare complete case file for juvenile court if charges are filed"
                 ]
             }
         }),
@@ -1498,67 +1604,79 @@ Your supervisor wants you to conduct a live lineup with Ms. Davis. However, Will
         "answer": json.dumps({
             "modelAnswer": {
                 "R": [
-                    "Recognize that a live lineup is appropriate when the suspect is in custody",
-                    "Understand 6th Amendment attachment rules - right to counsel depends on whether adversarial proceedings have begun",
-                    "Per Kirby v. Illinois, suspects are NOT entitled to counsel PRIOR to adversarial criminal proceedings"
+                    "Ensure Ms. Angela Davis has received medical attention and SANE examination for the sexual assault",
+                    "Assess Ms. Davis's physical and emotional readiness to participate in a lineup identification",
+                    "Document Ms. Davis's current condition and confirm she is willing to proceed with the lineup",
+                    "Confirm that Jerome Williams is being held at the station on his warrant and document his condition",
+                    "Document the fresh scratches on Williams's left cheek — consistent with victim's account of scratching her attacker",
+                    "Request DNA comparison between Williams's scratches and Ms. Davis's fingernail scrapings from the SANE exam"
                 ],
                 "E": [
-                    "Determine if adversarial criminal proceedings have begun for the robbery/sexual assault charges",
-                    "Williams arrested on unrelated warrant and has not been arraigned on these charges, so adversarial proceedings have not begun for this offense",
-                    "If the 6th Amendment right has attached (post-arraignment), counsel MUST be notified and given opportunity to observe",
-                    "Per CPD policy: If the suspect's attorney is present and not disruptive, they may observe"
+                    "Prepare the lineup room and procedures before bringing in Ms. Davis or Williams",
+                    "Attorney Roberts DOES have the right to be present — post-indictment/formal charge right under 6th Amendment (United States v. Wade)",
+                    "If Williams has NOT been formally charged with this crime, the 6th Amendment right may not yet attach",
+                    "However, if this is post-arrest/formal charging, counsel must be permitted to observe",
+                    "Attorney Roberts may observe but may NOT disrupt, coach, or interfere with the procedure",
+                    "Attorney Roberts may make objections on the record regarding the fairness of the lineup composition"
                 ],
                 "A": [
-                    "One suspect per lineup with minimum of 6 individuals (1 suspect + 5 fillers), but no less than 3 fillers",
-                    "Supervisory approval required if fewer than 5 fillers",
-                    "Fillers must match suspect in race, sex, approximate height, weight, age, physical appearance",
-                    "Suspect should not substantially differ from fillers based on eyewitness description",
-                    "Fillers should not too closely resemble suspect",
-                    "All participants may be required to speak words or perform actions",
-                    "Community members can be used as fillers when feasible; police officers as fillers only as last resort",
-                    "Handle distinctive scratch marks: apply similar makeup/prosthetic scratches to fillers, cover scratches on all participants, or position to minimize visibility",
-                    "Whatever is done to disguise/reveal scratches must be done uniformly",
-                    "Consult with supervisor on best approach for scratch mark accommodation"
+                    "A live lineup requires a minimum of 5 fillers plus the suspect (6 persons total) per CPD policy",
+                    "Select fillers who match Ms. Davis's description: Black male, 25-35, approximately 6 feet, medium build, short hair, goatee",
+                    "Critical challenge: Williams has fresh scratches on his left cheek — fillers must be addressed to prevent Williams from standing out",
+                    "Options for addressing the scratches: apply theatrical makeup to conceal, apply similar marks to fillers, or have all participants hold a card over that area",
+                    "The goal is to prevent the scratches from making Williams the obvious choice — the identification must be based on facial recognition",
+                    "Fillers should be similar in age, height, build, and overall appearance to Williams",
+                    "Do NOT use fillers who look drastically different from Williams"
                 ],
                 "C": [
-                    "Present Photo/Live Lineup Advisory Form (CPD-11.900) to Ms. Davis",
-                    "Have her read, understand, and sign the form",
-                    "Get consent/non-consent for video recording",
-                    "Instruct witness that the suspect may or may not be present",
-                    "Ensure Ms. Davis has not seen suspect or fillers beforehand",
-                    "Do not communicate anything that might influence identification",
-                    "Do not comment on outcome in witness presence"
+                    "An independent administrator who does NOT know which person is the suspect should conduct the lineup (double-blind preferred)",
+                    "Give Ms. Davis the standard admonishment BEFORE viewing the lineup",
+                    "Admonishment must include: the suspect may or may not be present, it is important to clear innocent persons, the investigation continues regardless",
+                    "Instruct Ms. Davis that hairstyles, facial hair, and other features may have changed since the incident",
+                    "Present lineup members one at a time or all at once per CPD protocol",
+                    "Do NOT provide any verbal or non-verbal feedback during or after the identification",
+                    "Document Ms. Davis's identification statement verbatim, including her level of certainty",
+                    "Allow Attorney Roberts to observe but ensure she does not communicate with Williams during the procedure"
                 ],
                 "T": [
-                    "Complete Photo/Live Lineup Advisory Form (CPD-11.900) signed by witness",
-                    "Complete Supplementary Report (CPD-11.411-A or B) documenting date, time, location",
-                    "Document administrator's name, rank, star number, unit",
-                    "Document name and address of witness and all information on each participant",
-                    "Document names of others present and type of lineup conducted",
-                    "Document source of fillers used, whether identification was made and by whom",
-                    "Document exact statements by witness and confirmation of photos/recordings",
-                    "Document any refusals by witness and reasons if directive requirements were not strictly followed",
-                    "Document attorney's comments and unusual circumstances (scratch marks accommodation)",
-                    "Photograph the lineup regardless of outcome",
-                    "Audio/video record the procedure"
+                    "Document Ms. Davis's original description of the attacker before the lineup",
+                    "Videotape the entire lineup procedure for the record",
+                    "Complete all required CPD lineup forms and documentation",
+                    "Document the lineup composition: Williams's position number, all fillers' descriptions",
+                    "Document how the scratch mark issue was handled (concealment method used)",
+                    "Record Ms. Davis's exact response and confidence level verbatim",
+                    "Document Attorney Roberts's presence and any objections she made on the record",
+                    "Document the administrator's identity and their lack of knowledge about which participant is the suspect"
                 ],
                 "I": [
-                    "Inventory all materials",
-                    "Document photos/recordings in eTrack on Crime Scene Processing Report",
-                    "Record inventory numbers"
+                    "Preserve the lineup video recording as evidence",
+                    "Request DNA comparison: scrapings from Williams's scratches vs. Ms. Davis's DNA from SANE exam",
+                    "Request DNA comparison: Ms. Davis's fingernail scrapings vs. Williams's DNA",
+                    "Collect and preserve Williams's clothing for forensic comparison with trace evidence from the victim",
+                    "Process the crime scene (alley behind 3400 S. Kedzie) for physical evidence if not already done",
+                    "Obtain and preserve the knife if recovered, or continue search for the weapon",
+                    "Photograph Williams's scratches in detail for comparison to victim's account",
+                    "Maintain strict chain of custody for all evidence"
                 ],
                 "O": [
-                    "Attorney Roberts does NOT have a constitutional right to be present since adversarial proceedings have not begun for this offense",
-                    "Obtain an independent administrator (detective not involved in investigation)",
-                    "If independent administrator unavailable, get supervisory approval",
-                    "Conduct in appropriate location (not district lockup unless necessary)",
-                    "Ensure no one who knows suspect's identity is present except witness and attorney"
+                    "Consult ASA regarding charges: Robbery (720 ILCS 5/18-1) and Criminal Sexual Assault (720 ILCS 5/11-1.20)",
+                    "Legal basis for Attorney Roberts's presence: Wade/Gilbert right to counsel at post-charge lineups",
+                    "If Williams has not been formally charged with this crime, attorney's right to attend is less clear — consult ASA",
+                    "Best practice: allow the attorney to observe to prevent future suppression challenges",
+                    "Request search warrants for Williams's phone, residence, and clothing",
+                    "Conduct LEADS and CLEAR checks on Williams for prior sex offenses or violent crimes",
+                    "Ensure the lineup procedure complies with Manson v. Brathwaite reliability factors",
+                    "Ensure 5th and 6th Amendment protections throughout"
                 ],
                 "N": [
-                    "Complete all required forms and documentation",
-                    "Note all accommodations made for distinctive features (scratch marks)",
-                    "Document any unusual circumstances",
-                    "If speaking is required, all participants must speak, even after identification is made"
+                    "If positive identification: file charges through felony review",
+                    "If no identification: the DNA evidence and scratches may still support charges — continue investigation",
+                    "Submit all forensic evidence (DNA, clothing fibers, trace evidence) to the crime lab expeditiously",
+                    "Connect Ms. Davis with victim advocate services and sexual assault support resources",
+                    "Develop safety plan for Ms. Davis",
+                    "Check if Williams has any connection to similar crimes in the area",
+                    "Prepare complete case file documenting the lineup procedure for court — anticipate defense challenge",
+                    "Coordinate with ASA on court preparation, particularly regarding the lineup procedure and scratch evidence"
                 ]
             }
         }),

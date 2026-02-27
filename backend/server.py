@@ -993,7 +993,7 @@ async def submit_scenario(data: ScenarioSubmit, user: User = Depends(require_use
             base_url="https://api.openai.com/v1"
         )
         
-        prompt = f"""Grade this detective exam scenario response:
+        prompt = f"""Grade this detective exam scenario response using the R.E.A.C.T.I.O.N. framework.
 
 SCENARIO:
 {question['content']}
@@ -1004,54 +1004,80 @@ CORRECT ANSWER/KEY POINTS:
 STUDENT RESPONSE:
 {data.user_response}
 
-Provide your response in this exact format:
+Provide your response in this exact format. For EACH R.E.A.C.T.I.O.N. step, list ALL the specific actions the student should have addressed (4-8 detailed bullet points per step). For each bullet point, indicate whether the student covered it, partially covered it, or missed it entirely. Be scenario-specific — reference the exact facts, people, evidence, and circumstances from this scenario.
+
 GRADE: [number 0-100]
 FEEDBACK:
-**R - Respond & Render Aid**
-- [what the student did well or missed for this step]
+**R – Respond & Render Aid**
+- [specific action item 1 with assessment]
+- [specific action item 2 with assessment]
+- [specific action item 3 with assessment]
+- [specific action item 4 with assessment]
 
-**E - Establish the Scene**
-- [what the student did well or missed for this step]
+**E – Establish the Scene**
+- [specific action item 1 with assessment]
+- [specific action item 2 with assessment]
+- [specific action item 3 with assessment]
+- [specific action item 4 with assessment]
 
-**A - Arrest/Detain & Advise**
-- [what the student did well or missed for this step]
+**A – Arrest/Detain & Advise**
+- [specific action item 1 with assessment]
+- [specific action item 2 with assessment]
+- [specific action item 3 with assessment]
+- [specific action item 4 with assessment]
 
-**C - Collect/Identify Witnesses**
-- [what the student did well or missed for this step]
+**C – Collect/Identify Witnesses**
+- [specific action item 1 with assessment]
+- [specific action item 2 with assessment]
+- [specific action item 3 with assessment]
+- [specific action item 4 with assessment]
 
-**T - Take Notes & Document**
-- [what the student did well or missed for this step]
+**T – Take Notes & Document**
+- [specific action item 1 with assessment]
+- [specific action item 2 with assessment]
+- [specific action item 3 with assessment]
+- [specific action item 4 with assessment]
 
-**I - Inventory & Process Evidence**
-- [what the student did well or missed for this step]
+**I – Inventory & Process Evidence**
+- [specific action item 1 with assessment]
+- [specific action item 2 with assessment]
+- [specific action item 3 with assessment]
+- [specific action item 4 with assessment]
 
-**O - Obtain Legal/Consult**
-- [what the student did well or missed for this step]
+**O – Obtain Legal/Consult**
+- [specific action item 1 with assessment]
+- [specific action item 2 with assessment]
+- [specific action item 3 with assessment]
+- [specific action item 4 with assessment]
 
-**N - Next Steps & Notification**
-- [what the student did well or missed for this step]
+**N – Next Steps & Notification**
+- [specific action item 1 with assessment]
+- [specific action item 2 with assessment]
+- [specific action item 3 with assessment]
+- [specific action item 4 with assessment]
 
-**Overall:** [brief summary and how to improve]"""
+**Overall:** [brief summary highlighting strongest areas, critical gaps, and specific recommendations for improvement]"""
         
         response = await client.chat.completions.create(
             model="gpt-4o",
             messages=[
-                {"role": "system", "content": """You are an expert grader for Chicago Police Department detective exam scenarios.
-Your job is to evaluate responses using the R.E.A.C.T.I.O.N. framework:
-  R - Respond & Render Aid (arrive safely, ensure safety, provide medical aid)
-  E - Establish the Scene (secure perimeters, control entry/exit)
-  A - Arrest/Detain & Advise (locate suspects, Miranda if custodial)
-  C - Collect/Identify Witnesses (separate witnesses, conduct interviews)
-  T - Take Notes & Document (photos, video/BWC, sketches, notes)
-  I - Inventory & Process Evidence (collect, package, chain of custody)
-  O - Obtain Legal/Consult (search warrants, Felony Review)
-  N - Next Steps & Notification (case reports, notify supervisors, follow-up)
+                {"role": "system", "content": """You are an expert grader for Chicago Police Department detective exam scenarios. You grade using the R.E.A.C.T.I.O.N. framework with detailed, scenario-specific feedback.
 
-Provide a grade from 0-100 and detailed feedback organized by R.E.A.C.T.I.O.N. steps."""},
+R.E.A.C.T.I.O.N. Framework:
+  R – Respond & Render Aid: Ensure officer safety, render first aid, request EMS/CFD, document victim conditions, obtain preliminary statements once medically stable, request Medical Examiner if death involved
+  E – Establish the Scene: Brief with responding officers/supervisor, establish inner and outer perimeters, assign officers to secure entry/exit, separate all witnesses, identify/document all weapons on scene, establish command post, deploy additional resources
+  A – Arrest/Detain & Advise: Speak with apprehending officers, photograph suspect and note injuries/marks, advise Miranda prior to custodial interrogation, conduct electronically recorded interrogation, document spontaneous statements, complete TRR if force used
+  C – Collect/Identify Witnesses: Identify, separate, and interview all witnesses individually, obtain detailed victim statement, conduct separate interviews, canvass surrounding area for additional witnesses, obtain/preserve security camera footage, instruct witnesses to preserve independent recollection, conduct photo lineup or show-up as appropriate
+  T – Take Notes & Document: Photograph entire scene before evidence movement, document evidence locations, record all actions in case report and Felony 101, log all evidence into PCAD, document firearms/ballistic evidence, preserve digital evidence with timestamps, document chain of custody, review/secure body-worn camera footage
+  I – Inventory & Process Evidence: Preserve all physical evidence, photograph and inventory firearms/weapons, request Forensic Services Division, request ballistics comparison, request GSR/DNA testing, secure digital evidence, coordinate forensic extraction, assess exigent circumstances for digital preservation, maintain strict chain of custody
+  O – Obtain Legal/Consult: Notify ASA regarding circumstances, consult ASA regarding search warrants, request warrants for phone/digital/surveillance, conduct LEADS and CLEAR checks, ensure 4th Amendment compliance, ensure 5th and 6th Amendment protections, coordinate with Medical Examiner/COPA/DCFS as applicable
+  N – Next Steps & Notification: Issue flash message/BOLO with descriptions, continue canvass, monitor media through CPD communications, refer media to Office of Communications, avoid public disclosure that could contaminate statements, prepare complete case file, coordinate follow-up investigation and court preparation
+
+For each R.E.A.C.T.I.O.N. step, provide 4-8 specific, scenario-relevant action items. For each item, assess whether the student addressed it. Grade from 0-100 based on completeness and accuracy."""},
                 {"role": "user", "content": prompt}
             ],
             temperature=0.3,
-            max_tokens=1000
+            max_tokens=3000
         )
         
         ai_response = response.choices[0].message.content

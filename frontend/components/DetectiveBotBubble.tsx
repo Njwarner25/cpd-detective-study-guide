@@ -63,6 +63,9 @@ export default function DetectiveBotBubble({ onPress, hintCount = 0 }: Detective
           </View>
         )}
       </TouchableOpacity>
+      <View style={styles.tooltip}>
+        <Text style={styles.tooltipText}>Click me if you need help!</Text>
+      </View>
     </Animated.View>
   );
 }
@@ -115,5 +118,20 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 11,
     fontWeight: 'bold',
+  },
+  tooltip: {
+    position: 'absolute',
+    right: 68,
+    top: 12,
+    backgroundColor: '#3b82f6',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+    whiteSpace: 'nowrap',
+  },
+  tooltipText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '600',
   },
 });

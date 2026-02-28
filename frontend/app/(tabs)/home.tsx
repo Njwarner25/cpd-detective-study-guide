@@ -143,8 +143,12 @@ export default function Home() {
           <View style={{ flex: 1 }}>
             <Text style={styles.announcementTitle}>Help Us Improve AI Grading</Text>
             <Text style={styles.announcementText}>
-              Our new feedback feature is live! After completing a scenario, you can now report incorrect grades, suggest corrections, or flag missing info. Your suggestions help make the grading more accurate for everyone.
+              After completing a scenario, you can report incorrect grades or suggest corrections. Your feedback helps improve grading accuracy for everyone.
             </Text>
+            <TouchableOpacity onPress={() => router.push('/updates')} style={styles.announcementLink}>
+              <Text style={styles.announcementLinkText}>View Corrections & Updates</Text>
+              <Ionicons name="arrow-forward" size={14} color="#f59e0b" />
+            </TouchableOpacity>
           </View>
         </View>
 
@@ -607,6 +611,17 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: '#94a3b8',
     lineHeight: 19,
+  },
+  announcementLink: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginTop: 8,
+  },
+  announcementLinkText: {
+    fontSize: 13,
+    color: '#f59e0b',
+    fontWeight: '600',
   },
   adminButton: {
     flexDirection: 'row',

@@ -1089,6 +1089,9 @@ R.E.A.C.T.I.O.N. Framework:
   O – Obtain Legal/Consult: Notify ASA regarding circumstances, consult ASA regarding search warrants, request warrants for phone/digital/surveillance, conduct LEADS and CLEAR checks, ensure 4th Amendment compliance, ensure 5th and 6th Amendment protections, coordinate with Medical Examiner/COPA/DCFS as applicable
   N – Next Steps & Notification: Issue flash message/BOLO with descriptions, continue canvass, monitor media through CPD communications, refer media to Office of Communications, avoid public disclosure that could contaminate statements, prepare complete case file, coordinate follow-up investigation and court preparation
 
+CRITICAL — COPA NOTIFICATION RULES:
+COPA (Civilian Office of Police Accountability) is ONLY contacted for OFFICER-INVOLVED shootings/incidents. Do NOT expect or award points for COPA notification in scenarios involving civilian-on-civilian shootings, civilian self-defense shootings, or any shooting where no CPD officer discharged a firearm or used force. If a student incorrectly mentions COPA in a non-officer-involved scenario, note it as an error. Conversely, COPA is MANDATORY for any scenario where a CPD officer fires their weapon, uses deadly force, or is involved in an in-custody death.
+
 For each R.E.A.C.T.I.O.N. step, provide 4-8 specific, scenario-relevant action items. For each item, assess whether the student addressed it. Grade from 0-100 based on completeness and accuracy."""},
                 {"role": "user", "content": prompt}
             ],
@@ -1210,7 +1213,8 @@ YOUR RULES:
 5. Be encouraging but push the student to think deeper
 6. Keep responses concise (2-4 sentences max)
 7. If the student asks for the answer directly, remind them that working through it builds stronger exam skills
-8. Use a professional but supportive tone appropriate for law enforcement training"""
+8. Use a professional but supportive tone appropriate for law enforcement training
+9. COPA (Civilian Office of Police Accountability) is ONLY for OFFICER-INVOLVED shootings/incidents. If the scenario involves a civilian shooting (not by a CPD officer), do NOT hint at or expect COPA notification. If the student mentions COPA incorrectly, gently correct them."""
 
         import anthropic
         client = anthropic.AsyncAnthropic(api_key=ANTHROPIC_API_KEY)
@@ -2246,7 +2250,7 @@ FEEDBACK:
         response = await client.chat.completions.create(
             model="gpt-4o",
             messages=[
-                {"role": "system", "content": "You are an expert grader for CPD detective exam mini-scenarios. Grade using the R.E.A.C.T.I.O.N. framework with I/O Solutions differential weighting. Be specific and reference the scenario facts."},
+                {"role": "system", "content": "You are an expert grader for CPD detective exam mini-scenarios. Grade using the R.E.A.C.T.I.O.N. framework with I/O Solutions differential weighting. Be specific and reference the scenario facts. CRITICAL: COPA (Civilian Office of Police Accountability) is ONLY contacted for OFFICER-INVOLVED shootings/incidents. Do NOT expect COPA notification in civilian shootings, self-defense shootings, or any scenario where no CPD officer discharged a firearm or used force. If a student incorrectly mentions COPA in a non-officer-involved scenario, note it as an error."},
                 {"role": "user", "content": prompt}
             ],
             temperature=0.3,

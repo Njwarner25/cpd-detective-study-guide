@@ -15,7 +15,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../contexts/AuthContext';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { questionService, scenarioService, ttsService } from '../services/api';
+import { questionService, scenarioService, ttsService, feedbackService } from '../services/api';
 import DetectiveBotBubble from '../components/DetectiveBotBubble';
 import ChatOverlay from '../components/ChatOverlay';
 
@@ -72,6 +72,11 @@ export default function PracticeScenario() {
   const [phase, setPhase] = useState<'start' | 'respond' | 'wrench' | 'result'>('start');
   const [chatVisible, setChatVisible] = useState(false);
   const [hintCount, setHintCount] = useState(0);
+  const [showFeedbackForm, setShowFeedbackForm] = useState(false);
+  const [feedbackType, setFeedbackType] = useState('incorrect_grade');
+  const [feedbackMessage, setFeedbackMessage] = useState('');
+  const [feedbackSubmitting, setFeedbackSubmitting] = useState(false);
+  const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef<number>(0);
   const ttsRef = useRef<any>(null);
@@ -453,6 +458,29 @@ export default function PracticeScenario() {
     );
   }
 
+  const handleFeedbackSubmit = async () => {
+    if (!feedbackMessage.trim()) {
+      showAlert('Error', 'Please describe the issue or correction.');
+      return;
+    }
+    setFeedbackSubmitting(true);
+    try {
+      await feedbackService.submit({
+        response_id: result?.response_id || '',
+        question_id: scenario?.question_id || '',
+        feedback_type: feedbackType,
+        user_message: feedbackMessage.trim(),
+      }, sessionToken || undefined);
+      setFeedbackSubmitted(true);
+      setShowFeedbackForm(false);
+    } catch (e) {
+      console.error('Failed to submit feedback:', e);
+      showAlert('Error', 'Failed to submit feedback. Please try again.');
+    } finally {
+      setFeedbackSubmitting(false);
+    }
+  };
+
   // ── No scenario ──
   if (!scenario) {
     return (
@@ -556,6 +584,83 @@ export default function PracticeScenario() {
                 {renderStructuredFeedback(typeof modelAnswer === 'string' ? modelAnswer : JSON.stringify(modelAnswer))}
               </>
             )}
+          </View>
+
+          {/* Feedback Section */}
+          {feedbackSubmitted ? (
+            <View style={styles.feedbackSuccessCard}>
+              <Ionicons name="checkmark-circle" size={24} color="#10b981" />
+              <Text style={styles.feedbackSuccessText}>
+                Thank you! Your feedback has been submitted and will be reviewed by our admin team.
+              </Text>
+            </View>
+          ) : showFeedbackForm ? (
+            <View style={styles.feedbackFormCard}>
+              <View style={styles.feedbackFormHeader}>
+                <Text style={styles.feedbackFormTitle}>Report Issue / Suggest Correction</Text>
+                <TouchableOpacity onPress={() => setShowFeedbackForm(false)}>
+                  <Ionicons name="close" size={22} color="#94a3b8" />
+                </TouchableOpacity>
+              </View>
+
+              <Text style={styles.feedbackFormLabel}>Issue Type</Text>
+              <View style={styles.feedbackTypeRow}>
+                {[
+                  { value: 'incorrect_grade', label: 'Incorrect Grade' },
+                  { value: 'missing_info', label: 'Missing Info' },
+                  { value: 'wrong_procedure', label: 'Wrong Procedure' },
+                  { value: 'general', label: 'General' },
+                ].map((opt) => (
+                  <TouchableOpacity
+                    key={opt.value}
+                    style={[styles.feedbackTypeBtn, feedbackType === opt.value && styles.feedbackTypeBtnActive]}
+                    onPress={() => setFeedbackType(opt.value)}
+                  >
+                    <Text style={[styles.feedbackTypeTxt, feedbackType === opt.value && styles.feedbackTypeTxtActive]}>
+                      {opt.label}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+              <Text style={styles.feedbackFormLabel}>Your Correction / Suggestion</Text>
+              <TextInput
+                style={styles.feedbackInput}
+                multiline
+                placeholder="Describe what the AI got wrong or what should be corrected..."
+                placeholderTextColor="#475569"
+                value={feedbackMessage}
+                onChangeText={setFeedbackMessage}
+                textAlignVertical="top"
+              />
+
+              <TouchableOpacity
+                style={[styles.feedbackSubmitBtn, feedbackSubmitting && styles.feedbackSubmitBtnDisabled]}
+                onPress={handleFeedbackSubmit}
+                disabled={feedbackSubmitting}
+              >
+                {feedbackSubmitting ? (
+                  <ActivityIndicator size="small" color="#fff" />
+                ) : (
+                  <>
+                    <Ionicons name="send" size={16} color="#fff" />
+                    <Text style={styles.feedbackSubmitTxt}>Submit Feedback</Text>
+                  </>
+                )}
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <TouchableOpacity style={styles.feedbackBtn} onPress={() => setShowFeedbackForm(true)}>
+              <Ionicons name="flag-outline" size={18} color="#f59e0b" />
+              <Text style={styles.feedbackBtnTxt}>Report Issue / Suggest Correction</Text>
+            </TouchableOpacity>
+          )}
+
+          <View style={styles.feedbackNotice}>
+            <Ionicons name="information-circle-outline" size={14} color="#64748b" />
+            <Text style={styles.feedbackNoticeText}>
+              Think the AI got something wrong? Submit a correction — your feedback helps improve grading accuracy. All suggestions are reviewed by our admin team.
+            </Text>
           </View>
 
           {!hasPaid && (
@@ -1239,6 +1344,135 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
+  },
+  // Feedback styles
+  feedbackBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: '#1e293b',
+    borderWidth: 1,
+    borderColor: '#f59e0b',
+    padding: 14,
+    borderRadius: 12,
+    marginTop: 16,
+  },
+  feedbackBtnTxt: {
+    color: '#f59e0b',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  feedbackFormCard: {
+    backgroundColor: '#1e293b',
+    borderRadius: 16,
+    padding: 16,
+    marginTop: 16,
+    borderWidth: 1,
+    borderColor: '#334155',
+  },
+  feedbackFormHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  feedbackFormTitle: {
+    color: '#f1f5f9',
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  feedbackFormLabel: {
+    color: '#94a3b8',
+    fontSize: 13,
+    fontWeight: '600',
+    marginBottom: 8,
+    marginTop: 4,
+  },
+  feedbackTypeRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginBottom: 12,
+  },
+  feedbackTypeBtn: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+    backgroundColor: '#0f172a',
+    borderWidth: 1,
+    borderColor: '#334155',
+  },
+  feedbackTypeBtnActive: {
+    backgroundColor: '#1e3a8a',
+    borderColor: '#2563eb',
+  },
+  feedbackTypeTxt: {
+    color: '#94a3b8',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  feedbackTypeTxtActive: {
+    color: '#93c5fd',
+  },
+  feedbackInput: {
+    backgroundColor: '#0f172a',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#334155',
+    padding: 12,
+    fontSize: 14,
+    color: '#f1f5f9',
+    minHeight: 100,
+    lineHeight: 20,
+    marginBottom: 12,
+  },
+  feedbackSubmitBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: '#2563eb',
+    paddingVertical: 12,
+    borderRadius: 10,
+  },
+  feedbackSubmitBtnDisabled: {
+    opacity: 0.6,
+  },
+  feedbackSubmitTxt: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  feedbackSuccessCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    backgroundColor: '#064e3b',
+    borderRadius: 12,
+    padding: 14,
+    marginTop: 16,
+    borderWidth: 1,
+    borderColor: '#10b981',
+  },
+  feedbackSuccessText: {
+    flex: 1,
+    color: '#a7f3d0',
+    fontSize: 13,
+    lineHeight: 20,
+  },
+  feedbackNotice: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 6,
+    marginTop: 10,
+    paddingHorizontal: 4,
+  },
+  feedbackNoticeText: {
+    flex: 1,
+    color: '#64748b',
+    fontSize: 11,
+    lineHeight: 16,
   },
   // Wrench/Curveball styles
   wrenchBadgeRow: {

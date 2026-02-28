@@ -14,7 +14,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../contexts/AuthContext';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { questionService, miniScenarioService, ttsService } from '../services/api';
+import { questionService, miniScenarioService, ttsService, feedbackService } from '../services/api';
 import DetectiveBotBubble from '../components/DetectiveBotBubble';
 import ChatOverlay from '../components/ChatOverlay';
 
@@ -52,6 +52,11 @@ export default function MiniScenario() {
   const [isTTSPlaying, setIsTTSPlaying] = useState(false);
   const [chatVisible, setChatVisible] = useState(false);
   const [hintCount, setHintCount] = useState(0);
+  const [showFeedbackForm, setShowFeedbackForm] = useState(false);
+  const [feedbackType, setFeedbackType] = useState('incorrect_grade');
+  const [feedbackMessage, setFeedbackMessage] = useState('');
+  const [feedbackSubmitting, setFeedbackSubmitting] = useState(false);
+  const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef<number>(0);
   const ttsRef = useRef<any>(null);
@@ -162,6 +167,29 @@ export default function MiniScenario() {
     }
   };
 
+  const handleFeedbackSubmit = async () => {
+    if (!feedbackMessage.trim()) {
+      showAlert('Error', 'Please describe the issue or correction.');
+      return;
+    }
+    setFeedbackSubmitting(true);
+    try {
+      await feedbackService.submit({
+        response_id: result?.response_id || '',
+        question_id: scenario?.question_id || scenarioId || '',
+        feedback_type: feedbackType,
+        user_message: feedbackMessage.trim(),
+      }, sessionToken || undefined);
+      setFeedbackSubmitted(true);
+      setShowFeedbackForm(false);
+    } catch (e) {
+      console.error('Failed to submit feedback:', e);
+      showAlert('Error', 'Failed to submit feedback. Please try again.');
+    } finally {
+      setFeedbackSubmitting(false);
+    }
+  };
+
   if (loading) {
     return (
       <SafeAreaView style={s.safe}>
@@ -249,7 +277,84 @@ export default function MiniScenario() {
             <Text style={s.yourResponseTxt}>{response}</Text>
           </View>
 
-          <TouchableOpacity style={s.retryBtn} onPress={() => { setResponse(''); setResult(null); setTimeRemaining(scenario?.time_limit || MINI_TIME); setPhase('start'); }}>
+          {/* Feedback Section */}
+          {feedbackSubmitted ? (
+            <View style={s.fbSuccessCard}>
+              <Ionicons name="checkmark-circle" size={24} color="#10b981" />
+              <Text style={s.fbSuccessTxt}>
+                Thank you! Your feedback has been submitted and will be reviewed by our admin team.
+              </Text>
+            </View>
+          ) : showFeedbackForm ? (
+            <View style={s.fbFormCard}>
+              <View style={s.fbFormHeader}>
+                <Text style={s.fbFormTitle}>Report Issue / Suggest Correction</Text>
+                <TouchableOpacity onPress={() => setShowFeedbackForm(false)}>
+                  <Ionicons name="close" size={22} color="#94a3b8" />
+                </TouchableOpacity>
+              </View>
+
+              <Text style={s.fbLabel}>Issue Type</Text>
+              <View style={s.fbTypeRow}>
+                {[
+                  { value: 'incorrect_grade', label: 'Incorrect Grade' },
+                  { value: 'missing_info', label: 'Missing Info' },
+                  { value: 'wrong_procedure', label: 'Wrong Procedure' },
+                  { value: 'general', label: 'General' },
+                ].map((opt) => (
+                  <TouchableOpacity
+                    key={opt.value}
+                    style={[s.fbTypeBtn, feedbackType === opt.value && s.fbTypeBtnActive]}
+                    onPress={() => setFeedbackType(opt.value)}
+                  >
+                    <Text style={[s.fbTypeTxt, feedbackType === opt.value && s.fbTypeTxtActive]}>
+                      {opt.label}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+              <Text style={s.fbLabel}>Your Correction / Suggestion</Text>
+              <TextInput
+                style={s.fbInput}
+                multiline
+                placeholder="Describe what the AI got wrong or what should be corrected..."
+                placeholderTextColor="#475569"
+                value={feedbackMessage}
+                onChangeText={setFeedbackMessage}
+                textAlignVertical="top"
+              />
+
+              <TouchableOpacity
+                style={[s.fbSubmitBtn, feedbackSubmitting && s.fbSubmitBtnDisabled]}
+                onPress={handleFeedbackSubmit}
+                disabled={feedbackSubmitting}
+              >
+                {feedbackSubmitting ? (
+                  <ActivityIndicator size="small" color="#fff" />
+                ) : (
+                  <>
+                    <Ionicons name="send" size={16} color="#fff" />
+                    <Text style={s.fbSubmitTxt}>Submit Feedback</Text>
+                  </>
+                )}
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <TouchableOpacity style={s.fbBtn} onPress={() => setShowFeedbackForm(true)}>
+              <Ionicons name="flag-outline" size={18} color="#f59e0b" />
+              <Text style={s.fbBtnTxt}>Report Issue / Suggest Correction</Text>
+            </TouchableOpacity>
+          )}
+
+          <View style={s.fbNotice}>
+            <Ionicons name="information-circle-outline" size={14} color="#64748b" />
+            <Text style={s.fbNoticeTxt}>
+              Think the AI got something wrong? Submit a correction — your feedback helps improve grading accuracy. All suggestions are reviewed by our admin team.
+            </Text>
+          </View>
+
+          <TouchableOpacity style={s.retryBtn} onPress={() => { setResponse(''); setResult(null); setFeedbackSubmitted(false); setShowFeedbackForm(false); setFeedbackMessage(''); setTimeRemaining(scenario?.time_limit || MINI_TIME); setPhase('start'); }}>
             <Ionicons name="refresh" size={18} color="#000" />
             <Text style={s.retryTxt}>Try Again</Text>
           </TouchableOpacity>
@@ -398,4 +503,25 @@ const s = StyleSheet.create({
 
   retryBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#fbbf24', paddingHorizontal: 24, paddingVertical: 12, borderRadius: 24, gap: 8, marginTop: 8 },
   retryTxt: { fontSize: 15, fontWeight: '700', color: '#000' },
+
+  // Feedback styles
+  fbBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: '#1e293b', borderWidth: 1, borderColor: '#f59e0b', padding: 14, borderRadius: 12, marginTop: 16 },
+  fbBtnTxt: { color: '#f59e0b', fontSize: 14, fontWeight: '600' },
+  fbFormCard: { backgroundColor: '#1e293b', borderRadius: 16, padding: 16, marginTop: 16, borderWidth: 1, borderColor: '#334155' },
+  fbFormHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
+  fbFormTitle: { color: '#f1f5f9', fontSize: 16, fontWeight: '700' },
+  fbLabel: { color: '#94a3b8', fontSize: 13, fontWeight: '600', marginBottom: 8, marginTop: 4 },
+  fbTypeRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 12 },
+  fbTypeBtn: { paddingHorizontal: 12, paddingVertical: 8, borderRadius: 8, backgroundColor: '#0f172a', borderWidth: 1, borderColor: '#334155' },
+  fbTypeBtnActive: { backgroundColor: '#1e3a8a', borderColor: '#2563eb' },
+  fbTypeTxt: { color: '#94a3b8', fontSize: 12, fontWeight: '600' },
+  fbTypeTxtActive: { color: '#93c5fd' },
+  fbInput: { backgroundColor: '#0f172a', borderRadius: 10, borderWidth: 1, borderColor: '#334155', padding: 12, fontSize: 14, color: '#f1f5f9', minHeight: 100, lineHeight: 20, marginBottom: 12 },
+  fbSubmitBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: '#2563eb', paddingVertical: 12, borderRadius: 10 },
+  fbSubmitBtnDisabled: { opacity: 0.6 },
+  fbSubmitTxt: { color: '#fff', fontSize: 14, fontWeight: '700' },
+  fbSuccessCard: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#064e3b', borderRadius: 12, padding: 14, marginTop: 16, borderWidth: 1, borderColor: '#10b981' },
+  fbSuccessTxt: { flex: 1, color: '#a7f3d0', fontSize: 13, lineHeight: 20 },
+  fbNotice: { flexDirection: 'row', alignItems: 'flex-start', gap: 6, marginTop: 10, paddingHorizontal: 4 },
+  fbNoticeTxt: { flex: 1, color: '#64748b', fontSize: 11, lineHeight: 16 },
 });

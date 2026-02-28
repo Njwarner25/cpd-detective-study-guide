@@ -193,6 +193,16 @@ class MiniScenarioSubmit(BaseModel):
     user_response: str
     time_taken: int  # seconds
 
+class FeedbackSubmit(BaseModel):
+    response_id: str          # Links to the scenario_response
+    question_id: str          # Which question/scenario
+    feedback_type: str        # "incorrect_grade", "missing_info", "wrong_procedure", "general"
+    user_message: str         # User's correction/suggestion
+
+class FeedbackReview(BaseModel):
+    status: str               # "approved" or "rejected"
+    admin_notes: Optional[str] = None
+
 # ========== AUTH HELPERS ==========
 
 def hash_password(password: str) -> str:
@@ -2400,6 +2410,82 @@ async def seed_exam_questions():
     except Exception as e:
         logging.error(f"Seed failed: {e}")
         raise HTTPException(status_code=500, detail=f"Seed failed: {str(e)}")
+
+
+# ========== FEEDBACK ENDPOINTS ==========
+
+@api_router.post("/feedback")
+async def submit_feedback(data: FeedbackSubmit, user: User = Depends(require_user)):
+    """User submits feedback/correction on AI grading."""
+    # Look up the scenario response to capture original grade/feedback
+    scenario_resp = await db.scenario_responses.find_one(
+        {"response_id": data.response_id},
+        {"_id": 0}
+    )
+
+    # Look up question title
+    question = await db.questions.find_one(
+        {"question_id": data.question_id},
+        {"_id": 0, "title": 1}
+    )
+
+    feedback_id = f"fb_{uuid.uuid4().hex[:12]}"
+    feedback_doc = {
+        "feedback_id": feedback_id,
+        "user_id": user.user_id,
+        "user_name": user.name,
+        "user_email": user.email,
+        "response_id": data.response_id,
+        "question_id": data.question_id,
+        "question_title": question.get("title", "Unknown") if question else "Unknown",
+        "feedback_type": data.feedback_type,
+        "user_message": data.user_message,
+        "ai_grade": scenario_resp.get("ai_grade") if scenario_resp else None,
+        "ai_feedback": scenario_resp.get("ai_feedback") if scenario_resp else None,
+        "status": "pending",
+        "admin_notes": None,
+        "submitted_at": datetime.now(timezone.utc),
+        "reviewed_at": None,
+    }
+
+    await db.feedback.insert_one(feedback_doc)
+    return {"feedback_id": feedback_id, "message": "Feedback submitted successfully"}
+
+@api_router.get("/admin/feedback")
+async def get_admin_feedback(status: Optional[str] = None, admin: User = Depends(require_admin)):
+    """Admin gets all feedback, optionally filtered by status."""
+    query = {}
+    if status and status in ("pending", "approved", "rejected"):
+        query["status"] = status
+
+    items = await db.feedback.find(query, {"_id": 0}).sort("submitted_at", -1).to_list(200)
+    return {"feedback": items}
+
+@api_router.put("/admin/feedback/{feedback_id}")
+async def review_feedback(feedback_id: str, data: FeedbackReview, admin: User = Depends(require_admin)):
+    """Admin approves or rejects feedback."""
+    if data.status not in ("approved", "rejected"):
+        raise HTTPException(status_code=400, detail="Status must be 'approved' or 'rejected'")
+
+    result = await db.feedback.update_one(
+        {"feedback_id": feedback_id},
+        {"$set": {
+            "status": data.status,
+            "admin_notes": data.admin_notes,
+            "reviewed_at": datetime.now(timezone.utc),
+        }}
+    )
+
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Feedback not found")
+
+    return {"message": f"Feedback {data.status}", "feedback_id": feedback_id}
+
+@api_router.get("/admin/feedback/count")
+async def get_feedback_count(admin: User = Depends(require_admin)):
+    """Get count of pending feedback items."""
+    pending = await db.feedback.count_documents({"status": "pending"})
+    return {"pending_count": pending}
 
 
 app.include_router(api_router)

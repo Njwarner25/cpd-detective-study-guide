@@ -361,6 +361,26 @@ export const adminService = {
           const response = await api.post('/admin/access-codes', { note: note || '' }, { headers });
           return response.data;
     },
+
+    async getFeedback(status?: string, token?: string) {
+          const headers = token ? { Authorization: `Bearer ${token}` } : {};
+          const params: any = {};
+          if (status && status !== 'all') params.status = status;
+          const response = await api.get('/admin/feedback', { headers, params });
+          return response.data;
+    },
+
+    async reviewFeedback(feedbackId: string, status: string, adminNotes?: string, token?: string) {
+          const headers = token ? { Authorization: `Bearer ${token}` } : {};
+          const response = await api.put(`/admin/feedback/${feedbackId}`, { status, admin_notes: adminNotes || null }, { headers });
+          return response.data;
+    },
+
+    async getFeedbackCount(token?: string) {
+          const headers = token ? { Authorization: `Bearer ${token}` } : {};
+          const response = await api.get('/admin/feedback/count', { headers });
+          return response.data;
+    },
 };
 
 // Ranking Service
@@ -397,6 +417,20 @@ export const examService = {
     async getHistory(token?: string) {
         const headers = token ? { Authorization: `Bearer ${token}` } : {};
         const response = await api.get('/exam/history', { headers });
+        return response.data;
+    },
+};
+
+// Feedback Service
+export const feedbackService = {
+    async submit(data: {
+        response_id: string;
+        question_id: string;
+        feedback_type: string;
+        user_message: string;
+    }, token?: string) {
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+        const response = await api.post('/feedback', data, { headers });
         return response.data;
     },
 };

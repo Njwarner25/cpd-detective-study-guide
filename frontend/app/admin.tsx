@@ -82,7 +82,7 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'analytics' | 'users'>('analytics');
+  const [activeTab, setActiveTab] = useState<'analytics' | 'users' | 'feedback'>('analytics');
 
   // Premium grant state
   const [grantEmail, setGrantEmail] = useState('');
@@ -92,6 +92,14 @@ export default function AdminDashboard() {
   const [users, setUsers] = useState<UserInfo[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [userFilter, setUserFilter] = useState('');
+
+  // Feedback state
+  const [feedbackItems, setFeedbackItems] = useState<any[]>([]);
+  const [loadingFeedback, setLoadingFeedback] = useState(false);
+  const [feedbackFilter, setFeedbackFilter] = useState('all');
+  const [pendingCount, setPendingCount] = useState(0);
+  const [adminNotes, setAdminNotes] = useState<{ [key: string]: string }>({});
+  const [reviewingId, setReviewingId] = useState<string | null>(null);
 
   const fetchAnalytics = async () => {
     try {
@@ -124,21 +132,83 @@ export default function AdminDashboard() {
     }
   };
 
+  const fetchFeedback = async () => {
+    try {
+      setLoadingFeedback(true);
+      const data = await adminService.getFeedback(
+        feedbackFilter !== 'all' ? feedbackFilter : undefined,
+        sessionToken || undefined
+      );
+      setFeedbackItems(data.feedback || []);
+    } catch (err: any) {
+      console.error('Failed to fetch feedback:', err);
+    } finally {
+      setLoadingFeedback(false);
+    }
+  };
+
+  const fetchFeedbackCount = async () => {
+    try {
+      const data = await adminService.getFeedbackCount(sessionToken || undefined);
+      setPendingCount(data.pending_count || 0);
+    } catch (err: any) {
+      console.error('Failed to fetch feedback count:', err);
+    }
+  };
+
+  const handleReviewFeedback = async (feedbackId: string, status: string) => {
+    setReviewingId(feedbackId);
+    try {
+      await adminService.reviewFeedback(
+        feedbackId,
+        status,
+        adminNotes[feedbackId] || undefined,
+        sessionToken || undefined
+      );
+      showAlert('Success', `Feedback ${status} successfully`);
+      fetchFeedback();
+      fetchFeedbackCount();
+    } catch (err: any) {
+      const msg = err.response?.data?.detail || `Failed to ${status} feedback`;
+      showAlert('Error', msg);
+    } finally {
+      setReviewingId(null);
+    }
+  };
+
+  const getFeedbackTypeBadge = (type: string) => {
+    const types: { [key: string]: { label: string; color: string; bg: string } } = {
+      incorrect_grade: { label: 'Incorrect Grade', color: '#fca5a5', bg: '#7f1d1d' },
+      missing_info: { label: 'Missing Info', color: '#fcd34d', bg: '#78350f' },
+      wrong_procedure: { label: 'Wrong Procedure', color: '#c4b5fd', bg: '#4c1d95' },
+      general: { label: 'General', color: '#94a3b8', bg: '#334155' },
+    };
+    return types[type] || types.general;
+  };
+
   useEffect(() => {
     fetchAnalytics();
+    fetchFeedbackCount();
   }, [sessionToken]);
 
   useEffect(() => {
     if (activeTab === 'users' && users.length === 0) {
       fetchUsers();
     }
-  }, [activeTab]);
+    if (activeTab === 'feedback') {
+      fetchFeedback();
+    }
+  }, [activeTab, feedbackFilter]);
 
   const onRefresh = () => {
     setRefreshing(true);
     fetchAnalytics();
+    fetchFeedbackCount();
     if (activeTab === 'users') {
       fetchUsers();
+    }
+    if (activeTab === 'feedback') {
+      fetchFeedback();
     }
   };
 
@@ -258,7 +328,21 @@ export default function AdminDashboard() {
           onPress={() => setActiveTab('users')}
         >
           <Ionicons name="people" size={18} color={activeTab === 'users' ? '#fff' : '#64748b'} />
-          <Text style={[styles.tabText, activeTab === 'users' && styles.activeTabText]}>Users & Premium</Text>
+          <Text style={[styles.tabText, activeTab === 'users' && styles.activeTabText]}>Users</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.tab, activeTab === 'feedback' && styles.activeTab]}
+          onPress={() => setActiveTab('feedback')}
+        >
+          <View style={styles.tabWithBadge}>
+            <Ionicons name="chatbox-ellipses" size={18} color={activeTab === 'feedback' ? '#fff' : '#64748b'} />
+            <Text style={[styles.tabText, activeTab === 'feedback' && styles.activeTabText]}>Feedback</Text>
+            {pendingCount > 0 && (
+              <View style={styles.badgeCircle}>
+                <Text style={styles.badgeText}>{pendingCount > 99 ? '99+' : pendingCount}</Text>
+              </View>
+            )}
+          </View>
         </TouchableOpacity>
       </View>
 
@@ -269,7 +353,7 @@ export default function AdminDashboard() {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#2563eb" />
         }
       >
-        {activeTab === 'users' ? (
+        {activeTab === 'users' && (
           <>
             {/* Grant Premium Section */}
             <View style={styles.section}>
@@ -384,7 +468,137 @@ export default function AdminDashboard() {
               )}
             </View>
           </>
-        ) : (
+        )}
+
+        {activeTab === 'feedback' && (
+          <>
+            {/* Feedback Filter */}
+            <View style={styles.section}>
+              <View style={styles.sectionHeader}>
+                <Ionicons name="chatbox-ellipses" size={20} color="#f59e0b" />
+                <Text style={styles.sectionTitle}>User Feedback ({feedbackItems.length})</Text>
+                <TouchableOpacity onPress={fetchFeedback} style={styles.refreshUsersBtn}>
+                  <Ionicons name="refresh" size={16} color="#64748b" />
+                </TouchableOpacity>
+              </View>
+
+              <View style={styles.feedbackFilterRow}>
+                {['all', 'pending', 'approved', 'rejected'].map((f) => (
+                  <TouchableOpacity
+                    key={f}
+                    style={[styles.feedbackFilterBtn, feedbackFilter === f && styles.feedbackFilterBtnActive]}
+                    onPress={() => setFeedbackFilter(f)}
+                  >
+                    <Text style={[styles.feedbackFilterTxt, feedbackFilter === f && styles.feedbackFilterTxtActive]}>
+                      {f.charAt(0).toUpperCase() + f.slice(1)}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+              {loadingFeedback ? (
+                <ActivityIndicator size="large" color="#2563eb" style={{ marginVertical: 20 }} />
+              ) : feedbackItems.length === 0 ? (
+                <View style={styles.emptyFeedback}>
+                  <Ionicons name="chatbox-outline" size={48} color="#334155" />
+                  <Text style={styles.emptyFeedbackTxt}>No feedback items</Text>
+                </View>
+              ) : (
+                feedbackItems.map((item: any) => {
+                  const badge = getFeedbackTypeBadge(item.feedback_type);
+                  return (
+                    <View key={item.feedback_id} style={styles.feedbackItem}>
+                      <View style={styles.feedbackItemHeader}>
+                        <View style={styles.feedbackItemUser}>
+                          <Ionicons name="person" size={14} color="#94a3b8" />
+                          <Text style={styles.feedbackItemUserName}>{item.user_name || 'Unknown'}</Text>
+                        </View>
+                        <View style={[styles.feedbackTypeBadge, { backgroundColor: badge.bg }]}>
+                          <Text style={[styles.feedbackTypeBadgeTxt, { color: badge.color }]}>{badge.label}</Text>
+                        </View>
+                      </View>
+
+                      <Text style={styles.feedbackItemDate}>
+                        {new Date(item.submitted_at).toLocaleDateString()} - {item.question_title || item.question_id}
+                      </Text>
+
+                      {item.ai_grade !== null && item.ai_grade !== undefined && (
+                        <View style={styles.feedbackOriginalGrade}>
+                          <Text style={styles.feedbackOriginalGradeTxt}>Original AI Grade: {Math.round(item.ai_grade)}%</Text>
+                        </View>
+                      )}
+
+                      <View style={styles.feedbackMessageBox}>
+                        <Text style={styles.feedbackMessageLabel}>User's Message:</Text>
+                        <Text style={styles.feedbackMessageTxt}>{item.user_message}</Text>
+                      </View>
+
+                      {item.status === 'pending' ? (
+                        <>
+                          <TextInput
+                            style={styles.adminNotesInput}
+                            placeholder="Admin notes (optional)..."
+                            placeholderTextColor="#475569"
+                            value={adminNotes[item.feedback_id] || ''}
+                            onChangeText={(text) => setAdminNotes(prev => ({ ...prev, [item.feedback_id]: text }))}
+                          />
+                          <View style={styles.feedbackActions}>
+                            <TouchableOpacity
+                              style={[styles.approveBtn, reviewingId === item.feedback_id && styles.reviewingBtn]}
+                              onPress={() => handleReviewFeedback(item.feedback_id, 'approved')}
+                              disabled={reviewingId === item.feedback_id}
+                            >
+                              {reviewingId === item.feedback_id ? (
+                                <ActivityIndicator size="small" color="#fff" />
+                              ) : (
+                                <>
+                                  <Ionicons name="checkmark-circle" size={16} color="#fff" />
+                                  <Text style={styles.approveBtnTxt}>Approve</Text>
+                                </>
+                              )}
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                              style={[styles.rejectBtn, reviewingId === item.feedback_id && styles.reviewingBtn]}
+                              onPress={() => handleReviewFeedback(item.feedback_id, 'rejected')}
+                              disabled={reviewingId === item.feedback_id}
+                            >
+                              <Ionicons name="close-circle" size={16} color="#fca5a5" />
+                              <Text style={styles.rejectBtnTxt}>Reject</Text>
+                            </TouchableOpacity>
+                          </View>
+                        </>
+                      ) : (
+                        <View style={styles.feedbackStatusRow}>
+                          <View style={[
+                            styles.feedbackStatusBadge,
+                            { backgroundColor: item.status === 'approved' ? '#064e3b' : '#7f1d1d' }
+                          ]}>
+                            <Ionicons
+                              name={item.status === 'approved' ? 'checkmark-circle' : 'close-circle'}
+                              size={14}
+                              color={item.status === 'approved' ? '#10b981' : '#ef4444'}
+                            />
+                            <Text style={[
+                              styles.feedbackStatusTxt,
+                              { color: item.status === 'approved' ? '#a7f3d0' : '#fca5a5' }
+                            ]}>
+                              {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
+                            </Text>
+                          </View>
+                          {item.admin_notes && (
+                            <Text style={styles.feedbackAdminNotes}>Note: {item.admin_notes}</Text>
+                          )}
+                        </View>
+                      )}
+                    </View>
+                  );
+                })
+              )}
+            </View>
+          </>
+        )}
+
+        {activeTab === 'analytics' && (
           <>
             {/* Quick Actions */}
             <View style={styles.section}>
@@ -1110,5 +1324,198 @@ const styles = StyleSheet.create({
     color: '#fcd34d',
     fontSize: 12,
     fontWeight: '600',
+  },
+  // Feedback tab styles
+  tabWithBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  badgeCircle: {
+    backgroundColor: '#ef4444',
+    borderRadius: 10,
+    minWidth: 20,
+    height: 20,
+    paddingHorizontal: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  badgeText: {
+    color: '#fff',
+    fontSize: 10,
+    fontWeight: '800',
+  },
+  feedbackFilterRow: {
+    flexDirection: 'row',
+    gap: 8,
+    marginBottom: 16,
+  },
+  feedbackFilterBtn: {
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 8,
+    backgroundColor: '#0f172a',
+    borderWidth: 1,
+    borderColor: '#334155',
+  },
+  feedbackFilterBtnActive: {
+    backgroundColor: '#1e3a8a',
+    borderColor: '#2563eb',
+  },
+  feedbackFilterTxt: {
+    color: '#94a3b8',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  feedbackFilterTxtActive: {
+    color: '#93c5fd',
+  },
+  emptyFeedback: {
+    alignItems: 'center',
+    paddingVertical: 32,
+  },
+  emptyFeedbackTxt: {
+    color: '#64748b',
+    fontSize: 14,
+    marginTop: 8,
+  },
+  feedbackItem: {
+    backgroundColor: '#0f172a',
+    borderRadius: 12,
+    padding: 14,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#334155',
+  },
+  feedbackItemHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  feedbackItemUser: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  feedbackItemUserName: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  feedbackTypeBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+  },
+  feedbackTypeBadgeTxt: {
+    fontSize: 10,
+    fontWeight: '700',
+  },
+  feedbackItemDate: {
+    color: '#64748b',
+    fontSize: 12,
+    marginBottom: 8,
+  },
+  feedbackOriginalGrade: {
+    backgroundColor: '#1e293b',
+    borderRadius: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    alignSelf: 'flex-start',
+    marginBottom: 8,
+  },
+  feedbackOriginalGradeTxt: {
+    color: '#60a5fa',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  feedbackMessageBox: {
+    backgroundColor: '#1e293b',
+    borderRadius: 8,
+    padding: 10,
+    marginBottom: 10,
+  },
+  feedbackMessageLabel: {
+    color: '#94a3b8',
+    fontSize: 11,
+    fontWeight: '600',
+    marginBottom: 4,
+  },
+  feedbackMessageTxt: {
+    color: '#e2e8f0',
+    fontSize: 13,
+    lineHeight: 20,
+  },
+  adminNotesInput: {
+    backgroundColor: '#1e293b',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#334155',
+    padding: 10,
+    fontSize: 13,
+    color: '#f1f5f9',
+    marginBottom: 10,
+  },
+  feedbackActions: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  approveBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    backgroundColor: '#059669',
+    paddingVertical: 10,
+    borderRadius: 8,
+  },
+  approveBtnTxt: {
+    color: '#fff',
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  rejectBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    backgroundColor: '#7f1d1d',
+    paddingVertical: 10,
+    borderRadius: 8,
+  },
+  rejectBtnTxt: {
+    color: '#fca5a5',
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  reviewingBtn: {
+    opacity: 0.6,
+  },
+  feedbackStatusRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    flexWrap: 'wrap',
+  },
+  feedbackStatusBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 6,
+  },
+  feedbackStatusTxt: {
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  feedbackAdminNotes: {
+    color: '#94a3b8',
+    fontSize: 12,
+    fontStyle: 'italic',
+    flex: 1,
   },
 });

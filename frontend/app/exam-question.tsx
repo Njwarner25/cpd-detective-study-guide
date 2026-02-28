@@ -37,12 +37,13 @@ export default function ExamQuestion() {
   const [isTTSPlaying, setIsTTSPlaying] = useState(false);
   const [chatVisible, setChatVisible] = useState(false);
   const [hintCount, setHintCount] = useState(0);
+  const [allQuestions, setAllQuestions] = useState<any[]>([]);
   const startTime = useRef(Date.now());
   const ttsRef = useRef<any>(null);
 
   const config = TYPE_CONFIG[questionType || 'most_appropriate'] || TYPE_CONFIG.most_appropriate;
 
-  useEffect(() => { loadQuestion(); return () => stopTTS(); }, [questionId]);
+  useEffect(() => { loadQuestion(); loadAllQuestions(); return () => stopTTS(); }, [questionId]);
 
   const loadQuestion = async () => {
     try {
@@ -53,6 +54,39 @@ export default function ExamQuestion() {
     } catch (e) {
       console.error('Failed to load exam question:', e);
     }
+  };
+
+  const loadAllQuestions = async () => {
+    if (allQuestions.length > 0) return;
+    try {
+      const type = questionType || 'most_appropriate';
+      const catId = `cat_${type}`;
+      const data = await questionService.getQuestions(type, catId, sessionToken || undefined);
+      setAllQuestions(data || []);
+    } catch (e) {
+      console.error('Failed to load question list:', e);
+    }
+  };
+
+  const getNextQuestion = () => {
+    if (allQuestions.length === 0) return null;
+    const currentIndex = allQuestions.findIndex((q: any) => q.question_id === questionId);
+    if (currentIndex === -1 || currentIndex >= allQuestions.length - 1) return null;
+    return allQuestions[currentIndex + 1];
+  };
+
+  const goToNextQuestion = () => {
+    const next = getNextQuestion();
+    if (!next) return;
+    stopTTS();
+    setSelectedAnswer(null);
+    setResult(null);
+    setPhase('loading');
+    setHintCount(0);
+    router.replace({
+      pathname: '/exam-question',
+      params: { questionId: next.question_id, title: next.title, questionType: questionType || 'most_appropriate' },
+    });
   };
 
   // TTS
@@ -190,11 +224,20 @@ export default function ExamQuestion() {
             {result.reference && <Text style={s.refTxt}>{result.reference}</Text>}
           </View>
 
-          {/* Try Again */}
-          <TouchableOpacity style={s.retryBtn} onPress={() => { setSelectedAnswer(null); setResult(null); setPhase('answering'); startTime.current = Date.now(); }}>
-            <Ionicons name="refresh" size={18} color="#000" />
-            <Text style={s.retryTxt}>Try Again</Text>
-          </TouchableOpacity>
+          {/* Next / Try Again */}
+          <View style={s.resultActions}>
+            <TouchableOpacity style={s.retryBtn} onPress={() => { setSelectedAnswer(null); setResult(null); setPhase('answering'); startTime.current = Date.now(); }}>
+              <Ionicons name="refresh" size={18} color="#000" />
+              <Text style={s.retryTxt}>Try Again</Text>
+            </TouchableOpacity>
+
+            {getNextQuestion() && (
+              <TouchableOpacity style={s.nextBtn} onPress={goToNextQuestion}>
+                <Text style={s.nextTxt}>Next Question</Text>
+                <Ionicons name="arrow-forward" size={18} color="#fff" />
+              </TouchableOpacity>
+            )}
+          </View>
 
           <View style={{ height: 80 }} />
         </ScrollView>
@@ -356,6 +399,9 @@ const s = StyleSheet.create({
   explanationTxt: { fontSize: 13, color: '#fde68a', lineHeight: 20 },
   refTxt: { fontSize: 11, color: '#d97706', marginTop: 8, fontStyle: 'italic' },
 
-  retryBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#fbbf24', paddingHorizontal: 24, paddingVertical: 12, borderRadius: 24, gap: 8, marginTop: 8 },
+  resultActions: { flexDirection: 'row', gap: 12, marginTop: 8 },
+  retryBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#fbbf24', paddingHorizontal: 16, paddingVertical: 12, borderRadius: 24, gap: 8 },
   retryTxt: { fontSize: 15, fontWeight: '700', color: '#000' },
+  nextBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#2563eb', paddingHorizontal: 16, paddingVertical: 12, borderRadius: 24, gap: 8 },
+  nextTxt: { fontSize: 15, fontWeight: '700', color: '#fff' },
 });

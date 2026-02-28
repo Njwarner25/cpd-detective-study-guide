@@ -433,6 +433,12 @@ export const feedbackService = {
         const response = await api.post('/feedback', data, { headers });
         return response.data;
     },
+
+    async getCorrections(token?: string) {
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+        const response = await api.get('/corrections', { headers });
+        return response.data;
+    },
 };
 
 // Mini Scenario Service

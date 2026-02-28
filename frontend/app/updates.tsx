@@ -1,14 +1,17 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
   ScrollView,
   TouchableOpacity,
   StyleSheet,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { feedbackService } from '../services/api';
 
 const updates = [
   {
@@ -86,8 +89,46 @@ const upcomingFeatures = [
   { icon: 'cloud-download', text: 'Offline mode for studying without internet' },
 ];
 
+const feedbackTypeLabels: Record<string, string> = {
+  incorrect_grade: 'Incorrect Grade',
+  missing_info: 'Missing Info',
+  wrong_procedure: 'Wrong Procedure',
+  general: 'General',
+};
+
 export default function Updates() {
   const router = useRouter();
+  const [corrections, setCorrections] = useState<any[]>([]);
+  const [loadingCorrections, setLoadingCorrections] = useState(true);
+
+  useEffect(() => {
+    loadCorrections();
+  }, []);
+
+  const loadCorrections = async () => {
+    try {
+      const token = await AsyncStorage.getItem('session_token');
+      if (token) {
+        const data = await feedbackService.getCorrections(token);
+        setCorrections(data.corrections || []);
+      }
+    } catch (err) {
+      // Silently fail — corrections are not critical
+    } finally {
+      setLoadingCorrections(false);
+    }
+  };
+
+  const formatDate = (dateStr: string) => {
+    const d = new Date(dateStr);
+    const now = new Date();
+    const diffMs = now.getTime() - d.getTime();
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    if (diffDays === 0) return 'Today';
+    if (diffDays === 1) return 'Yesterday';
+    if (diffDays < 7) return `${diffDays} days ago`;
+    return d.toLocaleDateString();
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -100,72 +141,57 @@ export default function Updates() {
       </View>
 
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
-        {/* Known Corrections Banner */}
-        <View style={styles.correctionsCard}>
-          <View style={styles.correctionsHeader}>
-            <Ionicons name="alert-circle" size={24} color="#f59e0b" />
-            <Text style={styles.correctionsTitle}>📌 Known Answer Corrections</Text>
+        {/* Approved Corrections from API */}
+        {loadingCorrections ? (
+          <View style={styles.correctionsLoading}>
+            <ActivityIndicator size="small" color="#f59e0b" />
+            <Text style={styles.correctionsLoadingText}>Loading corrections...</Text>
           </View>
-          
-          <Text style={styles.correctionsSubtitle}>
-            The following questions have incorrect answers marked in the database. Please note the correct answers below:
-          </Text>
-
-          <View style={styles.correctionItem}>
-            <Text style={styles.correctionNumber}>1.</Text>
-            <View style={styles.correctionContent}>
-              <Text style={styles.correctionQuestion}>
-                "Whenever the body of an apparent drowning victim is recovered, the assigned officer will prepare a:"
-              </Text>
-              <View style={styles.correctionAnswer}>
-                <Text style={styles.wrongAnswer}>❌ Wrong: Death Case Report</Text>
-                <Text style={styles.correctAnswer}>✅ Correct: Hospitalization Case Report (CPD-11.406)</Text>
-              </View>
+        ) : corrections.length > 0 ? (
+          <View style={styles.correctionsCard}>
+            <View style={styles.correctionsHeader}>
+              <Ionicons name="build" size={22} color="#f59e0b" />
+              <Text style={styles.correctionsTitle}>Recent Fixes & Corrections</Text>
             </View>
-          </View>
 
-          <View style={styles.correctionItem}>
-            <Text style={styles.correctionNumber}>2.</Text>
-            <View style={styles.correctionContent}>
-              <Text style={styles.correctionQuestion}>
-                "Juveniles under the age of _____ will not be fingerprinted unless the arrest is a felony offense:"
-              </Text>
-              <View style={styles.correctionAnswer}>
-                <Text style={styles.wrongAnswer}>❌ Wrong: 17</Text>
-                <Text style={styles.correctAnswer}>✅ Correct: 10</Text>
+            <Text style={styles.correctionsSubtitle}>
+              These corrections were submitted by users and verified by our team. Shown for 7 days.
+            </Text>
+
+            {corrections.map((item: any, index: number) => (
+              <View key={item.feedback_id} style={styles.correctionItem}>
+                <Text style={styles.correctionNumber}>{index + 1}.</Text>
+                <View style={styles.correctionContent}>
+                  <Text style={styles.correctionQuestion}>
+                    {item.question_title}
+                  </Text>
+                  <View style={styles.correctionTypeBadge}>
+                    <Text style={styles.correctionTypeText}>
+                      {feedbackTypeLabels[item.feedback_type] || item.feedback_type}
+                    </Text>
+                  </View>
+                  <View style={styles.correctionAnswer}>
+                    <Text style={styles.correctionUserMsg}>{item.user_message}</Text>
+                    {item.admin_notes ? (
+                      <View style={styles.adminNotesBox}>
+                        <Text style={styles.adminNotesLabel}>Admin Note:</Text>
+                        <Text style={styles.adminNotesText}>{item.admin_notes}</Text>
+                      </View>
+                    ) : null}
+                  </View>
+                  <Text style={styles.correctionDate}>
+                    Verified {formatDate(item.reviewed_at)}
+                  </Text>
+                </View>
               </View>
-              <Text style={styles.correctionNote}>
-                Per CPD General Orders on Processing Juveniles - Section B
-              </Text>
-            </View>
+            ))}
           </View>
+        ) : null}
 
-          <View style={styles.correctionItem}>
-            <Text style={styles.correctionNumber}>3.</Text>
-            <View style={styles.correctionContent}>
-              <Text style={styles.correctionQuestion}>
-                "In digitally recorded interrogations where no charge is placed, the detective must verify recordings have been retained within _____ days:"
-              </Text>
-              <View style={styles.correctionAnswer}>
-                <Text style={styles.wrongAnswer}>❌ Wrong: 75</Text>
-                <Text style={styles.correctAnswer}>✅ Correct: 21</Text>
-              </View>
-              <Text style={styles.correctionNote}>
-                Per CPD General Order - Digital Recording System
-              </Text>
-            </View>
-          </View>
-
-          <Text style={styles.correctionsFooter}>
-            These will be fixed in the next update. Please make note of the correct answers for your exam preparation.
-          </Text>
-        </View>
-
-        {/* Version History */}
         {/* Current Version Banner */}
         <View style={styles.currentVersionBanner}>
           <View style={styles.versionBadge}>
-            <Text style={styles.versionBadgeText}>v1.3.0</Text>
+            <Text style={styles.versionBadgeText}>v1.7.0</Text>
           </View>
           <Text style={styles.currentVersionText}>CPD Detective Exam Study Guide</Text>
           <Text style={styles.currentVersionSubtext}>Latest Version</Text>
@@ -215,7 +241,7 @@ export default function Updates() {
           <Ionicons name="chatbubble-ellipses" size={32} color="#2563eb" />
           <Text style={styles.feedbackTitle}>Have Feedback?</Text>
           <Text style={styles.feedbackText}>
-            We're always looking to improve! If you have suggestions for new features or content, let us know.
+            After completing any scenario, use the feedback button to report incorrect grades or suggest corrections. Your input helps improve the app for everyone.
           </Text>
         </View>
 
@@ -256,6 +282,18 @@ const styles = StyleSheet.create({
     padding: 16,
     paddingBottom: 32,
   },
+  correctionsLoading: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+    padding: 20,
+    marginBottom: 16,
+  },
+  correctionsLoadingText: {
+    color: '#f59e0b',
+    fontSize: 14,
+  },
   correctionsCard: {
     backgroundColor: '#78350f',
     borderRadius: 16,
@@ -276,10 +314,10 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   correctionsSubtitle: {
-    fontSize: 14,
+    fontSize: 13,
     color: '#fcd34d',
     marginBottom: 16,
-    lineHeight: 20,
+    lineHeight: 19,
   },
   correctionItem: {
     flexDirection: 'row',
@@ -295,38 +333,59 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   correctionQuestion: {
-    fontSize: 14,
+    fontSize: 15,
     color: '#fff',
     marginBottom: 8,
-    lineHeight: 20,
+    lineHeight: 21,
+    fontWeight: '600',
+  },
+  correctionTypeBadge: {
+    backgroundColor: '#f59e0b22',
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+    borderRadius: 12,
+    alignSelf: 'flex-start',
+    marginBottom: 8,
+  },
+  correctionTypeText: {
+    fontSize: 11,
+    color: '#f59e0b',
+    fontWeight: '700',
+    textTransform: 'uppercase',
   },
   correctionAnswer: {
     backgroundColor: '#0c0c0c',
-    padding: 12,
-    borderRadius: 8,
-    gap: 6,
+    padding: 14,
+    borderRadius: 10,
+    gap: 8,
   },
-  wrongAnswer: {
-    fontSize: 13,
-    color: '#fca5a5',
-    fontWeight: '500',
+  correctionUserMsg: {
+    fontSize: 14,
+    color: '#e2e8f0',
+    lineHeight: 20,
   },
-  correctAnswer: {
+  adminNotesBox: {
+    borderTopWidth: 1,
+    borderTopColor: '#334155',
+    paddingTop: 8,
+    marginTop: 4,
+  },
+  adminNotesLabel: {
+    fontSize: 11,
+    color: '#10b981',
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    marginBottom: 4,
+  },
+  adminNotesText: {
     fontSize: 13,
     color: '#86efac',
-    fontWeight: '600',
+    lineHeight: 19,
   },
-  correctionNote: {
-    fontSize: 12,
-    color: '#cbd5e1',
-    fontStyle: 'italic',
+  correctionDate: {
+    fontSize: 11,
+    color: '#94a3b8',
     marginTop: 6,
-  },
-  correctionsFooter: {
-    fontSize: 12,
-    color: '#fcd34d',
-    textAlign: 'center',
-    marginTop: 8,
     fontStyle: 'italic',
   },
   currentVersionBanner: {
@@ -478,7 +537,3 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
 });
-// Corrections
-// Update
-// Timer fix
-// v1.6

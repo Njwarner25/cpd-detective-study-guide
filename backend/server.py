@@ -2487,6 +2487,17 @@ async def get_feedback_count(admin: User = Depends(require_admin)):
     pending = await db.feedback.count_documents({"status": "pending"})
     return {"pending_count": pending}
 
+@api_router.get("/corrections")
+async def get_corrections(user: User = Depends(require_user)):
+    """Get approved corrections from the last 7 days for users to see."""
+    seven_days_ago = datetime.now(timezone.utc) - timedelta(days=7)
+    items = await db.feedback.find(
+        {"status": "approved", "reviewed_at": {"$gte": seven_days_ago}},
+        {"_id": 0, "feedback_id": 1, "question_title": 1, "feedback_type": 1,
+         "user_message": 1, "admin_notes": 1, "reviewed_at": 1, "question_id": 1}
+    ).sort("reviewed_at", -1).to_list(50)
+    return {"corrections": items}
+
 
 app.include_router(api_router)
 

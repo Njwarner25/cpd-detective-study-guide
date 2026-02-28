@@ -1092,6 +1092,66 @@ R.E.A.C.T.I.O.N. Framework:
 CRITICAL — COPA NOTIFICATION RULES:
 COPA (Civilian Office of Police Accountability) is ONLY contacted for OFFICER-INVOLVED shootings/incidents. Do NOT expect or award points for COPA notification in scenarios involving civilian-on-civilian shootings, civilian self-defense shootings, or any shooting where no CPD officer discharged a firearm or used force. If a student incorrectly mentions COPA in a non-officer-involved scenario, note it as an error. Conversely, COPA is MANDATORY for any scenario where a CPD officer fires their weapon, uses deadly force, or is involved in an in-custody death.
 
+CRITICAL — GENERAL ORDERS & CASE LAW:
+Answers MUST be graded against CPD General Orders and relevant case law. Award extra credit for correctly citing specific directives and case law. Deduct points if a student's response contradicts established policy or law. Key references include but are not limited to:
+
+CPD General Orders:
+- G03-02: Use of Force (force options, de-escalation requirements, duty to intervene)
+- G03-02-01: Force Options (force mitigation, proportional response)
+- G03-02-02: Incidents Requiring the Completion of a TRR
+- G03-06: Firearm Discharge Incidents / Officer-Involved Shootings (mandatory COPA notification, weapon recovery, officer separation, 24-hr review period)
+- G06-01: Field Arrest Procedures (processing, inventory, bond)
+- G06-01-01: Processing Persons Under Department Control
+- G06-01-02: Arrests of Juveniles
+- G04-02: Search Warrants (preparation, execution, inventory)
+- G03-03: Exigent Circumstances (warrantless entry/search)
+- S04-13-09: Investigatory Stop Reports and Protective Pat Downs (Terry stops)
+- G02-01: Human Rights and Community Partnerships
+- G02-01-03: Allegations of Misconduct — COPA/BIA notification requirements
+- G02-04: Prohibition Regarding Racial Profiling and Other Bias-Based Policing
+- G03-02-05: Electronic Control Weapon (Taser) use policy
+- G06-22: Crime Scene Protection and Processing
+- S06-06: Written Felony Review by the Cook County State's Attorney's Office
+
+Relevant Case Law:
+- Terry v. Ohio (1968): Reasonable suspicion standard for stops and frisks
+- Miranda v. Arizona (1966): Custodial interrogation rights and warnings
+- Graham v. Connor (1989): Objective reasonableness standard for use of force
+- Tennessee v. Garner (1985): Deadly force against fleeing felons — must pose imminent threat of serious harm
+- Mapp v. Ohio (1961): Exclusionary rule — illegally obtained evidence inadmissible
+- Illinois v. Gates (1983): Totality of circumstances for probable cause / warrant issuance
+- Carroll v. United States (1925): Vehicle exception to warrant requirement
+- Chimel v. California (1969): Search incident to arrest — immediate area of control
+- Riley v. California (2014): Warrant required to search cell phone incident to arrest
+- Carpenter v. United States (2018): Warrant required for cell-site location information
+- People v. Aguilar (2013, IL): Illinois firearm possession — AUUW statute requirements
+- 725 ILCS 5/103-2.1: Electronic recording of custodial interrogations (homicide mandatory)
+- 720 ILCS 5/7-1: Use of force in defense of person (civilian self-defense justification)
+
+CPD Special Orders:
+- S03-14: Body-Worn Camera (BWC) policy — activation requirements, prohibited deactivation, evidentiary procedures
+- S03-14-09: In-Car Camera System usage and requirements
+- S04-13-09: Investigatory Stop Reports (ISR) — documentation of Terry stops, protective pat downs
+- S04-14-06: Emergency Protective Orders — domestic violence situations
+- S06-01: Processing Evidence at Crime Scenes
+- S06-06: Written Felony Review by Cook County ASA
+- S06-06-01: Telephone Felony Review procedures
+- S04-19: Domestic Violence procedures and mandatory arrest provisions
+- S09-03: DNA Evidence Collection and Preservation
+- S04-20: Missing/Found Persons (including endangered/AMBER alerts)
+- S04-01-01: Preliminary Investigation — first responding officer duties
+- S07-01: Department Reports — case report completion, supplementary reports
+- S04-25: Gang-Related Investigations
+- S03-10: Canine Unit — deployment protocols
+- S04-27: Hate Crime procedures and reporting
+
+When grading, note whether the student:
+1. Correctly identifies which General Orders apply to the scenario
+2. Follows procedures outlined in those General Orders
+3. Recognizes constitutional requirements from relevant case law
+4. Avoids actions that would violate established legal precedent
+Award bonus points (up to +5) for specific, correct citations of General Orders or case law.
+
 For each R.E.A.C.T.I.O.N. step, provide 4-8 specific, scenario-relevant action items. For each item, assess whether the student addressed it. Grade from 0-100 based on completeness and accuracy."""},
                 {"role": "user", "content": prompt}
             ],
@@ -1214,7 +1274,8 @@ YOUR RULES:
 6. Keep responses concise (2-4 sentences max)
 7. If the student asks for the answer directly, remind them that working through it builds stronger exam skills
 8. Use a professional but supportive tone appropriate for law enforcement training
-9. COPA (Civilian Office of Police Accountability) is ONLY for OFFICER-INVOLVED shootings/incidents. If the scenario involves a civilian shooting (not by a CPD officer), do NOT hint at or expect COPA notification. If the student mentions COPA incorrectly, gently correct them."""
+9. COPA (Civilian Office of Police Accountability) is ONLY for OFFICER-INVOLVED shootings/incidents. If the scenario involves a civilian shooting (not by a CPD officer), do NOT hint at or expect COPA notification. If the student mentions COPA incorrectly, gently correct them.
+10. When guiding the student, reference relevant CPD General Orders (e.g., G03-02 Use of Force, G03-06 OIS, G04-02 Search Warrants, G06-22 Crime Scene Processing), Special Orders (e.g., S03-14 BWC, S04-13-09 ISR, S06-06 Felony Review, S04-19 Domestic Violence), and case law (e.g., Terry v. Ohio, Miranda, Graham v. Connor, Tennessee v. Garner, Riley v. California). Help the student connect their actions to the specific directives and legal standards that govern them."""
 
         import anthropic
         client = anthropic.AsyncAnthropic(api_key=ANTHROPIC_API_KEY)
@@ -2250,7 +2311,7 @@ FEEDBACK:
         response = await client.chat.completions.create(
             model="gpt-4o",
             messages=[
-                {"role": "system", "content": "You are an expert grader for CPD detective exam mini-scenarios. Grade using the R.E.A.C.T.I.O.N. framework with I/O Solutions differential weighting. Be specific and reference the scenario facts. CRITICAL: COPA (Civilian Office of Police Accountability) is ONLY contacted for OFFICER-INVOLVED shootings/incidents. Do NOT expect COPA notification in civilian shootings, self-defense shootings, or any scenario where no CPD officer discharged a firearm or used force. If a student incorrectly mentions COPA in a non-officer-involved scenario, note it as an error."},
+                {"role": "system", "content": "You are an expert grader for CPD detective exam mini-scenarios. Grade using the R.E.A.C.T.I.O.N. framework with I/O Solutions differential weighting. Be specific and reference the scenario facts. Answers should be graded against CPD General Orders (G03-02 Use of Force, G03-06 OIS, G06-01 Arrests, G04-02 Search Warrants, G06-22 Crime Scene Processing, etc.), Special Orders (S03-14 BWC, S04-13-09 ISR, S06-01 Evidence Processing, S04-19 Domestic Violence, S06-06 Felony Review, etc.), and relevant case law (Terry v. Ohio, Miranda v. Arizona, Graham v. Connor, Tennessee v. Garner, Riley v. California, Carpenter v. United States, Illinois v. Gates, 725 ILCS 5/103-2.1, etc.). Award bonus points for correct citations. CRITICAL: COPA is ONLY for OFFICER-INVOLVED shootings/incidents — do NOT expect COPA in civilian shooting scenarios."},
                 {"role": "user", "content": prompt}
             ],
             temperature=0.3,

@@ -12,6 +12,16 @@ import { useRouter } from 'expo-router';
 
 const updates = [
   {
+    version: '1.7.0',
+    date: 'February 2026',
+    title: 'Feedback Loop & Grading Improvements',
+    features: [
+      { icon: 'chatbox-ellipses', color: '#f59e0b', text: 'Feedback Feature - Report incorrect grades, suggest corrections, and flag missing info after any scenario' },
+      { icon: 'checkmark-done', color: '#10b981', text: 'Admin Review - All feedback is reviewed by our team to continuously improve AI grading accuracy' },
+      { icon: 'construct', color: '#8b5cf6', text: 'Your input matters - Help us make the grading better for everyone preparing for the detective exam' },
+    ],
+  },
+  {
     version: '1.6.0',
     date: 'February 2026',
     title: 'Full Practice Exam & MCQ Tests',

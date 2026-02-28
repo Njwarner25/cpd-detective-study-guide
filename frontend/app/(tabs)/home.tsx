@@ -135,6 +135,19 @@ export default function Home() {
           <Text style={styles.subtitle}>Keep up the great work — you're making progress!</Text>
         </View>
 
+        {/* Feedback Announcement */}
+        <View style={styles.announcementBanner}>
+          <View style={styles.announcementIcon}>
+            <Ionicons name="megaphone" size={20} color="#f59e0b" />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.announcementTitle}>Help Us Improve AI Grading</Text>
+            <Text style={styles.announcementText}>
+              Our new feedback feature is live! After completing a scenario, you can now report incorrect grades, suggest corrections, or flag missing info. Your suggestions help make the grading more accurate for everyone.
+            </Text>
+          </View>
+        </View>
+
         {/* Stats Row */}
         <View style={styles.statsGrid}>
           <StatCard icon="book" value={flashcardsTotal} label="Flashcards" sublabel={`${flashcardsStudied} studied`} color="#3b82f6" progress={flashcardsTotal > 0 ? (flashcardsStudied / flashcardsTotal) * 100 : 0} />
@@ -564,6 +577,36 @@ const styles = StyleSheet.create({
     minWidth: isWide ? '30%' as any : undefined,
     flex: isWide ? 1 : undefined,
     marginBottom: isWide ? 0 : 8,
+  },
+  announcementBanner: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 12,
+    marginHorizontal: 16,
+    marginTop: 4,
+    marginBottom: 4,
+    backgroundColor: 'rgba(245,158,11,0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(245,158,11,0.2)',
+    borderRadius: 14,
+    padding: 16,
+  },
+  announcementIcon: {
+    backgroundColor: 'rgba(245,158,11,0.15)',
+    borderRadius: 10,
+    padding: 8,
+    marginTop: 2,
+  },
+  announcementTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#fbbf24',
+    marginBottom: 4,
+  },
+  announcementText: {
+    fontSize: 13,
+    color: '#94a3b8',
+    lineHeight: 19,
   },
   adminButton: {
     flexDirection: 'row',

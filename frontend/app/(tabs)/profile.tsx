@@ -298,7 +298,7 @@ export default function Profile() {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Support</Text>
+          <Text style={styles.sectionTitle}>More</Text>
           <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/updates')}>
             <View style={[styles.menuIconContainer, { backgroundColor: '#1e3a8a' }]}>
               <Ionicons name="sparkles" size={20} color="#60a5fa" />
@@ -344,25 +344,6 @@ export default function Profile() {
               <Text style={styles.shareButtonText}>Share App</Text>
             </TouchableOpacity>
           </View>
-        </View>
-
-        {/* Support/Donate Section */}
-        <View style={styles.supportSection}>
-          <TouchableOpacity
-            style={styles.supportCard}
-            onPress={() => router.push('/support')}
-          >
-            <View style={styles.supportIconContainer}>
-              <Ionicons name="heart" size={28} color="#ef4444" />
-            </View>
-            <View style={styles.supportContent}>
-              <Text style={styles.supportTitle}>Support the App</Text>
-              <Text style={styles.supportSubtitle}>
-                Optional donations to help keep it free
-              </Text>
-            </View>
-            <Ionicons name="chevron-forward" size={24} color="#ef4444" />
-          </TouchableOpacity>
         </View>
 
         <View style={styles.section}>
@@ -744,41 +725,6 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
-  },
-  supportSection: {
-    paddingHorizontal: 24,
-    paddingBottom: 16,
-  },
-  supportCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#1e293b',
-    borderRadius: 16,
-    padding: 16,
-    borderWidth: 2,
-    borderColor: '#ef4444',
-  },
-  supportIconContainer: {
-    width: 48,
-    height: 48,
-    borderRadius: 12,
-    backgroundColor: '#450a0a',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-  },
-  supportContent: {
-    flex: 1,
-  },
-  supportTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#fff',
-    marginBottom: 4,
-  },
-  supportSubtitle: {
-    fontSize: 13,
-    color: '#94a3b8',
   },
   installSection: {
     paddingHorizontal: 24,

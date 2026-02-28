@@ -19,7 +19,6 @@ const updates = [
       { icon: 'trophy', color: '#8b5cf6', text: '105-Question Full Practice Exam - 90-minute timed test simulating actual CPD Detective exam' },
       { icon: 'flash', color: '#10b981', text: '25/50/75 Question MCQ Tests - Instant feedback showing correct/wrong answers' },
       { icon: 'checkmark-circle', color: '#22c55e', text: 'Real-time Answer Feedback - See if you got it right immediately with explanations' },
-      { icon: 'heart', color: '#ff6b6b', text: 'Support Tab - Easy access to donate and support development' },
       { icon: 'book', color: '#60a5fa', text: '105 New Flashcards - Based on CPD General Orders and Special Orders' },
       { icon: 'shield', color: '#fbbf24', text: '23 Complex Detective Scenarios - Real-world case dilemmas with detailed responses' },
     ],

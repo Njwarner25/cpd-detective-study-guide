@@ -65,15 +65,6 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="support"
-        options={{
-          title: 'Support',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="heart" size={size} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
         name="ilcs"
         options={{
           title: 'ILCS',

@@ -49,7 +49,7 @@ async def seed_mixed_exam(ext_db=None):
         )
 
     # ================================================================
-    # SECTION 1: MOST APPROPRIATE (10 questions)
+    # SECTION 1: MOST APPROPRIATE (20 questions)
     # ================================================================
     most_appropriate = [
         {
@@ -212,10 +212,170 @@ async def seed_mixed_exam(ext_db=None):
             "difficulty": "medium",
             "reference": "CPD General Order G06-04; Domestic Violence Procedures"
         },
+        {
+            "title": "Multiple Suspects in Separate Rooms",
+            "content": "You bring in three suspects from a gang-related shooting. All three are placed in separate interview rooms. One suspect's attorney arrives and demands to speak with his client.",
+            "question": "What is the MOST appropriate action?",
+            "options": [
+                {"label": "A", "text": "Allow the attorney access only to his client and continue interviewing the other two"},
+                {"label": "B", "text": "Stop all interviews until every suspect has an attorney"},
+                {"label": "C", "text": "Deny the attorney access until all interviews are completed"},
+                {"label": "D", "text": "Tell the attorney his client has not requested counsel"}
+            ],
+            "correct_answer": "A",
+            "explanation": "The right to counsel is individual. The attorney has a right to access his own client, but the other suspects' interviews may continue unless they independently invoke their right to counsel. Stopping all interviews (B) is overly cautious. Denying attorney access (C) violates the 6th Amendment. Lying about the client's request (D) is unethical and may result in suppression.",
+            "io_scores": {"A": 2, "B": 0, "C": -2, "D": -1},
+            "difficulty": "hard",
+            "reference": "6th Amendment; Moran v. Burbine, 475 U.S. 412 (1986)"
+        },
+        {
+            "title": "Dying Declaration at Scene",
+            "content": "You arrive at a shooting scene. The victim, who has been shot in the chest, says to you: \"I'm not going to make it. It was Marcus from 63rd Street who shot me.\" The victim loses consciousness and is transported to the hospital.",
+            "question": "What is the MOST appropriate action?",
+            "options": [
+                {"label": "A", "text": "Disregard the statement because the victim may survive"},
+                {"label": "B", "text": "Document the exact words, time, circumstances, and the victim's apparent belief of impending death"},
+                {"label": "C", "text": "Wait to see if the victim dies before documenting the statement"},
+                {"label": "D", "text": "Immediately arrest Marcus from 63rd Street based solely on this statement"}
+            ],
+            "correct_answer": "B",
+            "explanation": "A dying declaration is an exception to hearsay and must be meticulously documented — exact words, time, who was present, the victim's apparent awareness of impending death, and the circumstances. Document it NOW regardless of whether the victim survives (A, C are wrong). The statement alone may not be sufficient probable cause for arrest without corroboration (D).",
+            "io_scores": {"A": -2, "B": 2, "C": -1, "D": -1},
+            "difficulty": "hard",
+            "reference": "FRE 804(b)(2); Dying Declaration Exception; Crawford v. Washington"
+        },
+        {
+            "title": "Conflicting Physical and Testimonial Evidence",
+            "content": "During a homicide investigation, the surviving witness states the offender shot the victim from across the room (approximately 15 feet). However, the forensic evidence shows stippling around the wound, indicating a close-range shot (within 2-3 feet).",
+            "question": "What is the MOST appropriate action?",
+            "options": [
+                {"label": "A", "text": "Discard the witness statement because the forensic evidence disproves it"},
+                {"label": "B", "text": "Document the discrepancy and re-interview the witness with non-leading questions to explore the inconsistency"},
+                {"label": "C", "text": "Change the forensic report to match the witness testimony"},
+                {"label": "D", "text": "Assume the witness is lying and treat them as a suspect"}
+            ],
+            "correct_answer": "B",
+            "explanation": "Discrepancies between physical and testimonial evidence must be investigated, not ignored. Document the conflict and re-interview the witness — they may have been in a different position, may be mistaken about distance, or may not be telling the truth. Discarding evidence (A) loses information. Altering forensic reports (C) is falsification. Assuming the witness is lying (D) is premature without further investigation.",
+            "io_scores": {"A": -1, "B": 2, "C": -2, "D": -1},
+            "difficulty": "hard",
+            "reference": "CPD General Order G06-01-01; Evidence Evaluation"
+        },
+        {
+            "title": "Digital Evidence on Unlocked Phone",
+            "content": "During a narcotics arrest, the suspect's phone is on the dashboard, unlocked, with a text message visible that reads: \"Bring 2 oz to the spot at 9.\" The phone screen is about to lock.",
+            "question": "What is the MOST appropriate action?",
+            "options": [
+                {"label": "A", "text": "Quickly scroll through the phone to find more evidence before it locks"},
+                {"label": "B", "text": "Photograph the visible screen, seize the phone, and obtain a search warrant before further examination"},
+                {"label": "C", "text": "Read and document all visible text messages before the phone locks"},
+                {"label": "D", "text": "Ignore the phone since you don't have a warrant"}
+            ],
+            "correct_answer": "B",
+            "explanation": "Under Riley v. California, cell phones require a warrant to search. However, evidence in plain view (the visible screen) can be documented. Photograph what is visible, seize the phone to prevent destruction of evidence, and apply for a warrant. Scrolling through the phone (A, C) exceeds plain view and violates Riley. Ignoring the phone (D) fails to preserve critical evidence.",
+            "io_scores": {"A": -2, "B": 2, "C": -1, "D": -1},
+            "difficulty": "hard",
+            "reference": "Riley v. California, 573 U.S. 373 (2014); Plain View Doctrine"
+        },
+        {
+            "title": "Interpreter Needed for Witness Interview",
+            "content": "You are investigating a robbery and the primary witness speaks only Mandarin. A bilingual officer on scene offers to interpret, but he was also one of the first responders to the call.",
+            "question": "What is the MOST appropriate action?",
+            "options": [
+                {"label": "A", "text": "Use the bilingual officer as interpreter since he is available immediately"},
+                {"label": "B", "text": "Request a certified interpreter through CPD language services to ensure accuracy and avoid conflicts"},
+                {"label": "C", "text": "Use Google Translate on your phone to conduct the interview"},
+                {"label": "D", "text": "Skip the witness interview since you cannot communicate directly"}
+            ],
+            "correct_answer": "B",
+            "explanation": "A certified interpreter should be used to ensure accuracy and avoid conflicts of interest. The bilingual officer (A) was a first responder and may be a witness himself — using him as interpreter creates a conflict and potential defense challenge. Google Translate (C) is unreliable for investigative interviews. Skipping the interview (D) loses critical evidence.",
+            "io_scores": {"A": 0, "B": 2, "C": -1, "D": -2},
+            "difficulty": "medium",
+            "reference": "CPD General Order G06-01-01; Language Access Services"
+        },
+        {
+            "title": "Suspect Invokes Rights Then Reinitiates",
+            "content": "During interrogation for armed robbery, the suspect invokes his right to silence. You stop questioning. Thirty minutes later, while sitting in the interview room, the suspect says: \"Okay, I changed my mind. I want to talk.\"",
+            "question": "What is the MOST appropriate action?",
+            "options": [
+                {"label": "A", "text": "Immediately resume questioning where you left off"},
+                {"label": "B", "text": "Re-administer Miranda warnings, confirm the suspect's voluntary waiver, document the reinitiation, then proceed"},
+                {"label": "C", "text": "Refuse to speak with the suspect since he already invoked"},
+                {"label": "D", "text": "Begin questioning without Miranda since he already heard the warnings"}
+            ],
+            "correct_answer": "B",
+            "explanation": "Under Michigan v. Mosley and the Edwards reinitiation doctrine, if a suspect reinitiates communication after invoking rights, questioning may resume — but ONLY after fresh Miranda warnings and a knowing, voluntary waiver. Document that the suspect reinitiated contact on his own. Simply resuming (A) or skipping Miranda (D) risks suppression. Refusing to talk (C) wastes a legitimate investigative opportunity.",
+            "io_scores": {"A": -1, "B": 2, "C": 0, "D": -2},
+            "difficulty": "hard",
+            "reference": "Michigan v. Mosley, 423 U.S. 96 (1975); Edwards v. Arizona"
+        },
+        {
+            "title": "Chain of Custody for Biological Evidence",
+            "content": "At a sexual assault scene, you collect a bed sheet with apparent biological evidence. The evidence technician is not available for at least two hours.",
+            "question": "What is the MOST appropriate action?",
+            "options": [
+                {"label": "A", "text": "Leave the sheet in place and wait for the evidence technician"},
+                {"label": "B", "text": "Package the sheet in a paper bag, seal and label it, log it into the evidence system, and secure it in a climate-controlled evidence locker"},
+                {"label": "C", "text": "Place the sheet in a plastic bag to prevent contamination"},
+                {"label": "D", "text": "Have a patrol officer transport the sheet to the crime lab immediately"}
+            ],
+            "correct_answer": "B",
+            "explanation": "Biological evidence must be packaged in PAPER (not plastic — plastic promotes bacterial growth and degrades DNA). Seal, label with date/time/initials, document the chain of custody, and secure in proper storage. Leaving it in place (A) risks contamination or loss. Plastic bags (C) degrade biological evidence. An unqualified officer transporting without proper packaging (D) breaks chain of custody.",
+            "io_scores": {"A": 0, "B": 2, "C": -2, "D": -1},
+            "difficulty": "medium",
+            "reference": "CPD General Order G06-01-02; Evidence Collection and Preservation"
+        },
+        {
+            "title": "Use of Force Report from Partner",
+            "content": "Your partner uses what you believe is excessive force during an arrest — striking a handcuffed, compliant suspect in the face. Your partner tells you: \"Don't worry about it, I'll handle the paperwork.\"",
+            "question": "What is the MOST appropriate action?",
+            "options": [
+                {"label": "A", "text": "Let your partner handle it since he said he would"},
+                {"label": "B", "text": "Report the excessive force to your supervisor and document what you witnessed in your own report"},
+                {"label": "C", "text": "Discuss it with your partner privately and agree on a version of events"},
+                {"label": "D", "text": "File an anonymous complaint after your shift ends"}
+            ],
+            "correct_answer": "B",
+            "explanation": "You have a duty to report excessive force immediately to your supervisor and document what you witnessed independently. Allowing your partner to handle it alone (A) is neglect of duty. Agreeing on a version of events (C) is conspiracy and obstruction. An anonymous complaint (D) delays intervention and fails your immediate reporting obligation.",
+            "io_scores": {"A": -2, "B": 2, "C": -2, "D": 0},
+            "difficulty": "medium",
+            "reference": "CPD General Order G03-02; Use of Force Reporting; Duty to Intervene"
+        },
+        {
+            "title": "Executing Warrant at Wrong Address",
+            "content": "Your team is about to execute a search warrant. Upon arrival, you realize the address on the warrant does not match the building in front of you — you are at the wrong location.",
+            "question": "What is the MOST appropriate action?",
+            "options": [
+                {"label": "A", "text": "Execute the warrant anyway since you are already there with the team assembled"},
+                {"label": "B", "text": "Immediately stand down, verify the correct address, and proceed to the correct location or obtain a corrected warrant"},
+                {"label": "C", "text": "Enter the wrong address to do a quick safety check"},
+                {"label": "D", "text": "Cross out the address on the warrant and write in the correct one"}
+            ],
+            "correct_answer": "B",
+            "explanation": "A warrant must be executed at the address specified on its face. Executing at the wrong address (A) is an unconstitutional search and any evidence will be suppressed. Stand down immediately, verify the correct address, and either proceed to the correct location or return to the judge for a corrected warrant. A safety check (C) is a pretextual search. Altering a warrant (D) is a felony.",
+            "io_scores": {"A": -2, "B": 2, "C": -1, "D": -2},
+            "difficulty": "medium",
+            "reference": "4th Amendment; Maryland v. Garrison, 480 U.S. 79 (1987)"
+        },
+        {
+            "title": "Suspect Claims Self-Defense in Shooting",
+            "content": "You respond to a shooting. The suspect is on scene, has a valid FOID card and concealed carry license, and states: \"He came at me with a knife. I had no choice.\" A knife is found near the deceased victim.",
+            "question": "What is the MOST appropriate action?",
+            "options": [
+                {"label": "A", "text": "Release the suspect since it is clearly self-defense"},
+                {"label": "B", "text": "Secure the scene, collect all evidence, interview all witnesses, and present the complete case to the ASA for a charging decision"},
+                {"label": "C", "text": "Arrest the suspect for murder regardless of the self-defense claim"},
+                {"label": "D", "text": "Confiscate the suspect's weapon and tell them they are free to go pending investigation"}
+            ],
+            "correct_answer": "B",
+            "explanation": "Self-defense claims require thorough investigation — not a field determination. Secure the scene, collect all physical evidence (both weapons, casings, blood patterns), interview all witnesses, review any surveillance footage, and present the complete package to the ASA for a charging decision. Releasing immediately (A) is premature. Automatic arrest for murder (C) ignores the evidence. Letting the suspect leave (D) risks flight if charges are filed.",
+            "io_scores": {"A": -2, "B": 2, "C": 0, "D": -1},
+            "difficulty": "hard",
+            "reference": "720 ILCS 5/7-1; Use of Force in Defense of Person; CPD General Order"
+        },
     ]
 
     # ================================================================
-    # SECTION 2: LEAST APPROPRIATE (10 questions)
+    # SECTION 2: LEAST APPROPRIATE (20 questions)
     # ================================================================
     least_appropriate = [
         {
@@ -377,6 +537,166 @@ async def seed_mixed_exam(ext_db=None):
             "io_scores": {"A": -2, "B": 2, "C": -2, "D": -2},
             "difficulty": "hard",
             "reference": "Riley v. California, 573 U.S. 373 (2014); 4th Amendment; Plain View Doctrine"
+        },
+        {
+            "title": "Transporting Witness and Suspect Together",
+            "content": "Due to a shortage of transport vehicles, a patrol officer suggests placing the primary witness and the arrested suspect in the same vehicle for transport to the station.",
+            "question": "What is the LEAST appropriate action?",
+            "options": [
+                {"label": "A", "text": "Refuse and wait for a second vehicle"},
+                {"label": "B", "text": "Transport them together to save time since the station is close"},
+                {"label": "C", "text": "Request a supervisor to arrange separate transport"},
+                {"label": "D", "text": "Have the witness transported by a different unit while you transport the suspect"}
+            ],
+            "correct_answer": "B",
+            "explanation": "Transporting a witness and suspect together is the LEAST appropriate action. It allows potential intimidation of the witness, contamination of testimony, and creates a safety risk. It also provides a defense argument that the witness identification was tainted. Always arrange separate transport regardless of inconvenience.",
+            "io_scores": {"A": -2, "B": 2, "C": -2, "D": -2},
+            "difficulty": "medium",
+            "reference": "CPD General Order G06-01-01; Witness and Prisoner Transport"
+        },
+        {
+            "title": "Off-Duty Incident Involving Alcohol",
+            "content": "You are off-duty at a bar when you witness a patron pull a knife on another patron. You intervene and disarm the offender. Other officers arrive and ask for your statement.",
+            "question": "What is the LEAST appropriate action?",
+            "options": [
+                {"label": "A", "text": "Provide a full, honest statement including your alcohol consumption"},
+                {"label": "B", "text": "Omit the fact that you had been drinking from your statement"},
+                {"label": "C", "text": "Identify yourself as CPD and cooperate fully with the investigation"},
+                {"label": "D", "text": "Request a supervisor respond to the scene for proper documentation"}
+            ],
+            "correct_answer": "B",
+            "explanation": "Omitting material facts from your statement — especially alcohol consumption — is the LEAST appropriate action. It constitutes falsification of a report and can result in termination and criminal charges. Full transparency protects you legally and professionally. Your alcohol consumption will likely be discovered through witnesses and surveillance regardless.",
+            "io_scores": {"A": -2, "B": 2, "C": -2, "D": -2},
+            "difficulty": "medium",
+            "reference": "CPD General Order G08-01; Off-Duty Incidents; Rules and Regulations"
+        },
+        {
+            "title": "Coerced Confession Through Deception",
+            "content": "During interrogation of a murder suspect, you tell the suspect: \"Your DNA was found on the victim\" — but in reality, no DNA results have come back yet from the lab.",
+            "question": "What is the LEAST appropriate action?",
+            "options": [
+                {"label": "A", "text": "Document that the deceptive statement was made during interrogation"},
+                {"label": "B", "text": "Fabricate a fake DNA report to show the suspect during the interview"},
+                {"label": "C", "text": "Use the statement as a permissible interrogation technique within legal bounds"},
+                {"label": "D", "text": "Consult with the ASA about the limits of permissible deception"}
+            ],
+            "correct_answer": "B",
+            "explanation": "Fabricating physical evidence (a fake DNA report) is the LEAST appropriate action. While verbal deception about evidence may be permissible under certain circumstances (Frazier v. Cupp), creating fabricated documents crosses the line into manufacturing false evidence — a criminal act that will result in suppression, dismissal, and potential prosecution of the officer.",
+            "io_scores": {"A": -2, "B": 2, "C": -2, "D": -2},
+            "difficulty": "hard",
+            "reference": "Frazier v. Cupp, 394 U.S. 731 (1969); Illinois Fabricated Evidence Law"
+        },
+        {
+            "title": "Delayed Crime Scene Documentation",
+            "content": "You arrive at a burglary scene at 2:00 AM. The scene is secure, no suspects are present, and the victim is safe. You are tired and consider writing your report at the end of your shift at 6:00 AM.",
+            "question": "What is the LEAST appropriate action?",
+            "options": [
+                {"label": "A", "text": "Take detailed notes and photographs now, write the formal report before end of shift"},
+                {"label": "B", "text": "Process the scene thoroughly now and complete all documentation before leaving"},
+                {"label": "C", "text": "Leave the scene unsecured, go handle other calls, and return later to process it"},
+                {"label": "D", "text": "Request an evidence technician and begin documenting while waiting"}
+            ],
+            "correct_answer": "C",
+            "explanation": "Leaving a crime scene unsecured to handle other calls is the LEAST appropriate action. An unsecured scene allows evidence contamination, loss, or tampering. Even at a burglary, the scene must be processed before it is released. Secure, document, and process the scene completely before leaving — or arrange for another officer to maintain security.",
+            "io_scores": {"A": -1, "B": -2, "C": 2, "D": -2},
+            "difficulty": "medium",
+            "reference": "CPD General Order G06-01-01; Crime Scene Processing"
+        },
+        {
+            "title": "Social Media Investigation Without Authorization",
+            "content": "While investigating a gang-related homicide, you want to monitor the suspect's public social media posts for evidence. Your partner suggests creating a fake social media profile to friend the suspect and access private posts.",
+            "question": "What is the LEAST appropriate action?",
+            "options": [
+                {"label": "A", "text": "Monitor only publicly available posts and document findings"},
+                {"label": "B", "text": "Create a fake profile, friend the suspect, and access private content without supervisory approval"},
+                {"label": "C", "text": "Consult with the digital investigations unit about proper procedures"},
+                {"label": "D", "text": "Request authorization through your chain of command for undercover online activity"}
+            ],
+            "correct_answer": "B",
+            "explanation": "Creating a fake profile to access private content without authorization is the LEAST appropriate action. Undercover online investigations require supervisory approval, must comply with CPD policy and federal guidelines, and unauthorized catfishing may violate terms of service laws and compromise the investigation. Public posts can be monitored freely, but private access requires proper authorization.",
+            "io_scores": {"A": -2, "B": 2, "C": -2, "D": -2},
+            "difficulty": "medium",
+            "reference": "CPD Special Order; Online Investigations; 18 U.S.C. § 1030"
+        },
+        {
+            "title": "Victim Compensation and Restitution Advice",
+            "content": "After a robbery, the arrested offender's family contacts you and offers to pay the victim $5,000 to \"make this go away.\"",
+            "question": "What is the LEAST appropriate action?",
+            "options": [
+                {"label": "A", "text": "Inform the family that you cannot facilitate such an arrangement and document the contact"},
+                {"label": "B", "text": "Relay the offer to the victim and encourage them to accept it in exchange for dropping charges"},
+                {"label": "C", "text": "Report the contact to your supervisor and the ASA"},
+                {"label": "D", "text": "Decline the offer and advise the family to contact their attorney"}
+            ],
+            "correct_answer": "B",
+            "explanation": "Relaying a payment offer and encouraging the victim to accept it in exchange for dropping charges is the LEAST appropriate action. This constitutes compounding a crime (accepting consideration to not prosecute) and could be construed as bribery facilitation. Charging decisions belong to the ASA, not the victim or detective. Document the contact and inform your supervisor and the ASA.",
+            "io_scores": {"A": -2, "B": 2, "C": -2, "D": -2},
+            "difficulty": "hard",
+            "reference": "720 ILCS 5/32-1; Compounding a Crime; CPD Rules of Conduct"
+        },
+        {
+            "title": "Cross-Jurisdictional Hot Pursuit",
+            "content": "You are pursuing a carjacking suspect on foot. The suspect crosses from Chicago into a neighboring suburb. You are alone and the suspect appears unarmed.",
+            "question": "What is the LEAST appropriate action?",
+            "options": [
+                {"label": "A", "text": "Continue pursuit while radioing dispatch to notify the suburban jurisdiction"},
+                {"label": "B", "text": "Continue pursuit, apprehend the suspect in the suburb, and handle everything yourself without notifying the other jurisdiction"},
+                {"label": "C", "text": "Maintain visual contact and coordinate with the suburban police for apprehension"},
+                {"label": "D", "text": "Radio your position and request suburban units assist with the apprehension"}
+            ],
+            "correct_answer": "B",
+            "explanation": "Apprehending a suspect in another jurisdiction without notifying that jurisdiction is the LEAST appropriate action. While hot pursuit across jurisdictional lines is legally permissible, you MUST notify the other agency. Failure to coordinate creates officer safety risks, potential civil liability, and jurisdictional complications. Always radio your location and request local assistance.",
+            "io_scores": {"A": -1, "B": 2, "C": -2, "D": -2},
+            "difficulty": "hard",
+            "reference": "Illinois Fresh Pursuit Act; 725 ILCS 5/107-4; CPD General Order"
+        },
+        {
+            "title": "Accessing Criminal Databases for Personal Use",
+            "content": "A fellow detective asks you to run a LEADS/NCIC check on his daughter's new boyfriend because he \"has a bad feeling about the guy.\" There is no active investigation involving the boyfriend.",
+            "question": "What is the LEAST appropriate action?",
+            "options": [
+                {"label": "A", "text": "Decline and explain that running checks without a legitimate law enforcement purpose is prohibited"},
+                {"label": "B", "text": "Run the check as a favor to your colleague since he is a fellow detective"},
+                {"label": "C", "text": "Advise your colleague to conduct a public records search instead"},
+                {"label": "D", "text": "Report the request to your supervisor as a potential policy violation"}
+            ],
+            "correct_answer": "B",
+            "explanation": "Running a criminal database check without a legitimate law enforcement purpose is the LEAST appropriate action. It violates federal law (28 CFR Part 20), LEADS/NCIC access policies, and CPD regulations. Unauthorized access can result in termination, criminal prosecution, and loss of the department's database access. Every query is audited and traceable.",
+            "io_scores": {"A": -2, "B": 2, "C": -2, "D": -1},
+            "difficulty": "medium",
+            "reference": "28 CFR Part 20; LEADS/NCIC Use Policy; CPD Rules and Regulations"
+        },
+        {
+            "title": "Handling Evidence from Defense Attorney",
+            "content": "During a homicide investigation, the suspect's defense attorney contacts you and says: \"My client wants to turn over the weapon used in the crime. I'll bring it to the station.\"",
+            "question": "What is the LEAST appropriate action?",
+            "options": [
+                {"label": "A", "text": "Notify the ASA and your supervisor before accepting the evidence"},
+                {"label": "B", "text": "Accept the weapon, document the chain of custody, and process it as evidence"},
+                {"label": "C", "text": "Meet the attorney alone, accept the weapon, and question the attorney about the suspect's statements"},
+                {"label": "D", "text": "Coordinate with the ASA to establish proper procedures for receiving the evidence"}
+            ],
+            "correct_answer": "C",
+            "explanation": "Meeting the defense attorney alone and questioning them about the suspect's statements is the LEAST appropriate action. Attorney-client privilege protects communications between the lawyer and suspect. Attempting to obtain privileged information violates the 6th Amendment and could result in case dismissal and ethical complaints. Always coordinate with the ASA and have a witness present when receiving evidence from defense counsel.",
+            "io_scores": {"A": -2, "B": -1, "C": 2, "D": -2},
+            "difficulty": "hard",
+            "reference": "6th Amendment; Attorney-Client Privilege; CPD General Order"
+        },
+        {
+            "title": "Responding to Active Shooter as Detective",
+            "content": "You are a detective working a desk assignment at the station when an active shooter situation is reported at a school two blocks away. You are armed but not in tactical gear.",
+            "question": "What is the LEAST appropriate action?",
+            "options": [
+                {"label": "A", "text": "Respond immediately and engage the threat to stop the killing"},
+                {"label": "B", "text": "Wait at the station for the SWAT team to assemble and deploy"},
+                {"label": "C", "text": "Respond, coordinate with arriving officers, and form a contact team"},
+                {"label": "D", "text": "Respond and assist with evacuating victims while armed officers engage the threat"}
+            ],
+            "correct_answer": "B",
+            "explanation": "Waiting for SWAT while an active shooter is killing people is the LEAST appropriate action. Modern active shooter protocol requires immediate response — the first officers on scene must engage the threat to stop the killing. Waiting for SWAT allows additional casualties. Every armed officer, regardless of assignment, has a duty to respond immediately to an active threat.",
+            "io_scores": {"A": -2, "B": 2, "C": -2, "D": -1},
+            "difficulty": "hard",
+            "reference": "CPD Special Order S09-03; Active Threat Response; Post-Columbine Doctrine"
         },
     ]
 

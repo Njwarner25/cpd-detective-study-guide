@@ -1099,6 +1099,14 @@ R.E.A.C.T.I.O.N. Framework:
   O – Obtain Legal/Consult: Notify ASA regarding circumstances, consult ASA regarding search warrants, request warrants for phone/digital/surveillance, conduct LEADS and CLEAR checks, ensure 4th Amendment compliance, ensure 5th and 6th Amendment protections, coordinate with Medical Examiner/COPA/DCFS as applicable
   N – Next Steps & Notification: Issue flash message/BOLO with descriptions, continue canvass, monitor media through CPD communications, refer media to Office of Communications, avoid public disclosure that could contaminate statements, prepare complete case file, coordinate follow-up investigation and court preparation
 
+CRITICAL — OFFICER-INVOLVED SHOOTING (OIS) PROCEDURES:
+For any scenario involving an officer-involved shooting, the AI MUST reference and grade against the following General Orders:
+1. G03-06 (Firearm Discharge Incidents/OIS) — IRT activation is mandatory. The Incident Response Team responds to all officer-involved firearm discharges, officer-involved deaths, and in-custody deaths. IRT secures scene, processes evidence, and coordinates with COPA.
+2. G04-02 (Search Warrants) — Search warrants may be needed for the involved officer's vehicle, locker, or electronic devices, and for DNA/blood evidence.
+3. G03-02-03 (Firearm Discharge — Property/Reporting) — All firearm discharges require mandatory reporting, supervisor notification, and TRR completion.
+4. S03-14 (Body-Worn Cameras) — All BWC footage must be immediately secured by IRT. Involved officers must NOT review BWC before giving statements.
+IMPORTANT: The City of Chicago does NOT have IPRA (Independent Police Review Authority) anymore. IPRA was replaced by COPA (Civilian Office of Police Accountability) in 2017. All references must use COPA, never IPRA. If a student references IPRA, note it as outdated/incorrect and explain COPA replaced IPRA.
+
 CRITICAL — COPA NOTIFICATION RULES:
 COPA (Civilian Office of Police Accountability) is ONLY contacted for OFFICER-INVOLVED shootings/incidents. Do NOT expect or award points for COPA notification in scenarios involving civilian-on-civilian shootings, civilian self-defense shootings, or any shooting where no CPD officer discharged a firearm or used force. If a student incorrectly mentions COPA in a non-officer-involved scenario, note it as an error. Conversely, COPA is MANDATORY for any scenario where a CPD officer fires their weapon, uses deadly force, or is involved in an in-custody death.
 
@@ -1109,11 +1117,12 @@ CPD General Orders:
 - G03-02: Use of Force (force options, de-escalation requirements, duty to intervene)
 - G03-02-01: Force Options (force mitigation, proportional response)
 - G03-02-02: Incidents Requiring the Completion of a TRR
-- G03-06: Firearm Discharge Incidents / Officer-Involved Shootings (mandatory COPA notification, weapon recovery, officer separation, 24-hr review period)
+- G03-02-03: Firearm Discharge Incidents — Loss or Destruction of Department Property — mandatory reporting when a firearm is discharged including accidental discharges, discharges at animals, and discharges resulting in property damage. Requires immediate supervisor notification, TRR completion, and detailed documentation
+- G03-06: Firearm Discharge Incidents / Officer-Involved Shootings (mandatory COPA notification per S08-01-07, IRT activation and response, weapon recovery, officer separation, scene preservation, 24-hr review period before formal statement). The Incident Response Team (IRT) responds to ALL officer-involved firearm discharges, officer-involved deaths, and in-custody deaths. IRT secures the scene, collects and processes evidence, coordinates with COPA investigators, and conducts the administrative investigation. The involved officer must be immediately separated from the scene, provided FOP/union representation, and may invoke the 24-hour review period before giving a formal statement. COPA (not IPRA — IPRA was replaced by COPA in 2017) has independent investigative authority over all officer-involved shootings and must be notified immediately.
 - G06-01: Field Arrest Procedures (processing, inventory, bond)
 - G06-01-01: Processing Persons Under Department Control
 - G06-01-02: Arrests of Juveniles
-- G04-02: Search Warrants (preparation, execution, inventory)
+- G04-02: Search Warrants (preparation, execution, inventory, return) — covers the complete search warrant process including: drafting affidavits with probable cause, obtaining judicial approval, proper execution procedures, knock-and-announce requirements, inventory of seized items, and return of warrant to the court. In officer-involved shooting investigations, search warrants may be required for the involved officer's vehicle, locker, electronic devices, or for DNA/blood evidence at the scene
 - G03-03: Exigent Circumstances (warrantless entry/search)
 - S04-13-09: Investigatory Stop Reports and Protective Pat Downs (Terry stops)
 - G02-01: Human Rights and Community Partnerships
@@ -1139,7 +1148,7 @@ Relevant Case Law:
 - 720 ILCS 5/7-1: Use of force in defense of person (civilian self-defense justification)
 
 CPD Special Orders:
-- S03-14: Body-Worn Camera (BWC) policy — activation requirements, prohibited deactivation, evidentiary procedures
+- S03-14: Body-Worn Camera (BWC) policy — activation requirements, prohibited deactivation, evidentiary procedures. In officer-involved shootings: BWC footage from ALL officers on scene must be immediately secured and preserved by IRT. BWC footage must NOT be reviewed by involved officers before giving independent statements. BWC is critical evidence in COPA investigations and Consent Decree compliance. Supervisors must ensure all BWC units are collected and uploaded
 - S03-14-09: In-Car Camera System usage and requirements
 - S04-13-09: Investigatory Stop Reports (ISR) — documentation of Terry stops, protective pat downs
 - S04-14-06: Emergency Protective Orders — domestic violence situations

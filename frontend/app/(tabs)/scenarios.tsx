@@ -13,6 +13,7 @@ if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental
 
 // Section config for each exam type
 const EXAM_SECTIONS = [
+  { type: '', catId: 'cat_g03_06_firearm_discharge', title: '2026 General Orders Study Guide', icon: 'book', color: '#22d3ee', desc: 'NEW — 50 questions covering G03-02, G03-02-01, G03-02-03, G03-02-08, G04-02, S03-14 & G03-06. Based on referenced directives.', tag: 'I/O Scored', route: '/exam-question', paramKey: 'questionId', mixed: true },
   { type: 'ranking', catId: 'cat_ranking', title: 'Ranking Questions', icon: 'swap-vertical', color: '#60a5fa', desc: 'Rank actions in correct priority order using I/O differential weighting.', tag: 'Rank 6 items', route: '/ranking-question', paramKey: 'questionId' },
   { type: 'most_appropriate', catId: 'cat_most_appropriate', title: 'Most Appropriate', icon: 'checkmark-circle', color: '#22c55e', desc: 'Select the BEST action for each detective scenario.', tag: '4 options', route: '/exam-question', paramKey: 'questionId' },
   { type: 'least_appropriate', catId: 'cat_least_appropriate', title: 'Least Appropriate', icon: 'alert-circle', color: '#f87171', desc: 'Select the WORST action for each detective scenario.', tag: '4 options', route: '/exam-question', paramKey: 'questionId' },
@@ -39,7 +40,7 @@ export default function Scenarios() {
 
   useEffect(() => {
     loadScenarios();
-    EXAM_SECTIONS.forEach(sec => loadExamSection(sec.type, sec.catId));
+    EXAM_SECTIONS.forEach(sec => loadExamSection(sec.type || sec.catId, sec.type || undefined, sec.catId));
   }, [sessionToken]);
 
   const loadScenarios = async () => {
@@ -51,14 +52,14 @@ export default function Scenarios() {
     finally { setLoading(false); }
   };
 
-  const loadExamSection = async (type: string, catId: string) => {
+  const loadExamSection = async (key: string, type?: string, catId?: string) => {
     if (!sessionToken) return;
-    setExamLoading(prev => ({ ...prev, [type]: true }));
+    setExamLoading(prev => ({ ...prev, [key]: true }));
     try {
       const data = await questionService.getQuestions(type, catId, sessionToken || undefined);
-      setExamData(prev => ({ ...prev, [type]: data || [] }));
+      setExamData(prev => ({ ...prev, [key]: data || [] }));
     } catch (e) { console.error(e); }
-    finally { setExamLoading(prev => ({ ...prev, [type]: false })); }
+    finally { setExamLoading(prev => ({ ...prev, [key]: false })); }
   };
 
   const toggleSection = (key: string) => {
@@ -82,9 +83,14 @@ export default function Scenarios() {
 
   const startExamQuestion = (question: any, section: typeof EXAM_SECTIONS[0]) => {
     if (!hasPaid) { router.push('/upgrade'); return; }
-    const params: any = { title: question.title, questionType: section.type };
-    params[section.paramKey] = question.question_id;
-    router.push({ pathname: section.route as any, params });
+    // For mixed-type sections, route based on the individual question's type
+    const isMixed = (section as any).mixed === true;
+    const route = isMixed && question.type === 'ranking' ? '/ranking-question' : section.route;
+    const questionType = isMixed ? question.type : section.type;
+    const paramKey = isMixed && question.type === 'ranking' ? 'questionId' : section.paramKey;
+    const params: any = { title: question.title, questionType };
+    params[paramKey] = question.question_id;
+    router.push({ pathname: route as any, params });
   };
 
   const isPremium = hasPaid;
@@ -235,16 +241,18 @@ export default function Scenarios() {
 
         {/* ===== ACCORDION: Exam Sections ===== */}
         {EXAM_SECTIONS.map((section) => {
-          const questions = examData[section.type] || [];
-          const isLoading = examLoading[section.type];
-          const isExpanded = expandedSections[section.type] || false;
+          const sectionKey = section.type || section.catId;
+          const questions = examData[sectionKey] || [];
+          const isLoading = examLoading[sectionKey];
+          const isExpanded = expandedSections[sectionKey] || false;
           const isMini = section.type === 'mini_scenario';
+          const isMixed = (section as any).mixed === true;
 
           return (
-            <View key={section.type}>
+            <View key={sectionKey}>
               <TouchableOpacity
                 style={s.accordionHeader}
-                onPress={() => toggleSection(section.type)}
+                onPress={() => toggleSection(sectionKey)}
                 activeOpacity={0.7}
               >
                 <View style={[s.accordionIcon, {backgroundColor: section.color + '22'}]}>
@@ -281,7 +289,11 @@ export default function Scenarios() {
                             <View style={{flex:1}}>
                               <Text style={[s.cardTitle, isLocked && {color:'#94a3b8'}]} numberOfLines={2}>{q.title}</Text>
                               <View style={s.tagRow}>
-                                <View style={s.tag}><Text style={s.tagTxt}>{section.tag}</Text></View>
+                                {isMixed ? (
+                                  <View style={s.tag}><Text style={s.tagTxt}>{q.type === 'ranking' ? 'Ranking' : q.type === 'most_appropriate' ? 'Most Appropriate' : q.type === 'least_appropriate' ? 'Least Appropriate' : q.type}</Text></View>
+                                ) : (
+                                  <View style={s.tag}><Text style={s.tagTxt}>{section.tag}</Text></View>
+                                )}
                                 <View style={s.tag}><Ionicons name="chatbubble-ellipses-outline" size={12} color="#94a3b8" /><Text style={s.tagTxt}>Bot 9165</Text></View>
                                 {isMini && <View style={s.tag}><Ionicons name="volume-high-outline" size={12} color="#94a3b8" /><Text style={s.tagTxt}>Audio</Text></View>}
                               </View>

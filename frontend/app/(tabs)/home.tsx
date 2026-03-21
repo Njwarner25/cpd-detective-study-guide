@@ -16,6 +16,7 @@ const testOptions = [
 ];
 
 const part2Sections = [
+  { name: 'General Orders Study Guide', desc: 'G03-02, G03-06, G04-02, S03-14 & more — Based on referenced directives', count: 50, icon: 'book' as const, color: '#22d3ee', categoryId: 'cat_g03_06_firearm_discharge' },
   { name: 'Written Scenarios', desc: 'Full 20-minute timed scenarios with AI grading', count: 20, icon: 'create' as const, color: '#3b82f6' },
   { name: 'Ranking Questions', desc: 'Rank actions in correct priority order', count: 20, icon: 'bar-chart' as const, color: '#06b6d4' },
   { name: 'Most Appropriate', desc: 'Select the BEST action for each scenario', count: 10, icon: 'checkmark-circle' as const, color: '#10b981' },

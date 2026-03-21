@@ -2,7 +2,6 @@ import asyncio
 from motor.motor_asyncio import AsyncIOMotorClient
 import os
 from datetime import datetime, timezone
-import uuid
 from dotenv import load_dotenv
 from pathlib import Path
 
@@ -15,8 +14,9 @@ db = client[os.environ['DB_NAME']]
 
 
 async def seed_g03_06_questions(ext_db=None):
-    """Seed 50 I/O-style questions from the 2026 Part 2 Study Guide.
+    """Seed 50 ranking questions from the 2026 Part 2 Study Guide.
 
+    All questions are RANKING format — 6 items to prioritize.
     Covers ALL general orders referenced in G03-06:
       - G03-06: Firearm Discharge & OID Response/Investigation
       - G03-02: De-escalation, Response to Resistance, Use of Force
@@ -25,26 +25,6 @@ async def seed_g03_06_questions(ext_db=None):
       - G03-02-08: Department Review of Use of Force Incidents
       - G04-02: Crime Scene Protection and Processing
       - S03-14: Body Worn Cameras
-
-    This study guide has been compiled based on CPD General Order G03-06
-    and all directives referenced within that document.
-
-    SCORING (I/O Solutions Format):
-      +2 = Best/correct answer
-      +1 = Acceptable but not ideal
-       0 = Neutral / no impact
-      -1 = Poor choice
-      -2 = Worst choice / policy violation
-
-    GRADING SCALE:
-      90-100% = A (Superior)
-      80-89%  = B (Above Average)
-      70-79%  = C (Average)
-      60-69%  = D (Below Average)
-      <60%    = F (Failing)
-
-    Args:
-        ext_db: Optional external database connection.
     """
     global db
     if ext_db is not None:
@@ -57,14 +37,10 @@ async def seed_g03_06_questions(ext_db=None):
         "category_id": "cat_g03_06_firearm_discharge",
         "name": "2026 Part 2: General Orders Study Guide",
         "description": (
-            "2026 Part 2 Study Guide — 50 questions covering CPD General Orders referenced in "
+            "2026 Part 2 Study Guide — 50 ranking questions covering CPD General Orders referenced in "
             "G03-06: Firearm Discharge and Officer-Involved Death Incident Response. "
-            "This study guide has been compiled based on G03-06 and all directives referenced "
-            "within that document, including G03-02 (Use of Force), G03-02-01 (Force Options), "
-            "G03-02-03 (Authorized Firearm Use), G03-02-08 (Review of Use of Force), "
-            "G04-02 (Crime Scene Protection), and S03-14 (Body Worn Cameras). "
-            "Questions are scored using the I/O Solutions methodology. "
-            "AI grading provides a detailed response after each question is completed."
+            "Rank 6 actions in correct priority order for each scenario. "
+            "Scored using the I/O Solutions methodology."
         ),
         "order": 30,
         "exam_source": "2026 Part 2 Detective Exam Study Guide",
@@ -85,16 +61,16 @@ async def seed_g03_06_questions(ext_db=None):
         upsert=True
     )
 
-    # Clean up old questions from previous versions
+    # Clean up ALL old questions from previous versions
     old_deleted = await db.questions.delete_many({
-        "question_id": {"$regex": "^(g0306_|rank_go_)"},
+        "question_id": {"$regex": "^(g0306_|rank_go_|go_q|go_rank_q)"},
         "category_id": "cat_g03_06_firearm_discharge"
     })
     if old_deleted.deleted_count:
         print(f"  Cleaned up {old_deleted.deleted_count} old questions from previous versions")
 
     # ================================================================
-    # 50 QUESTIONS — 2026 Part 2 General Orders Study Guide
+    # 50 RANKING QUESTIONS — 2026 Part 2 General Orders Study Guide
     # ================================================================
 
     questions = [
@@ -104,1887 +80,1802 @@ async def seed_g03_06_questions(ext_db=None):
 
         # --- Q1 ---
         {
-            "question_id": "go_q01",
-            "type": "most_appropriate",
+            "question_id": "go_rank_q01",
+            "type": "ranking",
             "category_id": "cat_g03_06_firearm_discharge",
             "category_name": "2026 Part 2: General Orders Study Guide",
-            "title": "De-escalation — Primary Objective",
+            "title": "De-escalation — Mental Health Crisis on Bridge",
             "content": (
-                "You respond to a call of a man standing on a bridge overpass threatening "
-                "to jump. He is unarmed and does not pose a threat to anyone other than himself. "
-                "Multiple officers are on scene."
+                "You respond to a man standing on a bridge overpass threatening to jump. "
+                "He is unarmed and does not pose a threat to anyone other than himself. "
+                "Multiple officers are on scene. Traffic is heavy below. Rank the following "
+                "actions in the correct priority order per G03-02."
             ),
-            "question": "Under G03-02, what is the MOST appropriate initial action?",
-            "options": [
-                {"label": "A", "text": "Immediately rush the subject and physically restrain him for his own safety"},
-                {"label": "B", "text": "Establish a dialogue, employ de-escalation techniques, and request a CIT-trained officer"},
-                {"label": "C", "text": "Deploy a Taser to incapacitate the subject before he jumps"},
-                {"label": "D", "text": "Maintain distance and wait for a supervisor before taking any action"}
+            "items": [
+                {"label": "A", "text": "Establish a dialogue using calm, non-threatening verbal communication to build rapport with the subject"},
+                {"label": "B", "text": "Request a Crisis Intervention Team (CIT) trained officer to respond to the scene"},
+                {"label": "C", "text": "Secure the area below the bridge and redirect vehicle and pedestrian traffic for public safety"},
+                {"label": "D", "text": "Notify a supervisor and request CFD/EMS to stage nearby in case of a medical emergency"},
+                {"label": "E", "text": "Maintain a safe distance and positioning — avoid cornering or rushing the subject"},
+                {"label": "F", "text": "Document the incident details, actions taken, and outcome in a case report"},
             ],
-            "correct_answer": "B",
+            "correct_order": [4, 0, 2, 1, 3, 5],
             "explanation": (
-                "CORRECT ANSWER: B. G03-02 mandates that officers use de-escalation techniques "
-                "as a first response whenever safe and feasible. Crisis Intervention Team (CIT) "
-                "trained officers should be requested for behavioral health crises. The goal is "
-                "to reduce the intensity of the situation through communication.\n\n"
-                "WHY OTHER ANSWERS ARE WRONG:\n"
-                "A (-2): Rushing could cause the subject to jump — directly contrary to de-escalation.\n"
-                "C (-2): Taser use near an elevated edge creates serious risk of a fatal fall.\n"
-                "D (-1): Waiting passively without engaging is not de-escalation — officers should "
-                "begin dialogue immediately."
+                "Maintain safe distance and positioning (E) first — force mitigation through space prevents "
+                "escalation. Establish dialogue (A) immediately — de-escalation through communication is "
+                "mandated by G03-02. Secure the area below (C) for public safety. Request CIT officer (B) "
+                "for specialized crisis response. Notify supervisor and stage EMS (D). Document (F) after "
+                "the incident is resolved.\n\n"
+                "KEY REFERENCE: G03-02, Section III (De-escalation); CIT Protocol"
             ),
-            "io_scores": {"A": -2, "B": 2, "C": -2, "D": -1},
-            "difficulty": "medium",
+            "difficulty": "hard",
+            "is_premium": True,
             "reference": "G03-02, Section III (De-escalation); CIT Protocol",
-            "exam_source": "2026 Part 2 Study Guide"
         },
 
         # --- Q2 ---
         {
-            "question_id": "go_q02",
-            "type": "most_appropriate",
+            "question_id": "go_rank_q02",
+            "type": "ranking",
             "category_id": "cat_g03_06_firearm_discharge",
             "category_name": "2026 Part 2: General Orders Study Guide",
-            "title": "Use of Force — Proportionality Standard",
+            "title": "Use of Force — Proportional Response to Fleeing Shoplifter",
             "content": (
-                "An officer encounters a shoplifting suspect who is walking away from the store. "
-                "The suspect is carrying a bag of stolen merchandise valued at approximately $40. "
-                "The suspect ignores verbal commands to stop."
+                "An officer encounters a shoplifting suspect walking away from a store with "
+                "a bag of stolen merchandise valued at approximately $40. The suspect ignores "
+                "verbal commands to stop but is not armed and not threatening anyone. "
+                "Rank the following actions in the correct priority order per G03-02."
             ),
-            "question": "Under G03-02, what is the MOST appropriate response?",
-            "options": [
-                {"label": "A", "text": "Deploy OC spray to stop the suspect from fleeing"},
-                {"label": "B", "text": "Follow the suspect while broadcasting a description and direction of travel"},
-                {"label": "C", "text": "Tackle the suspect to prevent escape with the stolen property"},
-                {"label": "D", "text": "Draw your firearm and order the suspect to stop"}
+            "items": [
+                {"label": "A", "text": "Issue clear verbal commands identifying yourself as police and directing the suspect to stop"},
+                {"label": "B", "text": "Follow the suspect at a safe distance while broadcasting description and direction of travel on the radio"},
+                {"label": "C", "text": "Request additional units to set up a containment perimeter in the direction of travel"},
+                {"label": "D", "text": "Attempt to obtain the suspect's identity from store employees and surveillance footage"},
+                {"label": "E", "text": "Contact the store manager to confirm the theft and obtain a signed complaint"},
+                {"label": "F", "text": "Complete an Investigatory Stop Report (ISR) or arrest report documenting all actions taken"},
             ],
-            "correct_answer": "B",
+            "correct_order": [0, 1, 2, 3, 4, 5],
             "explanation": (
-                "CORRECT ANSWER: B. G03-02 requires force to be proportional to the threat. "
-                "A misdemeanor shoplifting suspect walking away does not present an imminent threat "
-                "of death or great bodily harm. Following and broadcasting allows apprehension "
-                "without unnecessary force. Tennessee v. Garner prohibits deadly force for "
-                "non-dangerous fleeing felons — even more so for misdemeanors.\n\n"
-                "WHY OTHER ANSWERS ARE WRONG:\n"
-                "A (-1): OC spray is disproportionate for a non-violent, non-threatening misdemeanor.\n"
-                "C (-1): Physical takedown risks injury and is disproportionate.\n"
-                "D (-2): Drawing a firearm for petty theft is a gross overreaction and policy violation."
+                "Issue verbal commands (A) first — verbal direction is always the first force option. "
+                "Follow and broadcast (B) to maintain visual contact without escalating. Request "
+                "containment (C) for a coordinated response. Obtain identity from store (D) as an "
+                "investigative step. Confirm the complaint (E) for charging purposes. Document (F) "
+                "after the incident. NOTE: Physical force is disproportionate for a non-violent "
+                "misdemeanor — Tennessee v. Garner prohibits deadly force for non-dangerous fleeing suspects.\n\n"
+                "KEY REFERENCE: G03-02, Section IV (Proportionality); Tennessee v. Garner"
             ),
-            "io_scores": {"A": -1, "B": 2, "C": -1, "D": -2},
             "difficulty": "medium",
+            "is_premium": True,
             "reference": "G03-02, Section IV (Proportionality); Tennessee v. Garner",
-            "exam_source": "2026 Part 2 Study Guide"
         },
 
         # --- Q3 ---
         {
-            "question_id": "go_q03",
-            "type": "least_appropriate",
+            "question_id": "go_rank_q03",
+            "type": "ranking",
             "category_id": "cat_g03_06_firearm_discharge",
             "category_name": "2026 Part 2: General Orders Study Guide",
-            "title": "Use of Force — Duty to Intervene",
+            "title": "Duty to Intervene — Excessive Force by Fellow Officer",
             "content": (
                 "You observe a fellow officer applying a chokehold to a handcuffed subject who "
                 "is no longer resisting. The subject is turning blue and gasping for air. "
-                "Your partner tells you to mind your own business."
+                "Your partner tells you to mind your own business. Rank the following "
+                "actions in the correct priority order per G03-02."
             ),
-            "question": "Under G03-02, what is the LEAST appropriate action?",
-            "options": [
-                {"label": "A", "text": "Physically intervene to stop the chokehold and render aid to the subject"},
+            "items": [
+                {"label": "A", "text": "Physically intervene to stop the chokehold and remove the officer's arm from the subject's neck"},
                 {"label": "B", "text": "Verbally order the officer to release the chokehold immediately"},
-                {"label": "C", "text": "Comply with your partner's request and look the other way"},
-                {"label": "D", "text": "Request a supervisor to the scene and document what you witnessed"}
+                {"label": "C", "text": "Request EMS to respond for the subject and begin rendering first aid once the hold is released"},
+                {"label": "D", "text": "Notify a supervisor immediately and report the use of unauthorized force"},
+                {"label": "E", "text": "Identify and separate any witnesses and obtain their account of what occurred"},
+                {"label": "F", "text": "Ensure your BWC is recording and document the incident in detail including timestamps"},
             ],
-            "correct_answer": "C",
+            "correct_order": [1, 0, 2, 5, 3, 4],
             "explanation": (
-                "CORRECT ANSWER (LEAST APPROPRIATE): C. G03-02 imposes an affirmative DUTY TO "
-                "INTERVENE when an officer observes another officer using excessive or unauthorized "
-                "force. Looking the other way is a direct violation of department policy and can "
-                "result in discipline up to and including separation. Chokeholds are prohibited "
-                "under CPD policy.\n\n"
-                "WHY OTHER ANSWERS ARE BETTER:\n"
-                "A (+2): Physical intervention is the best response when someone's life is in danger.\n"
-                "B (+1): Verbal commands are appropriate but may not be sufficient alone.\n"
-                "D (+1): Requesting a supervisor is appropriate but the immediate threat must be "
-                "addressed first."
+                "Verbally order release (B) first — attempt verbal intervention before physical. "
+                "Physically intervene (A) if verbal fails — G03-02 imposes an affirmative DUTY TO "
+                "INTERVENE when excessive or unauthorized force is observed. Request EMS and render "
+                "aid (C) — subject's life is in danger. Ensure BWC recording (F) to preserve evidence. "
+                "Notify supervisor (D) to report the unauthorized force. Identify witnesses (E) for "
+                "the investigation. Chokeholds are PROHIBITED under CPD policy.\n\n"
+                "KEY REFERENCE: G03-02, Section V (Duty to Intervene); Prohibited Force Techniques"
             ),
-            "io_scores": {"A": 2, "B": 1, "C": -2, "D": 1},
             "difficulty": "hard",
+            "is_premium": True,
             "reference": "G03-02, Section V (Duty to Intervene); Prohibited Force Techniques",
-            "exam_source": "2026 Part 2 Study Guide"
         },
 
         # --- Q4 ---
         {
-            "question_id": "go_q04",
-            "type": "most_appropriate",
+            "question_id": "go_rank_q04",
+            "type": "ranking",
             "category_id": "cat_g03_06_firearm_discharge",
             "category_name": "2026 Part 2: General Orders Study Guide",
-            "title": "Use of Force — Reporting Requirements",
+            "title": "Use of Force Reporting — Emergency Takedown Documentation",
             "content": (
                 "During an arrest, you use an emergency takedown to control a combative subject. "
-                "The subject sustains a minor scrape on his elbow but is otherwise uninjured. "
-                "The arrest is completed without further incident."
+                "The subject sustains a minor scrape on his elbow. The arrest is completed without "
+                "further incident. The subject is now in custody. Rank the following "
+                "actions in the correct priority order per G03-02."
             ),
-            "question": "What is the MOST appropriate documentation requirement under G03-02?",
-            "options": [
-                {"label": "A", "text": "No documentation needed since the injury was minor and incidental to a lawful arrest"},
-                {"label": "B", "text": "Complete a Tactical Response Report (TRR) documenting the force used and the subject's injury"},
-                {"label": "C", "text": "Include a brief note in the arrest report mentioning the takedown"},
-                {"label": "D", "text": "Only document if the subject files a complaint about the force used"}
+            "items": [
+                {"label": "A", "text": "Assess the subject for injuries and request EMS if needed — document refusal of medical treatment if applicable"},
+                {"label": "B", "text": "Complete a Tactical Response Report (TRR) documenting the force used, subject's actions, and any injuries"},
+                {"label": "C", "text": "Notify your immediate supervisor that force was used during the arrest"},
+                {"label": "D", "text": "Ensure your BWC captured the entire encounter including the events leading to the takedown"},
+                {"label": "E", "text": "Have the subject photographed showing the injury and document the photos in the TRR"},
+                {"label": "F", "text": "Complete the arrest report with a detailed narrative of the circumstances requiring force"},
             ],
-            "correct_answer": "B",
+            "correct_order": [0, 3, 2, 1, 4, 5],
             "explanation": (
-                "CORRECT ANSWER: B. G03-02 requires a TRR for ANY use of force beyond verbal "
-                "commands, including emergency takedowns. The TRR must document the type of force "
-                "used, the subject's actions that necessitated force, and any injuries sustained. "
-                "This applies regardless of how minor the injury.\n\n"
-                "WHY OTHER ANSWERS ARE WRONG:\n"
-                "A (-2): All force beyond verbal commands requires TRR documentation.\n"
-                "C (-1): An arrest report note is insufficient — a TRR is specifically required.\n"
-                "D (-2): Reactive documentation violates the mandatory reporting requirement."
+                "Assess for injuries and render aid (A) first — duty of care to persons in custody. "
+                "Ensure BWC footage (D) is preserved — critical evidence for the TRR review. Notify "
+                "supervisor (C) that force was used. Complete TRR (B) — required for ANY force beyond "
+                "verbal commands, regardless of how minor the injury. Photograph injuries (E) for "
+                "documentation. Complete arrest report (F) with detailed narrative.\n\n"
+                "KEY REFERENCE: G03-02, Section VI (Reporting Requirements); TRR Procedures"
             ),
-            "io_scores": {"A": -2, "B": 2, "C": -1, "D": -2},
             "difficulty": "medium",
+            "is_premium": True,
             "reference": "G03-02, Section VI (Reporting Requirements); TRR Procedures",
-            "exam_source": "2026 Part 2 Study Guide"
         },
 
         # --- Q5 ---
         {
-            "question_id": "go_q05",
-            "type": "most_appropriate",
+            "question_id": "go_rank_q05",
+            "type": "ranking",
             "category_id": "cat_g03_06_firearm_discharge",
             "category_name": "2026 Part 2: General Orders Study Guide",
-            "title": "Use of Force — Force Mitigation",
+            "title": "Force Mitigation — Barricaded Subject with Knife",
             "content": (
-                "You and two other officers are attempting to take a burglary suspect into "
-                "custody. The suspect is verbally aggressive and clenching his fists but has "
-                "not made any physical moves toward the officers. No weapons are visible."
+                "Officers respond to a domestic disturbance. The male subject has locked himself "
+                "in a bedroom with a kitchen knife and is threatening to hurt himself. The victim "
+                "(his wife) is safely outside the apartment. No children are present. "
+                "Rank the following actions in the correct priority order per G03-02."
             ),
-            "question": "Under G03-02, what is the MOST appropriate approach?",
-            "options": [
-                {"label": "A", "text": "Use verbal direction and positioning to create time and distance while maintaining a tactical advantage"},
-                {"label": "B", "text": "Immediately take the suspect to the ground before he becomes physically violent"},
-                {"label": "C", "text": "Deploy a Taser preemptively since he is clenching his fists"},
-                {"label": "D", "text": "Withdraw from the scene and set up a perimeter until the suspect calms down"}
+            "items": [
+                {"label": "A", "text": "Create distance and time — establish a perimeter outside the bedroom and evacuate adjacent units"},
+                {"label": "B", "text": "Attempt verbal communication through the door using de-escalation techniques"},
+                {"label": "C", "text": "Request a CIT-trained officer and notify SWAT if the situation becomes prolonged"},
+                {"label": "D", "text": "Gather intelligence from the victim about the subject's mental state, medications, and history"},
+                {"label": "E", "text": "Ensure EMS stages nearby and request the Chaplain Unit if the subject is in a mental health crisis"},
+                {"label": "F", "text": "Notify a supervisor and establish an incident command structure for the barricade situation"},
             ],
-            "correct_answer": "A",
+            "correct_order": [0, 3, 1, 5, 2, 4],
             "explanation": (
-                "CORRECT ANSWER: A. G03-02 emphasizes force mitigation — using time, distance, "
-                "and positioning to reduce the need for force. Verbal aggression and clenched fists "
-                "alone do not justify physical force. With three officers present, the numerical "
-                "advantage supports a verbal approach. Creating distance provides reaction time.\n\n"
-                "WHY OTHER ANSWERS ARE WRONG:\n"
-                "B (-2): Preemptive physical force is not justified without an active physical threat.\n"
-                "C (-2): Taser deployment requires active resistance or an imminent threat.\n"
-                "D (-1): Complete withdrawal abandons the lawful arrest — officers should maintain "
-                "presence while de-escalating."
+                "Create distance and time (A) first — force mitigation through containment when there "
+                "is no immediate threat to others. Gather intelligence (D) from the victim to understand "
+                "the subject's state. Begin verbal de-escalation (B) through the door. Notify supervisor "
+                "and establish command (F). Request CIT/SWAT (C) for specialized response. Stage EMS "
+                "and Chaplain (E) for support. The key principle: when a subject is contained and only "
+                "threatening self-harm, TIME IS YOUR ALLY.\n\n"
+                "KEY REFERENCE: G03-02, Section III (Force Mitigation); Barricade Protocols"
             ),
-            "io_scores": {"A": 2, "B": -2, "C": -2, "D": -1},
-            "difficulty": "medium",
-            "reference": "G03-02, Section III (Force Mitigation Principles)",
-            "exam_source": "2026 Part 2 Study Guide"
+            "difficulty": "hard",
+            "is_premium": True,
+            "reference": "G03-02, Section III (Force Mitigation); Barricade Protocols",
+        },
+
+        # --- Q6 ---
+        {
+            "question_id": "go_rank_q06",
+            "type": "ranking",
+            "category_id": "cat_g03_06_firearm_discharge",
+            "category_name": "2026 Part 2: General Orders Study Guide",
+            "title": "Prohibited Techniques — Officer Using Knee on Neck",
+            "content": (
+                "While backing up officers on an arrest, you arrive to find an officer with "
+                "his knee on a prone, handcuffed subject's neck. The subject is crying out that "
+                "he cannot breathe. Other officers are standing nearby watching. "
+                "Rank the following actions in the correct priority order per G03-02."
+            ),
+            "items": [
+                {"label": "A", "text": "Direct the officer to immediately remove his knee from the subject's neck — this is a prohibited technique"},
+                {"label": "B", "text": "If the officer does not comply, physically remove his knee and reposition the subject to allow breathing"},
+                {"label": "C", "text": "Roll the subject onto his side in the recovery position and assess his breathing and consciousness"},
+                {"label": "D", "text": "Request EMS immediately and monitor the subject's breathing until paramedics arrive"},
+                {"label": "E", "text": "Ensure all BWC cameras on scene are activated and recording"},
+                {"label": "F", "text": "Notify a supervisor, report the prohibited technique, and begin documenting the incident"},
+            ],
+            "correct_order": [0, 1, 2, 3, 4, 5],
+            "explanation": (
+                "Direct removal verbally (A) — immediate verbal intervention for a life-threatening "
+                "prohibited technique. Physically remove if needed (B) — duty to intervene requires "
+                "escalation if verbal fails. Recovery position (C) — address positional asphyxia risk. "
+                "Request EMS (D) — subject complained of breathing difficulty. Ensure BWC (E) — "
+                "preserve evidence. Notify supervisor and document (F).\n\n"
+                "KEY REFERENCE: G03-02, Section V (Duty to Intervene); Prohibited Techniques; "
+                "Positional Asphyxia Policy"
+            ),
+            "difficulty": "hard",
+            "is_premium": True,
+            "reference": "G03-02, Section V; Prohibited Techniques; Positional Asphyxia",
+        },
+
+        # --- Q7 ---
+        {
+            "question_id": "go_rank_q07",
+            "type": "ranking",
+            "category_id": "cat_g03_06_firearm_discharge",
+            "category_name": "2026 Part 2: General Orders Study Guide",
+            "title": "Use of Force — Handcuffed Subject Medical Emergency",
+            "content": (
+                "After a foot chase and struggle, a handcuffed subject suddenly becomes "
+                "unresponsive in the back of your squad car. He was combative during the arrest "
+                "and was placed face-down briefly during handcuffing. His lips are turning blue. "
+                "Rank the following actions in the correct priority order per G03-02."
+            ),
+            "items": [
+                {"label": "A", "text": "Immediately remove the subject from the squad car and place him on his side in the recovery position"},
+                {"label": "B", "text": "Check for breathing and pulse — begin CPR if the subject is not breathing and has no pulse"},
+                {"label": "C", "text": "Request EMS on an emergency basis — report an unresponsive person in custody"},
+                {"label": "D", "text": "Remove or loosen the handcuffs if they may be restricting breathing or circulation"},
+                {"label": "E", "text": "Notify your supervisor of a medical emergency involving a subject in custody"},
+                {"label": "F", "text": "Preserve the scene and ensure BWC is recording — this may become an in-custody death investigation"},
+            ],
+            "correct_order": [0, 3, 1, 2, 4, 5],
+            "explanation": (
+                "Remove from car and recovery position (A) — address positional asphyxia immediately. "
+                "Remove/loosen handcuffs (D) — relieve any breathing restriction. Check breathing and "
+                "begin CPR (B) if needed. Request emergency EMS (C). Notify supervisor (E) — in-custody "
+                "medical emergency requires immediate notification. Preserve scene and BWC (F) — may "
+                "become an in-custody death investigation.\n\n"
+                "KEY REFERENCE: G03-02, Section VII (Medical Attention); Positional Asphyxia; "
+                "In-Custody Death Protocol"
+            ),
+            "difficulty": "hard",
+            "is_premium": True,
+            "reference": "G03-02, Section VII; Positional Asphyxia; In-Custody Death",
+        },
+
+        # --- Q8 ---
+        {
+            "question_id": "go_rank_q08",
+            "type": "ranking",
+            "category_id": "cat_g03_06_firearm_discharge",
+            "category_name": "2026 Part 2: General Orders Study Guide",
+            "title": "De-escalation — Armed Subject in Public Park",
+            "content": (
+                "You respond to a call of a man sitting on a park bench waving a handgun. "
+                "When you arrive, the man is alone on the bench, gun visible in his lap. "
+                "He appears intoxicated. Several civilians are in the park nearby. "
+                "Rank the following actions in the correct priority order per G03-02."
+            ),
+            "items": [
+                {"label": "A", "text": "Take cover behind your vehicle and draw your firearm while issuing verbal commands to drop the weapon"},
+                {"label": "B", "text": "Evacuate civilians from the immediate area and establish a safe perimeter"},
+                {"label": "C", "text": "Request backup units, a supervisor, and have dispatch attempt to identify the subject"},
+                {"label": "D", "text": "Begin de-escalation dialogue — use calm communication while maintaining cover"},
+                {"label": "E", "text": "Request a CIT officer if the subject appears to be in a mental health crisis"},
+                {"label": "F", "text": "If the subject drops the weapon, direct him to move away from it before approaching to secure it"},
+            ],
+            "correct_order": [0, 1, 2, 3, 4, 5],
+            "explanation": (
+                "Take cover and verbal commands (A) — officer safety and initial commands to address "
+                "the immediate lethal threat. Evacuate civilians (B) — public safety is paramount. "
+                "Request backup and supervisor (C) — do not handle alone. De-escalation dialogue (D) — "
+                "once cover is established, begin communication. Request CIT (E) if mental health "
+                "indicators present. Secure weapon (F) only after the subject complies.\n\n"
+                "KEY REFERENCE: G03-02, Section III (De-escalation); Section IV (Armed Subject Response)"
+            ),
+            "difficulty": "hard",
+            "is_premium": True,
+            "reference": "G03-02, Sections III-IV (De-escalation; Armed Subject)",
         },
 
         # ============================================================
         # G03-02-01: RESPONSE TO RESISTANCE AND FORCE OPTIONS
         # ============================================================
 
-        # --- Q6 ---
-        {
-            "question_id": "go_q06",
-            "type": "most_appropriate",
-            "category_id": "cat_g03_06_firearm_discharge",
-            "category_name": "2026 Part 2: General Orders Study Guide",
-            "title": "Force Options — OC Spray Deployment",
-            "content": (
-                "A subject is passively resisting arrest by going limp and refusing to stand. "
-                "The subject is not making any aggressive movements and is not threatening "
-                "officers. Two officers are on scene."
-            ),
-            "question": "Under G03-02-01, is OC spray deployment appropriate?",
-            "options": [
-                {"label": "A", "text": "Yes, OC spray can be used for any level of resistance to gain compliance"},
-                {"label": "B", "text": "No, OC spray requires active resistance or an assaultive threat — passive resistance does not justify chemical agents"},
-                {"label": "C", "text": "Yes, but only if the officer gives a verbal warning first"},
-                {"label": "D", "text": "Only if a supervisor authorizes it on scene"}
-            ],
-            "correct_answer": "B",
-            "explanation": (
-                "CORRECT ANSWER: B. G03-02-01 establishes a force continuum. OC spray is classified "
-                "as an intermediate force option appropriate for active resistance or above. Passive "
-                "resistance (going limp, not moving) should be addressed with verbal direction and "
-                "physical escort techniques — not chemical agents.\n\n"
-                "WHY OTHER ANSWERS ARE WRONG:\n"
-                "A (-2): OC spray is NOT authorized for passive resistance.\n"
-                "C (-1): Even with a warning, OC spray is disproportionate for passive resistance.\n"
-                "D (-1): Supervisor authorization does not change the force-level analysis."
-            ),
-            "io_scores": {"A": -2, "B": 2, "C": -1, "D": -1},
-            "difficulty": "medium",
-            "reference": "G03-02-01, Section IV (Force Options); OC Spray Guidelines",
-            "exam_source": "2026 Part 2 Study Guide"
-        },
-
-        # --- Q7 ---
-        {
-            "question_id": "go_q07",
-            "type": "most_appropriate",
-            "category_id": "cat_g03_06_firearm_discharge",
-            "category_name": "2026 Part 2: General Orders Study Guide",
-            "title": "Force Options — Taser Restrictions",
-            "content": (
-                "Officers are attempting to arrest a suspect who is actively resisting. "
-                "The suspect is standing at the edge of an elevated CTA platform, approximately "
-                "15 feet above street level."
-            ),
-            "question": "Under G03-02-01, what restriction applies to Taser deployment in this scenario?",
-            "options": [
-                {"label": "A", "text": "No restriction — the Taser can be used since the suspect is actively resisting"},
-                {"label": "B", "text": "The Taser should NOT be deployed because the subject is in an elevated position where a fall could cause serious injury or death"},
-                {"label": "C", "text": "The Taser can be used if officers are positioned to catch the suspect"},
-                {"label": "D", "text": "Only a supervisor can authorize Taser use in elevated positions"}
-            ],
-            "correct_answer": "B",
-            "explanation": (
-                "CORRECT ANSWER: B. G03-02-01 specifically prohibits Taser use when the subject "
-                "is in an elevated position where incapacitation could result in a fall causing "
-                "serious injury or death. This includes rooftops, bridges, elevated platforms, "
-                "ladders, and similar positions. Neuromuscular incapacitation causes an uncontrolled "
-                "fall.\n\n"
-                "WHY OTHER ANSWERS ARE WRONG:\n"
-                "A (-2): The elevated position restriction overrides the resistance level.\n"
-                "C (-1): Attempting to catch a falling incapacitated person is impractical and unsafe.\n"
-                "D (-1): This is a categorical prohibition, not a supervisor-discretion issue."
-            ),
-            "io_scores": {"A": -2, "B": 2, "C": -1, "D": -1},
-            "difficulty": "hard",
-            "reference": "G03-02-01, Section V (Taser Restrictions); Elevated Positions",
-            "exam_source": "2026 Part 2 Study Guide"
-        },
-
-        # --- Q8 ---
-        {
-            "question_id": "go_q08",
-            "type": "least_appropriate",
-            "category_id": "cat_g03_06_firearm_discharge",
-            "category_name": "2026 Part 2: General Orders Study Guide",
-            "title": "Force Options — Impact Weapon Use",
-            "content": (
-                "An officer is struggling with an actively resisting subject during an arrest. "
-                "The officer draws his baton. The subject has his arms tucked under his body "
-                "while prone on the ground."
-            ),
-            "question": "Under G03-02-01, which target area is LEAST appropriate for baton strikes?",
-            "options": [
-                {"label": "A", "text": "The subject's thigh (large muscle group)"},
-                {"label": "B", "text": "The subject's head, neck, or spine"},
-                {"label": "C", "text": "The subject's calf area"},
-                {"label": "D", "text": "The subject's forearm to release the tucked arms"}
-            ],
-            "correct_answer": "B",
-            "explanation": (
-                "CORRECT ANSWER (LEAST APPROPRIATE): B. G03-02-01 explicitly prohibits baton "
-                "strikes to the head, neck, throat, and spine unless deadly force is justified. "
-                "These are considered lethal target areas. Baton strikes should target large "
-                "muscle groups (thigh, calf, forearm) to gain compliance while minimizing risk "
-                "of serious injury.\n\n"
-                "WHY OTHER ANSWERS ARE BETTER:\n"
-                "A (+2): Thigh is an approved large muscle group target.\n"
-                "C (+1): Calf is an acceptable secondary target area.\n"
-                "D (+1): Forearm strikes to release tucked arms are a recognized technique."
-            ),
-            "io_scores": {"A": 2, "B": -2, "C": 1, "D": 1},
-            "difficulty": "medium",
-            "reference": "G03-02-01, Section VI (Impact Weapons); Prohibited Target Areas",
-            "exam_source": "2026 Part 2 Study Guide"
-        },
-
         # --- Q9 ---
         {
-            "question_id": "go_q09",
-            "type": "most_appropriate",
+            "question_id": "go_rank_q09",
+            "type": "ranking",
             "category_id": "cat_g03_06_firearm_discharge",
             "category_name": "2026 Part 2: General Orders Study Guide",
-            "title": "Force Options — Post-Taser Medical Protocol",
+            "title": "Force Options — OC Spray Deployment at Domestic Battery",
             "content": (
-                "An officer has successfully deployed a Taser on an actively resisting suspect. "
-                "The suspect is now in custody and the Taser probes are still embedded in the "
-                "suspect's torso."
+                "You respond to a domestic battery in progress. The male offender is actively "
+                "punching the victim when you arrive. He turns toward you aggressively with "
+                "clenched fists. He is larger than you and appears intoxicated. Your partner "
+                "is 30 seconds behind. Rank the following actions in the correct priority "
+                "order per G03-02-01."
             ),
-            "question": "What is the MOST appropriate medical protocol under G03-02-01?",
-            "options": [
-                {"label": "A", "text": "Remove the probes yourself at the scene and transport to the district for processing"},
-                {"label": "B", "text": "Leave the probes in place and request EMS for medical evaluation and probe removal"},
-                {"label": "C", "text": "Remove the probes and apply first aid if there is minimal bleeding"},
-                {"label": "D", "text": "Only request EMS if the suspect complains of pain or difficulty breathing"}
+            "items": [
+                {"label": "A", "text": "Issue clear verbal commands: 'Police! Stop! Get on the ground now!'"},
+                {"label": "B", "text": "Deploy OC spray if the subject advances aggressively — target the facial area from 3-12 feet"},
+                {"label": "C", "text": "After OC deployment, direct the subject to the ground and handcuff when safe to do so"},
+                {"label": "D", "text": "Request EMS to respond for the victim's injuries and to decontaminate the subject from OC exposure"},
+                {"label": "E", "text": "Separate the offender from the victim and secure both in different areas"},
+                {"label": "F", "text": "Complete a TRR documenting the OC spray deployment, the subject's resistance level, and any injuries"},
             ],
-            "correct_answer": "B",
+            "correct_order": [0, 1, 2, 4, 3, 5],
             "explanation": (
-                "CORRECT ANSWER: B. G03-02-01 requires that Taser probes embedded in a subject's "
-                "skin be removed ONLY by qualified medical personnel. EMS must be requested for "
-                "ALL subjects who have been Tased, regardless of whether the subject complains of "
-                "injury. This is a mandatory medical evaluation — not discretionary.\n\n"
-                "WHY OTHER ANSWERS ARE WRONG:\n"
-                "A (-2): Officers should NOT remove embedded probes — risk of tissue damage.\n"
-                "C (-2): Same issue — probes must be removed by medical personnel.\n"
-                "D (-1): EMS is mandatory for ALL Taser deployments, not just when complaints arise."
+                "Verbal commands (A) always first — the initial force option. OC spray (B) if the subject "
+                "advances — justified for active aggression when the subject is within effective range. "
+                "Control and handcuff (C) once the OC takes effect. Separate parties (E) to prevent further "
+                "violence. Request EMS (D) for the victim and OC decontamination. Complete TRR (F) to "
+                "document all force used.\n\n"
+                "KEY REFERENCE: G03-02-01, Section IV (OC Spray); Effective Range 3-12 Feet"
             ),
-            "io_scores": {"A": -2, "B": 2, "C": -2, "D": -1},
             "difficulty": "medium",
-            "reference": "G03-02-01, Section V (Post-Taser Procedures); Medical Protocol",
-            "exam_source": "2026 Part 2 Study Guide"
+            "is_premium": True,
+            "reference": "G03-02-01, Section IV (OC Spray Deployment)",
         },
 
         # --- Q10 ---
         {
-            "question_id": "go_q10",
-            "type": "most_appropriate",
+            "question_id": "go_rank_q10",
+            "type": "ranking",
             "category_id": "cat_g03_06_firearm_discharge",
             "category_name": "2026 Part 2: General Orders Study Guide",
-            "title": "Force Options — Positional Asphyxia Awareness",
+            "title": "Force Options — Taser Restrictions and Medical Protocol",
             "content": (
-                "After a foot chase and physical struggle, officers place a large, obese "
-                "subject in handcuffs while he is lying face-down (prone position). The subject "
-                "is breathing heavily and complaining he cannot breathe."
+                "During a foot chase, your partner deploys a Taser in probe mode striking a fleeing "
+                "burglary suspect in the back. The suspect falls to the ground. One probe is embedded "
+                "in his upper back, the other in his lower back. The suspect is now compliant and "
+                "handcuffed. Rank the following actions in the correct priority order per G03-02-01."
             ),
-            "question": "Under G03-02-01, what is the MOST appropriate immediate action?",
-            "options": [
-                {"label": "A", "text": "Keep the subject prone until transport arrives to maintain control"},
-                {"label": "B", "text": "Immediately place the subject on his side or in a seated position and monitor breathing while requesting EMS"},
-                {"label": "C", "text": "Apply additional pressure to the subject's back to prevent him from getting up"},
-                {"label": "D", "text": "Tell the subject that if he can talk, he can breathe"}
+            "items": [
+                {"label": "A", "text": "Do NOT remove the Taser probes — only qualified medical personnel should remove embedded probes"},
+                {"label": "B", "text": "Request EMS to respond for probe removal and mandatory medical evaluation after Taser deployment"},
+                {"label": "C", "text": "Monitor the subject continuously for signs of medical distress including breathing difficulty"},
+                {"label": "D", "text": "Place the subject in a seated or recovery position — do NOT leave face-down after Taser use"},
+                {"label": "E", "text": "Notify a supervisor that a Taser was deployed in probe mode"},
+                {"label": "F", "text": "Complete a TRR documenting the Taser deployment, number of cycles, probe placement, and medical response"},
             ],
-            "correct_answer": "B",
+            "correct_order": [3, 0, 2, 1, 4, 5],
             "explanation": (
-                "CORRECT ANSWER: B. G03-02-01 mandates awareness of positional asphyxia risk. "
-                "Once handcuffed, subjects must be moved from a prone position as soon as "
-                "practicable — especially if they are obese, under the influence, or have been "
-                "in a physical struggle. The recovery position (on their side) or seated upright "
-                "allows proper breathing. EMS must be requested.\n\n"
-                "WHY OTHER ANSWERS ARE WRONG:\n"
-                "A (-2): Extended prone positioning after exertion can be fatal.\n"
-                "C (-2): Additional pressure on the back directly increases asphyxia risk.\n"
-                "D (-2): 'If you can talk you can breathe' is a dangerous myth — subjects have "
-                "died in custody while still speaking."
+                "Recovery/seated position (D) first — prevent positional asphyxia after exertion and "
+                "Taser exposure. Leave probes in place (A) — only medical personnel remove embedded probes. "
+                "Monitor continuously (C) for excited delirium or respiratory distress. Request EMS (B) "
+                "for mandatory medical evaluation. Notify supervisor (E) of Taser deployment. Complete "
+                "TRR (F) with all deployment details.\n\n"
+                "KEY REFERENCE: G03-02-01, Section V (Taser); Post-Deployment Medical Protocol"
             ),
-            "io_scores": {"A": -2, "B": 2, "C": -2, "D": -2},
             "difficulty": "hard",
-            "reference": "G03-02-01, Section VII (Positional Asphyxia); In-Custody Deaths",
-            "exam_source": "2026 Part 2 Study Guide"
+            "is_premium": True,
+            "reference": "G03-02-01, Section V (Taser); Medical Protocol",
+        },
+
+        # --- Q11 ---
+        {
+            "question_id": "go_rank_q11",
+            "type": "ranking",
+            "category_id": "cat_g03_06_firearm_discharge",
+            "category_name": "2026 Part 2: General Orders Study Guide",
+            "title": "Force Options — Impact Weapon Response to Aggressive Subject",
+            "content": (
+                "You encounter a subject armed with a metal pipe who is smashing car windows "
+                "on a residential street. He has swung the pipe at two civilians who fled. "
+                "OC spray was deployed by another officer but had no effect. The subject is "
+                "now advancing toward officers. Rank the following actions in the correct "
+                "priority order per G03-02-01."
+            ),
+            "items": [
+                {"label": "A", "text": "Deploy Taser in probe mode if within effective range (7-15 feet) to incapacitate the subject"},
+                {"label": "B", "text": "If Taser fails or is unavailable, use expandable baton strikes to large muscle groups (thighs, arms) to gain compliance"},
+                {"label": "C", "text": "Maintain reactionary gap — do NOT close distance on a subject armed with a striking weapon"},
+                {"label": "D", "text": "Continue verbal commands directing the subject to drop the pipe while creating tactical positioning"},
+                {"label": "E", "text": "Once the subject is disarmed and controlled, request EMS for any injuries from the baton or Taser"},
+                {"label": "F", "text": "Notify a supervisor and complete separate TRRs for each force option deployed (OC, Taser, baton)"},
+            ],
+            "correct_order": [2, 3, 0, 1, 4, 5],
+            "explanation": (
+                "Maintain reactionary gap (C) first — officer safety against an armed subject. Continue "
+                "verbal commands (D) while positioning tactically. Deploy Taser (A) as a less-lethal "
+                "option before baton. Baton strikes to large muscle groups (B) if Taser fails — "
+                "authorized target areas only. Request EMS (E) after the subject is controlled. "
+                "Supervisor notification and TRRs (F) for each force option used.\n\n"
+                "KEY REFERENCE: G03-02-01, Section IV (Force Continuum); Impact Weapons Policy"
+            ),
+            "difficulty": "hard",
+            "is_premium": True,
+            "reference": "G03-02-01, Section IV (Force Continuum); Impact Weapons",
+        },
+
+        # --- Q12 ---
+        {
+            "question_id": "go_rank_q12",
+            "type": "ranking",
+            "category_id": "cat_g03_06_firearm_discharge",
+            "category_name": "2026 Part 2: General Orders Study Guide",
+            "title": "Force Options — Positional Asphyxia After Ground Struggle",
+            "content": (
+                "After a prolonged ground struggle, you and your partner handcuff a large, "
+                "obese subject who was resisting arrest. He was face-down for approximately "
+                "two minutes during the struggle. He is now handcuffed but breathing heavily "
+                "and sweating profusely. He says 'I can't breathe.' "
+                "Rank the following actions in the correct priority order per G03-02-01."
+            ),
+            "items": [
+                {"label": "A", "text": "Immediately roll the subject onto his side or sit him upright — do NOT keep a handcuffed subject face-down"},
+                {"label": "B", "text": "Request EMS to respond immediately — report breathing difficulty in a subject in custody"},
+                {"label": "C", "text": "Loosen clothing around the neck and chest area to aid breathing"},
+                {"label": "D", "text": "Monitor the subject's breathing, skin color, and consciousness continuously until EMS arrives"},
+                {"label": "E", "text": "Do NOT apply any additional body weight or pressure on the subject's back or torso"},
+                {"label": "F", "text": "Notify your supervisor of a potential medical emergency involving positional asphyxia"},
+            ],
+            "correct_order": [0, 4, 2, 1, 3, 5],
+            "explanation": (
+                "Roll to side or sit upright (A) — immediately address positional asphyxia risk, the #1 "
+                "priority. Remove all pressure (E) — no weight on torso. Loosen clothing (C) to aid "
+                "breathing. Request EMS (B) for breathing difficulty in custody. Monitor continuously "
+                "(D) for deterioration. Notify supervisor (F) of the medical emergency.\n\n"
+                "KEY REFERENCE: G03-02-01, Positional Asphyxia Protocol; In-Custody Medical Emergencies"
+            ),
+            "difficulty": "hard",
+            "is_premium": True,
+            "reference": "G03-02-01, Positional Asphyxia Protocol",
+        },
+
+        # --- Q13 ---
+        {
+            "question_id": "go_rank_q13",
+            "type": "ranking",
+            "category_id": "cat_g03_06_firearm_discharge",
+            "category_name": "2026 Part 2: General Orders Study Guide",
+            "title": "Force Escalation — Resistant Subject at Traffic Stop",
+            "content": (
+                "During a traffic stop for a stolen vehicle, the driver refuses to exit. "
+                "He grips the steering wheel tightly and begins screaming. He has not made "
+                "any threatening gestures or displayed weapons. A passenger is in the front "
+                "seat. Rank the following actions in the correct priority order per G03-02 "
+                "and G03-02-01."
+            ),
+            "items": [
+                {"label": "A", "text": "Issue clear, repeated verbal commands directing the driver to exit the vehicle with hands visible"},
+                {"label": "B", "text": "Request backup and wait for additional units before attempting to physically remove the driver"},
+                {"label": "C", "text": "Direct the passenger to exit the vehicle first to reduce the number of subjects to manage"},
+                {"label": "D", "text": "If the driver still refuses after backup arrives, use joint manipulation or escort holds to remove him"},
+                {"label": "E", "text": "Once removed, place the driver in handcuffs and conduct a pat-down for officer safety"},
+                {"label": "F", "text": "Complete a TRR if any physical force was used beyond verbal commands during the removal"},
+            ],
+            "correct_order": [0, 1, 2, 3, 4, 5],
+            "explanation": (
+                "Verbal commands (A) first — always start with the lowest force option. Request backup "
+                "(B) — do not attempt physical removal alone. Remove passenger (C) to simplify the "
+                "encounter. Joint manipulation/escort holds (D) with backup — appropriate for passive "
+                "resistance. Handcuff and pat-down (E) for officer safety. TRR (F) for any physical "
+                "force used. Key: passive resistance does NOT justify higher-level force.\n\n"
+                "KEY REFERENCE: G03-02, Force Mitigation; G03-02-01, Section IV (Force Options)"
+            ),
+            "difficulty": "medium",
+            "is_premium": True,
+            "reference": "G03-02, Force Mitigation; G03-02-01, Section IV",
+        },
+
+        # --- Q14 ---
+        {
+            "question_id": "go_rank_q14",
+            "type": "ranking",
+            "category_id": "cat_g03_06_firearm_discharge",
+            "category_name": "2026 Part 2: General Orders Study Guide",
+            "title": "Force Options — Subject Exhibiting Excited Delirium Symptoms",
+            "content": (
+                "Officers are called to a gas station where a naked man is running in traffic, "
+                "screaming incoherently, and displaying superhuman strength. He has already thrown "
+                "a garbage can through a window. He is sweating profusely, has dilated pupils, "
+                "and appears impervious to pain. Rank the following actions in the correct "
+                "priority order per G03-02-01."
+            ),
+            "items": [
+                {"label": "A", "text": "Request EMS immediately — these symptoms indicate excited delirium, a life-threatening medical emergency"},
+                {"label": "B", "text": "Coordinate a team approach with multiple officers to safely restrain the subject using minimal force duration"},
+                {"label": "C", "text": "Once restrained, do NOT keep the subject face-down — position on his side and monitor breathing continuously"},
+                {"label": "D", "text": "Avoid prolonged struggle — excited delirium subjects are at extreme risk of sudden cardiac arrest"},
+                {"label": "E", "text": "Use de-escalation first if safe — avoid chase or confrontation that increases the subject's physiological stress"},
+                {"label": "F", "text": "Transport to hospital immediately via EMS — do NOT transport in a squad car for an excited delirium subject"},
+            ],
+            "correct_order": [0, 4, 1, 3, 2, 5],
+            "explanation": (
+                "Request EMS (A) immediately — excited delirium is a medical emergency first, law "
+                "enforcement encounter second. Attempt de-escalation (E) if safe. Team approach (B) "
+                "to minimize struggle duration. Avoid prolonged struggle (D) — cardiac arrest risk. "
+                "Recovery position and monitor (C) after restraint. EMS transport to hospital (F) — "
+                "never squad car transport for excited delirium.\n\n"
+                "KEY REFERENCE: G03-02-01, Excited Delirium Protocol; Medical Emergency Response"
+            ),
+            "difficulty": "hard",
+            "is_premium": True,
+            "reference": "G03-02-01, Excited Delirium Protocol",
         },
 
         # ============================================================
         # G03-02-03: FIREARM DISCHARGE — AUTHORIZED USE
         # ============================================================
 
-        # --- Q11 ---
-        {
-            "question_id": "go_q11",
-            "type": "most_appropriate",
-            "category_id": "cat_g03_06_firearm_discharge",
-            "category_name": "2026 Part 2: General Orders Study Guide",
-            "title": "Authorized Firearm Use — Fleeing Felon",
-            "content": (
-                "Officers are pursuing a suspect who just committed an armed robbery. The "
-                "suspect discards the firearm during the foot chase and continues running. "
-                "The suspect is now unarmed and running through a residential neighborhood."
-            ),
-            "question": "Under G03-02-03, is deadly force authorized at this point?",
-            "options": [
-                {"label": "A", "text": "Yes, because the suspect committed an armed robbery which is a forcible felony"},
-                {"label": "B", "text": "No, because the suspect discarded the weapon and no longer poses an imminent threat of death or great bodily harm to officers or others"},
-                {"label": "C", "text": "Yes, but only if the officer reasonably believes the suspect will rearm himself"},
-                {"label": "D", "text": "Only if a supervisor authorizes the use of deadly force over the radio"}
-            ],
-            "correct_answer": "B",
-            "explanation": (
-                "CORRECT ANSWER: B. G03-02-03 authorizes deadly force ONLY when the subject poses "
-                "an imminent threat of death or great bodily harm. Once the suspect discards the "
-                "weapon and is running away unarmed, the imminent threat has diminished. The prior "
-                "armed robbery alone does not justify deadly force against a now-unarmed fleeing "
-                "suspect. This aligns with Tennessee v. Garner.\n\n"
-                "WHY OTHER ANSWERS ARE WRONG:\n"
-                "A (-2): The prior crime does not authorize deadly force once the threat has ended.\n"
-                "C (-1): Speculative belief about rearming is insufficient — must be imminent threat.\n"
-                "D (-1): Deadly force decisions cannot be delegated to supervisors over the radio."
-            ),
-            "io_scores": {"A": -2, "B": 2, "C": -1, "D": -1},
-            "difficulty": "hard",
-            "reference": "G03-02-03, Section III (Authorized Use); Tennessee v. Garner",
-            "exam_source": "2026 Part 2 Study Guide"
-        },
-
-        # --- Q12 ---
-        {
-            "question_id": "go_q12",
-            "type": "most_appropriate",
-            "category_id": "cat_g03_06_firearm_discharge",
-            "category_name": "2026 Part 2: General Orders Study Guide",
-            "title": "Firearm Discharge — Shooting at Vehicles",
-            "content": (
-                "During a traffic stop, a suspect puts the car in drive and begins to accelerate "
-                "toward officers. One officer is directly in the vehicle's path."
-            ),
-            "question": "Under G03-02-03, when is shooting at a moving vehicle authorized?",
-            "options": [
-                {"label": "A", "text": "Anytime a vehicle is used as a weapon against an officer"},
-                {"label": "B", "text": "Only when the vehicle poses an imminent threat of death or great bodily harm AND the officer cannot move to safety"},
-                {"label": "C", "text": "Never — officers must always move out of the vehicle's path"},
-                {"label": "D", "text": "Only after a supervisor has been notified and approves"}
-            ],
-            "correct_answer": "B",
-            "explanation": (
-                "CORRECT ANSWER: B. G03-02-03 restricts shooting at moving vehicles. Officers "
-                "should attempt to move out of the vehicle's path rather than discharge their "
-                "firearm. Shooting is only authorized when the vehicle presents an imminent threat "
-                "of death or great bodily harm AND the officer cannot reasonably move to safety. "
-                "Additionally, officers must consider the risk to bystanders.\n\n"
-                "WHY OTHER ANSWERS ARE WRONG:\n"
-                "A (-1): 'Anytime' is too broad — must also consider ability to move to safety.\n"
-                "C (-1): There may be situations where moving to safety is impossible.\n"
-                "D (-2): Supervisor approval is not a prerequisite for deadly force in an imminent threat."
-            ),
-            "io_scores": {"A": -1, "B": 2, "C": -1, "D": -2},
-            "difficulty": "hard",
-            "reference": "G03-02-03, Section IV (Vehicles); Shooting at Moving Vehicles",
-            "exam_source": "2026 Part 2 Study Guide"
-        },
-
-        # --- Q13 ---
-        {
-            "question_id": "go_q13",
-            "type": "least_appropriate",
-            "category_id": "cat_g03_06_firearm_discharge",
-            "category_name": "2026 Part 2: General Orders Study Guide",
-            "title": "Firearm Discharge — Warning Shots",
-            "content": (
-                "An officer is pursuing a fleeing suspect in a crowded public area. "
-                "The suspect has a knife and is running toward a group of pedestrians."
-            ),
-            "question": "Under G03-02-03, which action is LEAST appropriate?",
-            "options": [
-                {"label": "A", "text": "Fire a warning shot into the air to get the suspect to stop"},
-                {"label": "B", "text": "Give loud verbal commands to the suspect and bystanders"},
-                {"label": "C", "text": "Use deadly force if the suspect is about to stab a bystander"},
-                {"label": "D", "text": "Attempt to close distance and use a Taser if tactically feasible"}
-            ],
-            "correct_answer": "A",
-            "explanation": (
-                "CORRECT ANSWER (LEAST APPROPRIATE): A. G03-02-03 explicitly PROHIBITS warning "
-                "shots. Warning shots create a serious risk to bystanders from falling bullets "
-                "and ricochets, especially in a crowded area. Every round fired must be aimed "
-                "at a specific target.\n\n"
-                "WHY OTHER ANSWERS ARE BETTER:\n"
-                "B (+1): Verbal commands are always appropriate.\n"
-                "C (+2): Deadly force is justified when there is imminent threat to a third party.\n"
-                "D (+1): Less-lethal options should be considered when feasible."
-            ),
-            "io_scores": {"A": -2, "B": 1, "C": 2, "D": 1},
-            "difficulty": "medium",
-            "reference": "G03-02-03, Section V (Prohibited Discharges); Warning Shots",
-            "exam_source": "2026 Part 2 Study Guide"
-        },
-
-        # --- Q14 ---
-        {
-            "question_id": "go_q14",
-            "type": "most_appropriate",
-            "category_id": "cat_g03_06_firearm_discharge",
-            "category_name": "2026 Part 2: General Orders Study Guide",
-            "title": "Post-Discharge — Immediate Obligations",
-            "content": (
-                "An officer has just discharged his firearm at a subject who was pointing a "
-                "weapon at the officer. The subject is down and not moving. The threat appears "
-                "to be neutralized."
-            ),
-            "question": "Under G03-02-03, what is the officer's FIRST obligation after the discharge?",
-            "options": [
-                {"label": "A", "text": "Holster your weapon and begin writing notes about what happened"},
-                {"label": "B", "text": "Ensure the scene is safe, render first aid to the subject, and request EMS immediately"},
-                {"label": "C", "text": "Call your union representative before speaking to anyone"},
-                {"label": "D", "text": "Secure the subject's weapon and begin collecting other evidence"}
-            ],
-            "correct_answer": "B",
-            "explanation": (
-                "CORRECT ANSWER: B. G03-02-03 requires that after a firearm discharge, once the "
-                "scene is safe, the officer's first obligation is to render first aid and request "
-                "medical assistance. The duty to provide medical care applies to ALL persons — "
-                "including the subject. This is both a policy requirement and a constitutional "
-                "obligation (deliberate indifference standard).\n\n"
-                "WHY OTHER ANSWERS ARE WRONG:\n"
-                "A (-1): Writing notes is important but not the FIRST priority — medical aid comes first.\n"
-                "C (-1): Union representation is a right but does not supersede the duty to render aid.\n"
-                "D (-1): Evidence preservation matters but is secondary to medical care."
-            ),
-            "io_scores": {"A": -1, "B": 2, "C": -1, "D": -1},
-            "difficulty": "medium",
-            "reference": "G03-02-03, Section VI (Post-Discharge Duties); Duty to Render Aid",
-            "exam_source": "2026 Part 2 Study Guide"
-        },
-
         # --- Q15 ---
         {
-            "question_id": "go_q15",
-            "type": "most_appropriate",
+            "question_id": "go_rank_q15",
+            "type": "ranking",
             "category_id": "cat_g03_06_firearm_discharge",
             "category_name": "2026 Part 2: General Orders Study Guide",
-            "title": "Firearm Discharge — Off-Duty Considerations",
+            "title": "Firearm Discharge — Armed Robbery Fleeing Suspect",
             "content": (
-                "An off-duty officer in plain clothes witnesses an armed robbery at a gas "
-                "station. The armed suspect exits the store and begins walking toward his "
-                "vehicle. No one else appears to be in immediate danger."
+                "You respond to an armed robbery in progress. As you arrive, the suspect runs "
+                "out of the store carrying a gun and a bag of cash. He fires one shot in the air "
+                "and runs into a residential neighborhood. He has already shot and wounded the "
+                "store clerk inside. Rank the following actions in the correct priority order "
+                "per G03-02-03 and G03-02."
             ),
-            "question": "Under G03-02-03, what is the MOST appropriate action for the off-duty officer?",
-            "options": [
-                {"label": "A", "text": "Draw your weapon and confront the suspect to effect an arrest"},
-                {"label": "B", "text": "Be a good witness, call 911 with suspect and vehicle descriptions, and do not engage"},
-                {"label": "C", "text": "Follow the suspect's vehicle and relay the location to dispatchers"},
-                {"label": "D", "text": "Block the suspect's vehicle with your personal car to prevent escape"}
+            "items": [
+                {"label": "A", "text": "Pursue on foot while broadcasting suspect description, direction of travel, and that the suspect is armed and has discharged a firearm"},
+                {"label": "B", "text": "Check on the wounded store clerk and request EMS for the gunshot wound victim"},
+                {"label": "C", "text": "Request backup, K-9, helicopter, and establish a perimeter in the direction of flight"},
+                {"label": "D", "text": "Only discharge your firearm if the suspect presents an imminent deadly threat — do NOT shoot at a fleeing subject merely to prevent escape"},
+                {"label": "E", "text": "Warn nearby civilians to take cover and stay inside their homes if the suspect enters the residential area"},
+                {"label": "F", "text": "Preserve the crime scene at the store including shell casings, security footage, and witness statements"},
             ],
-            "correct_answer": "B",
+            "correct_order": [1, 0, 2, 4, 3, 5],
             "explanation": (
-                "CORRECT ANSWER: B. G03-02-03 strongly discourages off-duty officers from "
-                "engaging in enforcement action unless there is an imminent threat to life. The "
-                "suspect is leaving and no one is in immediate danger. Off-duty officers in plain "
-                "clothes risk being misidentified as threats by responding officers. Being a good "
-                "witness is the safest and most effective response.\n\n"
-                "WHY OTHER ANSWERS ARE WRONG:\n"
-                "A (-2): Confronting an armed suspect in plain clothes creates extreme danger.\n"
-                "C (-1): Vehicle pursuits are dangerous and the officer lacks radio/backup.\n"
-                "D (-2): Blocking a suspect vehicle escalates the situation unnecessarily."
+                "Aid the wounded clerk (B) first — duty to render aid to the shooting victim. Pursue "
+                "and broadcast (A) — maintain contact with the armed dangerous suspect. Request backup "
+                "and perimeter (C) — coordinate containment. Warn civilians (E) — public safety in "
+                "residential area. Firearm use only for imminent threat (D) — per G03-02-03, you cannot "
+                "shoot a fleeing subject merely to prevent escape, even an armed one, unless there is "
+                "imminent threat of death or great bodily harm. Preserve store scene (F) after the "
+                "immediate threat is addressed.\n\n"
+                "KEY REFERENCE: G03-02-03, Section III (Authorized Use); Tennessee v. Garner"
             ),
-            "io_scores": {"A": -2, "B": 2, "C": -1, "D": -2},
             "difficulty": "hard",
+            "is_premium": True,
+            "reference": "G03-02-03, Section III; Tennessee v. Garner",
+        },
+
+        # --- Q16 ---
+        {
+            "question_id": "go_rank_q16",
+            "type": "ranking",
+            "category_id": "cat_g03_06_firearm_discharge",
+            "category_name": "2026 Part 2: General Orders Study Guide",
+            "title": "Firearm Discharge — Shooting at Moving Vehicles",
+            "content": (
+                "During a traffic stop on a wanted felony suspect, the suspect puts the car in "
+                "drive and accelerates directly toward your partner who is standing in front of "
+                "the vehicle. Your partner dives out of the way. The suspect speeds off. You are "
+                "positioned to the side of the vehicle. Rank the following actions in the correct "
+                "priority order per G03-02-03."
+            ),
+            "items": [
+                {"label": "A", "text": "Do NOT fire at the moving vehicle — G03-02-03 prohibits shooting at moving vehicles unless deadly force other than the vehicle is being used"},
+                {"label": "B", "text": "Check on your partner immediately to ensure she is not injured from diving out of the way"},
+                {"label": "C", "text": "Broadcast the vehicle description, license plate, and direction of travel for a fleeing felony suspect"},
+                {"label": "D", "text": "Request supervisor and air support to track the vehicle — do NOT engage in a high-speed pursuit without authorization"},
+                {"label": "E", "text": "Preserve the scene — your BWC, the location of the traffic stop, and any tire marks or evidence"},
+                {"label": "F", "text": "Notify OEMC that the suspect used a vehicle as a weapon — attempted murder of a police officer"},
+            ],
+            "correct_order": [0, 1, 2, 5, 3, 4],
+            "explanation": (
+                "Do NOT shoot at the vehicle (A) — G03-02-03 specifically PROHIBITS firing at moving "
+                "vehicles unless the occupant is using deadly force OTHER than the vehicle itself. "
+                "Check on your partner (B) — immediate welfare. Broadcast (C) for coordinated response. "
+                "Notify OEMC of vehicle used as weapon (F) — upgrade the offense. Request supervisor and "
+                "air support (D). Preserve the scene (E) for investigation.\n\n"
+                "KEY REFERENCE: G03-02-03, Section IV (Shooting at Vehicles — PROHIBITED)"
+            ),
+            "difficulty": "hard",
+            "is_premium": True,
+            "reference": "G03-02-03, Section IV (Shooting at Vehicles)",
+        },
+
+        # --- Q17 ---
+        {
+            "question_id": "go_rank_q17",
+            "type": "ranking",
+            "category_id": "cat_g03_06_firearm_discharge",
+            "category_name": "2026 Part 2: General Orders Study Guide",
+            "title": "Post-Discharge — Immediate Obligations After Shooting",
+            "content": (
+                "You have just discharged your firearm at an armed subject who pointed a gun "
+                "at you. The subject is down with a gunshot wound to the chest. Your partner "
+                "secured the subject's weapon. You are physically uninjured but shaken. "
+                "Rank the following actions in the correct priority order per G03-02-03."
+            ),
+            "items": [
+                {"label": "A", "text": "Request EMS immediately and render first aid to the subject until paramedics arrive"},
+                {"label": "B", "text": "Secure the scene and protect all evidence — do NOT move shell casings, weapons, or other items"},
+                {"label": "C", "text": "Notify OEMC of a police-involved shooting and provide the location for responding units"},
+                {"label": "D", "text": "Holster your weapon and remain on scene — do NOT leave the scene of a firearm discharge"},
+                {"label": "E", "text": "Do NOT discuss the details of the incident with other officers — wait for your attorney and FOP representative"},
+                {"label": "F", "text": "Provide a public safety statement to the first supervisor on scene (threats, direction of flight, injuries, weapon location)"},
+            ],
+            "correct_order": [0, 2, 3, 1, 5, 4],
+            "explanation": (
+                "Request EMS and render aid (A) — the constitutional duty to provide medical care applies "
+                "even to the person you shot. Notify OEMC (C) of the shooting. Remain on scene (D) — "
+                "mandatory obligation. Secure evidence (B) — protect shell casings and weapons in place. "
+                "Provide public safety statement (F) — limited to immediate threats and safety info. "
+                "Do NOT discuss details (E) until attorney/FOP present — you have the right to "
+                "representation before providing a detailed statement.\n\n"
+                "KEY REFERENCE: G03-02-03, Section VI (Post-Discharge Obligations)"
+            ),
+            "difficulty": "hard",
+            "is_premium": True,
+            "reference": "G03-02-03, Section VI (Post-Discharge Obligations)",
+        },
+
+        # --- Q18 ---
+        {
+            "question_id": "go_rank_q18",
+            "type": "ranking",
+            "category_id": "cat_g03_06_firearm_discharge",
+            "category_name": "2026 Part 2: General Orders Study Guide",
+            "title": "Firearm Discharge — Warning Shots Are Prohibited",
+            "content": (
+                "You are pursuing an armed carjacking suspect through a dark alley. The suspect "
+                "is running ahead of you and has not turned to face you. A civilian steps out "
+                "of a doorway between you and the suspect. You want to stop the suspect before "
+                "he enters a crowded street. Rank the following actions in the correct priority "
+                "order per G03-02-03."
+            ),
+            "items": [
+                {"label": "A", "text": "Do NOT fire a warning shot — warning shots are PROHIBITED under G03-02-03 due to the risk of hitting unintended targets"},
+                {"label": "B", "text": "Direct the civilian to get back inside immediately and take cover"},
+                {"label": "C", "text": "Continue pursuing while broadcasting the suspect's direction of travel toward the crowded street"},
+                {"label": "D", "text": "Request units to set up at the street ahead to intercept the suspect before he reaches the crowd"},
+                {"label": "E", "text": "Only discharge your firearm if the suspect turns and presents an imminent deadly threat to you or others"},
+                {"label": "F", "text": "Maintain visual contact and be prepared to disengage if the risk to civilians becomes too great"},
+            ],
+            "correct_order": [0, 1, 2, 3, 5, 4],
+            "explanation": (
+                "No warning shots (A) — absolutely prohibited under G03-02-03. Protect the civilian "
+                "(B) — direct them to safety. Continue pursuit and broadcast (C). Request intercepting "
+                "units (D) ahead. Prepare to disengage (F) if civilian risk is too high — you cannot "
+                "endanger bystanders. Firearm only for imminent threat (E).\n\n"
+                "KEY REFERENCE: G03-02-03, Section V (Warning Shots PROHIBITED)"
+            ),
+            "difficulty": "hard",
+            "is_premium": True,
+            "reference": "G03-02-03, Section V (Warning Shots Prohibited)",
+        },
+
+        # --- Q19 ---
+        {
+            "question_id": "go_rank_q19",
+            "type": "ranking",
+            "category_id": "cat_g03_06_firearm_discharge",
+            "category_name": "2026 Part 2: General Orders Study Guide",
+            "title": "Firearm Discharge — Off-Duty Encounter with Armed Robber",
+            "content": (
+                "While off-duty at a restaurant, you witness an armed robbery. The offender "
+                "has a gun pointed at the cashier. You are armed with your off-duty weapon. "
+                "Your family is seated nearby. Other patrons are in the restaurant. "
+                "Rank the following actions in the correct priority order per G03-02-03."
+            ),
+            "items": [
+                {"label": "A", "text": "Call 911 immediately and provide the location, description of the offender, and that he is armed"},
+                {"label": "B", "text": "If safe to do so, move your family and nearby patrons away from the offender's line of sight"},
+                {"label": "C", "text": "Do NOT draw your weapon unless there is an imminent threat of death or great bodily harm to someone"},
+                {"label": "D", "text": "Be a good witness — observe and memorize details about the offender's appearance, weapon, and vehicle"},
+                {"label": "E", "text": "If you do engage, clearly identify yourself as a police officer before taking any action"},
+                {"label": "F", "text": "If responding officers arrive, put your weapon away immediately to avoid being mistaken for the offender"},
+            ],
+            "correct_order": [0, 1, 2, 3, 4, 5],
+            "explanation": (
+                "Call 911 (A) — get on-duty units responding. Move family to safety (B) — protect "
+                "civilians. Do NOT draw unless imminent threat (C) — off-duty engagement creates "
+                "enormous risk. Be a witness (D) — your observations are valuable. If engaging, "
+                "identify yourself (E) — mandatory before using force. Weapon away when units arrive "
+                "(F) — prevent friendly fire. Off-duty officers should be WITNESSES first, not "
+                "tactical responders.\n\n"
+                "KEY REFERENCE: G03-02-03, Section VII (Off-Duty Firearm Discharge)"
+            ),
+            "difficulty": "hard",
+            "is_premium": True,
             "reference": "G03-02-03, Section VII (Off-Duty Considerations)",
-            "exam_source": "2026 Part 2 Study Guide"
+        },
+
+        # --- Q20 ---
+        {
+            "question_id": "go_rank_q20",
+            "type": "ranking",
+            "category_id": "cat_g03_06_firearm_discharge",
+            "category_name": "2026 Part 2: General Orders Study Guide",
+            "title": "Authorized Firearm Use — Subject Holding Hostage at Knifepoint",
+            "content": (
+                "You respond to a convenience store where a subject is holding a knife to a "
+                "clerk's throat. The subject is demanding money and threatening to kill the hostage. "
+                "You have a clear line of sight from the doorway. The subject has not seen you yet. "
+                "Rank the following actions in the correct priority order per G03-02-03 and G03-02."
+            ),
+            "items": [
+                {"label": "A", "text": "Request a supervisor, SWAT, and a hostage negotiator immediately — do NOT attempt a solo tactical resolution"},
+                {"label": "B", "text": "Attempt verbal contact using de-escalation — 'I'm here to help. Let's talk about what you need'"},
+                {"label": "C", "text": "Establish a position of cover and concealment that maintains your line of sight to the subject"},
+                {"label": "D", "text": "Evacuate any other civilians from the store without alerting the subject if possible"},
+                {"label": "E", "text": "Deadly force is authorized ONLY if the subject begins actively cutting or stabbing the hostage"},
+                {"label": "F", "text": "Secure the perimeter outside the store and prevent anyone from entering the danger zone"},
+            ],
+            "correct_order": [2, 3, 0, 5, 1, 4],
+            "explanation": (
+                "Position of cover (C) — maintain tactical advantage without alerting. Evacuate other "
+                "civilians (D) quietly if possible. Request SWAT and negotiator (A) — hostage situations "
+                "require specialized response. Secure perimeter (F) to control access. Attempt verbal "
+                "de-escalation (B) — try to establish dialogue. Deadly force (E) only if imminent threat "
+                "of death — the standard requires the subject to be ACTIVELY using deadly force.\n\n"
+                "KEY REFERENCE: G03-02-03, Section III (Authorized Use); Hostage Protocol"
+            ),
+            "difficulty": "hard",
+            "is_premium": True,
+            "reference": "G03-02-03, Section III; Hostage Protocol",
         },
 
         # ============================================================
         # G03-02-08: DEPARTMENT REVIEW OF USE OF FORCE
         # ============================================================
 
-        # --- Q16 ---
+        # --- Q21 ---
         {
-            "question_id": "go_q16",
-            "type": "most_appropriate",
+            "question_id": "go_rank_q21",
+            "type": "ranking",
             "category_id": "cat_g03_06_firearm_discharge",
             "category_name": "2026 Part 2: General Orders Study Guide",
-            "title": "Use of Force Review — TRR Investigation",
+            "title": "TRR Review — Supervisor Investigation Process",
             "content": (
-                "A sergeant is assigned to investigate a Tactical Response Report (TRR) "
-                "submitted by one of his officers following a use of force incident. The "
-                "sergeant was not present during the incident."
+                "As a sergeant, you receive a TRR from one of your officers who used an "
+                "emergency takedown and OC spray during an arrest. The subject was treated "
+                "at the hospital and released. You must review and investigate the use of force. "
+                "Rank the following actions in the correct priority order per G03-02-08."
             ),
-            "question": "Under G03-02-08, what is the reviewing sergeant's PRIMARY responsibility?",
-            "options": [
-                {"label": "A", "text": "Accept the TRR as written if the officer has a good track record"},
-                {"label": "B", "text": "Conduct an independent investigation including reviewing BWC footage, interviewing witnesses, and determining if the force was within policy"},
-                {"label": "C", "text": "Simply verify the TRR paperwork is complete and forward it to the lieutenant"},
-                {"label": "D", "text": "Only investigate if the subject files a complaint about the force used"}
+            "items": [
+                {"label": "A", "text": "Review the officer's TRR narrative for completeness, accuracy, and whether the force described was within policy"},
+                {"label": "B", "text": "Review all available BWC footage from the officer and any other officers on scene"},
+                {"label": "C", "text": "Interview the subject and any independent witnesses about the use of force"},
+                {"label": "D", "text": "Review the officer's previous TRR history for patterns of force use"},
+                {"label": "E", "text": "Complete your supervisor's TRR investigation report with findings and forward to your commanding officer"},
+                {"label": "F", "text": "Determine if the force was within policy, and if not, refer to COPA or initiate a CR investigation"},
             ],
-            "correct_answer": "B",
+            "correct_order": [0, 1, 2, 3, 5, 4],
             "explanation": (
-                "CORRECT ANSWER: B. G03-02-08 requires the reviewing supervisor to conduct an "
-                "independent investigation of every TRR. This includes reviewing all available "
-                "video (BWC, POD, third-party), interviewing the involved officers and witnesses, "
-                "examining injuries, and making an independent determination of whether the force "
-                "was within policy. The review must be thorough and objective.\n\n"
-                "WHY OTHER ANSWERS ARE WRONG:\n"
-                "A (-2): Officer reputation does not replace independent investigation.\n"
-                "C (-1): Paperwork review alone is insufficient — substantive investigation required.\n"
-                "D (-2): Every TRR must be investigated regardless of complaints."
+                "Review TRR narrative (A) — start with the officer's account. Review BWC footage (B) — "
+                "compare the video to the written account. Interview subject and witnesses (C) — get "
+                "all perspectives. Review TRR history (D) — check for patterns. Determine if within "
+                "policy (F) — make the finding. Complete investigation report (E) and forward.\n\n"
+                "KEY REFERENCE: G03-02-08, Section IV (Supervisor TRR Investigation)"
             ),
-            "io_scores": {"A": -2, "B": 2, "C": -1, "D": -2},
             "difficulty": "medium",
-            "reference": "G03-02-08, Section III (Supervisory Review); TRR Investigation",
-            "exam_source": "2026 Part 2 Study Guide"
+            "is_premium": True,
+            "reference": "G03-02-08, Section IV (TRR Investigation)",
         },
 
-        # --- Q17 ---
+        # --- Q22 ---
         {
-            "question_id": "go_q17",
-            "type": "most_appropriate",
+            "question_id": "go_rank_q22",
+            "type": "ranking",
             "category_id": "cat_g03_06_firearm_discharge",
             "category_name": "2026 Part 2: General Orders Study Guide",
-            "title": "Use of Force Review — BWC in TRR Investigation",
+            "title": "Force Review — BWC Discrepancy in TRR Investigation",
             "content": (
-                "While reviewing a TRR, the sergeant discovers that the involved officer's "
-                "body-worn camera was not activated during the use of force incident. The "
-                "officer claims he forgot to activate it due to the rapidly evolving situation."
+                "While reviewing a TRR, you notice the officer's written narrative states the "
+                "subject 'charged at me swinging his fists.' However, the BWC footage shows the "
+                "subject standing still with arms at his sides when the officer tackled him. "
+                "Rank the following actions in the correct priority order per G03-02-08."
             ),
-            "question": "Under G03-02-08, what is the MOST appropriate response?",
-            "options": [
-                {"label": "A", "text": "Accept the explanation and note it in the TRR review — rapidly evolving situations are understandable"},
-                {"label": "B", "text": "Document the BWC non-activation as a separate policy violation, review all other available video, and interview witnesses to corroborate the officer's account"},
-                {"label": "C", "text": "Automatically find the use of force out of policy due to the lack of BWC footage"},
-                {"label": "D", "text": "Have the officer write a supplemental report explaining why BWC was not activated and close the review"}
+            "items": [
+                {"label": "A", "text": "Interview the officer about the discrepancy between the TRR narrative and the BWC footage"},
+                {"label": "B", "text": "Preserve and secure all BWC footage — ensure it is flagged as evidence and cannot be altered or deleted"},
+                {"label": "C", "text": "Interview any other witnesses including other officers and civilians who observed the incident"},
+                {"label": "D", "text": "Refer the matter to COPA for investigation as a potential excessive force and false reporting violation"},
+                {"label": "E", "text": "Notify your commanding officer of the discrepancy before taking further action"},
+                {"label": "F", "text": "Document the discrepancy in your supervisor's investigation report with specific timestamps from the BWC"},
             ],
-            "correct_answer": "B",
+            "correct_order": [1, 4, 0, 2, 5, 3],
             "explanation": (
-                "CORRECT ANSWER: B. G03-02-08 requires that BWC non-activation be documented and "
-                "addressed as a separate issue. The TRR review must still be completed using all "
-                "other available evidence. The failure to activate BWC does not automatically make "
-                "the force out of policy, nor does it excuse the sergeant from a thorough review.\n\n"
-                "WHY OTHER ANSWERS ARE WRONG:\n"
-                "A (-1): The explanation may or may not be valid, but the non-activation must still "
-                "be formally documented as a potential violation.\n"
-                "C (-1): Lack of BWC alone does not determine whether force was within policy.\n"
-                "D (-1): A supplemental report is insufficient — the TRR review must be completed "
-                "independently."
+                "Preserve BWC footage (B) first — the primary evidence must be secured. Notify "
+                "commanding officer (E) — a serious discrepancy requires chain of command notification. "
+                "Interview the officer (A) about the discrepancy. Interview other witnesses (C) for "
+                "corroboration. Document findings (F) with timestamps. Refer to COPA (D) if the "
+                "evidence supports false reporting or excessive force.\n\n"
+                "KEY REFERENCE: G03-02-08, Section V (BWC in TRR Review); False Report Protocol"
             ),
-            "io_scores": {"A": -1, "B": 2, "C": -1, "D": -1},
             "difficulty": "hard",
-            "reference": "G03-02-08, Section IV (Video Review); S03-14 (BWC Activation)",
-            "exam_source": "2026 Part 2 Study Guide"
+            "is_premium": True,
+            "reference": "G03-02-08, Section V (BWC in TRR Review)",
         },
 
-        # --- Q18 ---
+        # --- Q23 ---
         {
-            "question_id": "go_q18",
-            "type": "least_appropriate",
+            "question_id": "go_rank_q23",
+            "type": "ranking",
             "category_id": "cat_g03_06_firearm_discharge",
             "category_name": "2026 Part 2: General Orders Study Guide",
-            "title": "Use of Force Review — Findings and Recommendations",
+            "title": "Force Review — Pattern of Repeated Force Use",
             "content": (
-                "After conducting a thorough TRR investigation, the reviewing sergeant "
-                "determines that the officer used force that was not proportional to the "
-                "resistance encountered. The officer punched a handcuffed subject in the face "
-                "while the subject was only verbally abusive."
+                "During TRR reviews, you notice the same officer has submitted five TRRs in "
+                "three months — significantly more than any other officer on the watch. Each "
+                "individual use of force appeared within policy. The officer works a high-crime "
+                "beat. Rank the following actions in the correct priority order per G03-02-08."
             ),
-            "question": "Under G03-02-08, which action is LEAST appropriate?",
-            "options": [
-                {"label": "A", "text": "Find the force within policy because the subject was being verbally abusive"},
-                {"label": "B", "text": "Refer the matter to COPA for further investigation"},
-                {"label": "C", "text": "Document the finding as out of policy and recommend corrective action or discipline"},
-                {"label": "D", "text": "Notify the chain of command and ensure the finding is reviewed at each level"}
+            "items": [
+                {"label": "A", "text": "Review each TRR individually to confirm they were all properly investigated and within policy"},
+                {"label": "B", "text": "Analyze the pattern — look for common factors such as time of day, beat assignment, type of force, and subject demographics"},
+                {"label": "C", "text": "Meet with the officer to discuss the pattern and assess whether additional de-escalation training would be beneficial"},
+                {"label": "D", "text": "Refer the officer for a personnel intervention through the early warning system for additional support"},
+                {"label": "E", "text": "Consult with your commanding officer about the pattern and whether assignment changes should be considered"},
+                {"label": "F", "text": "Document the pattern analysis and your recommendations in a memorandum to the unit commanding officer"},
             ],
-            "correct_answer": "A",
+            "correct_order": [0, 1, 2, 4, 3, 5],
             "explanation": (
-                "CORRECT ANSWER (LEAST APPROPRIATE): A. G03-02-08 requires findings to be based "
-                "on the proportionality of force. Verbal abuse alone NEVER justifies physical "
-                "force, especially against a handcuffed subject. Finding this within policy would "
-                "be a dereliction of supervisory duty and a misapplication of the force policy.\n\n"
-                "WHY OTHER ANSWERS ARE BETTER:\n"
-                "B (+1): COPA referral is appropriate for excessive force findings.\n"
-                "C (+2): Documenting as out of policy with corrective action is the proper response.\n"
-                "D (+1): Chain of command notification ensures proper oversight."
+                "Review each TRR (A) — confirm each incident was properly investigated. Analyze the "
+                "pattern (B) — look for systemic issues. Meet with officer (C) — non-punitive discussion. "
+                "Consult commanding officer (E) about the pattern. Refer for intervention (D) — the early "
+                "warning system provides training and support, NOT discipline, when individual incidents "
+                "are within policy. Document and recommend (F).\n\n"
+                "KEY REFERENCE: G03-02-08, Section VI (Early Intervention); Pattern Review"
             ),
-            "io_scores": {"A": -2, "B": 1, "C": 2, "D": 1},
+            "difficulty": "hard",
+            "is_premium": True,
+            "reference": "G03-02-08, Section VI (Early Intervention)",
+        },
+
+        # --- Q24 ---
+        {
+            "question_id": "go_rank_q24",
+            "type": "ranking",
+            "category_id": "cat_g03_06_firearm_discharge",
+            "category_name": "2026 Part 2: General Orders Study Guide",
+            "title": "Force Review — Findings and Recommendations After TRR",
+            "content": (
+                "After completing your TRR investigation, you determine the officer's use of "
+                "a Taser on a passive, non-threatening subject was NOT within policy. The subject "
+                "was handcuffed and merely arguing verbally. No injuries resulted. "
+                "Rank the following actions in the correct priority order per G03-02-08."
+            ),
+            "items": [
+                {"label": "A", "text": "Document your finding that the Taser deployment was not within policy in your investigation report"},
+                {"label": "B", "text": "Forward the investigation to your commanding officer with a recommendation for corrective action"},
+                {"label": "C", "text": "Notify COPA of the out-of-policy use of force for potential misconduct investigation"},
+                {"label": "D", "text": "Counsel the officer on the appropriate use of Taser and review the force options continuum"},
+                {"label": "E", "text": "Review whether the subject filed a complaint and ensure the subject was informed of the complaint process"},
+                {"label": "F", "text": "Consider whether additional training for the entire watch on Taser policy is warranted"},
+            ],
+            "correct_order": [0, 1, 2, 3, 4, 5],
+            "explanation": (
+                "Document the finding (A) — the investigation report must reflect the out-of-policy "
+                "determination. Forward to CO (B) with recommendations. Notify COPA (C) — out-of-policy "
+                "force requires COPA notification. Counsel the officer (D) on correct Taser use. Check "
+                "complaint status (E) — ensure subject's rights are protected. Consider unit training "
+                "(F) — systemic improvement.\n\n"
+                "KEY REFERENCE: G03-02-08, Section VII (Findings); COPA Notification Requirements"
+            ),
             "difficulty": "medium",
-            "reference": "G03-02-08, Section V (Findings); Proportionality Standard",
-            "exam_source": "2026 Part 2 Study Guide"
+            "is_premium": True,
+            "reference": "G03-02-08, Section VII (Findings and Recommendations)",
         },
 
         # ============================================================
         # G04-02: CRIME SCENE PROTECTION AND PROCESSING
         # ============================================================
 
-        # --- Q19 ---
+        # --- Q25 ---
         {
-            "question_id": "go_q19",
-            "type": "most_appropriate",
+            "question_id": "go_rank_q25",
+            "type": "ranking",
             "category_id": "cat_g03_06_firearm_discharge",
             "category_name": "2026 Part 2: General Orders Study Guide",
-            "title": "Crime Scene — First Responding Officer Duties",
+            "title": "Crime Scene — First Responding Officer at Homicide",
             "content": (
                 "You are the first officer to arrive at a reported homicide. The victim is "
                 "lying in the living room of an apartment. A family member is performing CPR. "
-                "You confirm the victim has no pulse."
+                "You confirm the victim has no pulse and see multiple stab wounds. A bloody "
+                "knife is on the kitchen counter. Rank the following actions in the correct "
+                "priority order per G04-02."
             ),
-            "question": "Under G04-02, what is the MOST appropriate sequence of actions?",
-            "options": [
-                {"label": "A", "text": "Confirm death, begin processing the crime scene immediately since evidence may be lost"},
-                {"label": "B", "text": "Confirm death, secure the scene by establishing an inner and outer perimeter, protect evidence pathways, and request detectives and ET"},
-                {"label": "C", "text": "Confirm death, then interview the family member who was performing CPR before securing the scene"},
-                {"label": "D", "text": "Leave the victim in place and wait outside for detectives to arrive before entering the scene"}
+            "items": [
+                {"label": "A", "text": "Confirm death by checking for signs of life — if no pulse and obvious fatal injuries, note the time"},
+                {"label": "B", "text": "Secure the scene with crime scene tape — establish an inner perimeter around the apartment and outer perimeter at the building entrance"},
+                {"label": "C", "text": "Start a crime scene log documenting every person who enters or exits the scene with their name, badge, and time"},
+                {"label": "D", "text": "Protect evidence pathways — limit foot traffic through the apartment to a single entry/exit path"},
+                {"label": "E", "text": "Request detectives, Evidence Technicians, and the Medical Examiner to respond to the scene"},
+                {"label": "F", "text": "Identify and separate the family member and any other potential witnesses — do NOT let them leave"},
             ],
-            "correct_answer": "B",
+            "correct_order": [0, 1, 3, 5, 2, 4],
             "explanation": (
-                "CORRECT ANSWER: B. G04-02 establishes clear first-responder duties at crime "
-                "scenes. After confirming death: (1) secure the scene with inner/outer perimeters, "
-                "(2) protect evidence pathways by limiting foot traffic, (3) start a crime scene "
-                "log of everyone who enters, and (4) request detectives and Evidence Technicians. "
-                "Scene security is the foundation of all subsequent investigation.\n\n"
-                "WHY OTHER ANSWERS ARE WRONG:\n"
-                "A (-2): Beat officers do NOT process crime scenes — that's for detectives and ET.\n"
-                "C (-1): Interviews are important but securing the scene takes priority.\n"
-                "D (-1): Officers must enter to confirm death and begin securing — waiting outside "
-                "leaves the scene unprotected."
+                "Confirm death (A) — assess for signs of life first. Secure the scene (B) with inner "
+                "and outer perimeters. Protect evidence pathways (D) — limit foot traffic. Identify "
+                "and separate witnesses (F) — the family member may have critical information. Start "
+                "crime scene log (C) — document everyone who enters. Request detectives and ET (E) — "
+                "beat officers do NOT process homicide scenes.\n\n"
+                "KEY REFERENCE: G04-02, Section III (First Responder Duties); Scene Security"
             ),
-            "io_scores": {"A": -2, "B": 2, "C": -1, "D": -1},
             "difficulty": "medium",
-            "reference": "G04-02, Section III (First Responder Duties); Scene Security",
-            "exam_source": "2026 Part 2 Study Guide"
+            "is_premium": True,
+            "reference": "G04-02, Section III (First Responder Duties)",
         },
-
-        # --- Q20 ---
-        {
-            "question_id": "go_q20",
-            "type": "most_appropriate",
-            "category_id": "cat_g03_06_firearm_discharge",
-            "category_name": "2026 Part 2: General Orders Study Guide",
-            "title": "Crime Scene — Evidence Integrity and Chain of Custody",
-            "content": (
-                "At an OID scene, a detective notices that a responding officer picked up "
-                "shell casings from the street and placed them on the hood of a squad car "
-                "'so they wouldn't get run over.'"
-            ),
-            "question": "Under G04-02, what is the MOST appropriate response?",
-            "options": [
-                {"label": "A", "text": "Thank the officer for preserving the evidence and continue processing"},
-                {"label": "B", "text": "Document the officer's actions, the original locations of the casings if known, photograph current positions, and note the chain of custody breach in the crime scene report"},
-                {"label": "C", "text": "Return the casings to their approximate original locations and photograph them there"},
-                {"label": "D", "text": "Discard the casings since their evidentiary value is now compromised"}
-            ],
-            "correct_answer": "B",
-            "explanation": (
-                "CORRECT ANSWER: B. G04-02 requires meticulous documentation of evidence handling. "
-                "When evidence has been moved, the detective must document who moved it, from where, "
-                "to where, and when. The original positions should be noted if they can be determined. "
-                "The chain of custody breach must be documented but does NOT destroy evidentiary value — "
-                "the evidence is still important.\n\n"
-                "WHY OTHER ANSWERS ARE WRONG:\n"
-                "A (-1): The officer's action was improper — it should be documented, not praised.\n"
-                "C (-2): Returning evidence to 'approximate' locations creates false documentation.\n"
-                "D (-2): Discarding evidence is destruction — the casings still have forensic value."
-            ),
-            "io_scores": {"A": -1, "B": 2, "C": -2, "D": -2},
-            "difficulty": "hard",
-            "reference": "G04-02, Section IV (Evidence Handling); Chain of Custody",
-            "exam_source": "2026 Part 2 Study Guide"
-        },
-
-        # --- Q21 ---
-        {
-            "question_id": "go_q21",
-            "type": "least_appropriate",
-            "category_id": "cat_g03_06_firearm_discharge",
-            "category_name": "2026 Part 2: General Orders Study Guide",
-            "title": "Crime Scene — Expanding the Scene",
-            "content": (
-                "Detectives are processing a shooting scene on a residential street. A witness "
-                "approaches and says 'the shooter ran through the alley and dropped something "
-                "near the dumpster two blocks east.' The current crime scene perimeter does not "
-                "include that alley."
-            ),
-            "question": "Under G04-02, which action is LEAST appropriate?",
-            "options": [
-                {"label": "A", "text": "Immediately expand the crime scene perimeter to include the alley and dumpster area"},
-                {"label": "B", "text": "Tell the witness the alley is outside your crime scene and it's not your responsibility"},
-                {"label": "C", "text": "Send officers to secure the alley and dumpster area as an extension of the crime scene"},
-                {"label": "D", "text": "Document the witness information and coordinate with ET to process the secondary location"}
-            ],
-            "correct_answer": "B",
-            "explanation": (
-                "CORRECT ANSWER (LEAST APPROPRIATE): B. G04-02 requires detectives to expand "
-                "crime scenes when new evidence or information indicates additional areas are "
-                "relevant. Dismissing a witness tip about discarded evidence is a failure of "
-                "investigative duty. Crime scenes are not fixed — they grow as information develops.\n\n"
-                "WHY OTHER ANSWERS ARE BETTER:\n"
-                "A (+1): Expanding the perimeter is appropriate but may be impractical for two blocks.\n"
-                "C (+2): Sending officers to secure the secondary location is the best immediate response.\n"
-                "D (+1): Proper documentation and ET coordination ensures thorough processing."
-            ),
-            "io_scores": {"A": 1, "B": -2, "C": 2, "D": 1},
-            "difficulty": "medium",
-            "reference": "G04-02, Section V (Scene Expansion); Secondary Crime Scenes",
-            "exam_source": "2026 Part 2 Study Guide"
-        },
-
-        # --- Q22 ---
-        {
-            "question_id": "go_q22",
-            "type": "most_appropriate",
-            "category_id": "cat_g03_06_firearm_discharge",
-            "category_name": "2026 Part 2: General Orders Study Guide",
-            "title": "Crime Scene — Crime Scene Log",
-            "content": (
-                "You are the officer assigned to maintain the crime scene log at a homicide "
-                "scene. A deputy chief arrives and wants to enter the crime scene to view the "
-                "victim. He tells you not to log his entry because he doesn't want it documented."
-            ),
-            "question": "Under G04-02, what is the MOST appropriate response?",
-            "options": [
-                {"label": "A", "text": "Allow the deputy chief to enter without logging — he outranks you"},
-                {"label": "B", "text": "Respectfully inform the deputy chief that ALL persons entering the scene must be logged per G04-02 and document his entry"},
-                {"label": "C", "text": "Log the entry but mark it as 'anonymous' to avoid conflict"},
-                {"label": "D", "text": "Refuse to let the deputy chief enter the scene entirely"}
-            ],
-            "correct_answer": "B",
-            "explanation": (
-                "CORRECT ANSWER: B. G04-02 requires that EVERY person entering the crime scene "
-                "be documented on the crime scene log — no exceptions, regardless of rank. This "
-                "ensures evidence integrity and accountability. The officer should be respectful "
-                "but firm in following the policy.\n\n"
-                "WHY OTHER ANSWERS ARE WRONG:\n"
-                "A (-2): Rank does not exempt anyone from crime scene logging requirements.\n"
-                "C (-1): 'Anonymous' entries undermine the purpose of the log.\n"
-                "D (-1): Refusing entry entirely may not be appropriate — the deputy chief can enter "
-                "if he has a legitimate purpose, but he MUST be logged."
-            ),
-            "io_scores": {"A": -2, "B": 2, "C": -1, "D": -1},
-            "difficulty": "hard",
-            "reference": "G04-02, Section III (Crime Scene Log); Documentation Requirements",
-            "exam_source": "2026 Part 2 Study Guide"
-        },
-
-        # ============================================================
-        # S03-14: BODY WORN CAMERAS
-        # ============================================================
-
-        # --- Q23 ---
-        {
-            "question_id": "go_q23",
-            "type": "most_appropriate",
-            "category_id": "cat_g03_06_firearm_discharge",
-            "category_name": "2026 Part 2: General Orders Study Guide",
-            "title": "BWC — Mandatory Activation Events",
-            "content": (
-                "An officer equipped with a body-worn camera is dispatched to a call of a "
-                "disturbance. While en route, the officer receives updated information that "
-                "the disturbance involves a domestic battery in progress."
-            ),
-            "question": "Under S03-14, when must the officer activate the BWC?",
-            "options": [
-                {"label": "A", "text": "Upon arrival at the scene"},
-                {"label": "B", "text": "Only if force is used during the encounter"},
-                {"label": "C", "text": "As soon as reasonably practical — before exiting the vehicle or making contact"},
-                {"label": "D", "text": "After making initial contact with the parties involved"}
-            ],
-            "correct_answer": "C",
-            "explanation": (
-                "CORRECT ANSWER: C. S03-14 requires BWC activation as soon as reasonably practical "
-                "when responding to calls for service that may involve law enforcement activity. "
-                "This typically means before exiting the vehicle. Domestic battery calls are "
-                "mandatory activation events. Waiting until arrival (A), contact (D), or force (B) "
-                "misses critical preliminary interactions.\n\n"
-                "WHY OTHER ANSWERS ARE WRONG:\n"
-                "A (-1): Activation should occur before arrival — not upon arrival.\n"
-                "B (-2): BWC is not just for force encounters — all enforcement activity must be recorded.\n"
-                "D (-1): Contact may happen before the officer can activate — too late."
-            ),
-            "io_scores": {"A": -1, "B": -2, "C": 2, "D": -1},
-            "difficulty": "medium",
-            "reference": "S03-14, Section IV (Mandatory Activation); Activation Timing",
-            "exam_source": "2026 Part 2 Study Guide"
-        },
-
-        # --- Q24 ---
-        {
-            "question_id": "go_q24",
-            "type": "least_appropriate",
-            "category_id": "cat_g03_06_firearm_discharge",
-            "category_name": "2026 Part 2: General Orders Study Guide",
-            "title": "BWC — Prohibited Actions",
-            "content": (
-                "After a use of force incident, the involved officer reviews his BWC footage "
-                "in the squad car before his sergeant arrives to begin the TRR investigation."
-            ),
-            "question": "Under S03-14, which aspect of this situation is LEAST appropriate?",
-            "options": [
-                {"label": "A", "text": "The officer reviewed BWC footage before providing a statement — this may allow him to tailor his account to match the video"},
-                {"label": "B", "text": "The officer was trying to accurately recall events by reviewing the footage"},
-                {"label": "C", "text": "The officer should wait for a supervisor before reviewing any footage"},
-                {"label": "D", "text": "BWC footage review is completely prohibited for involved officers under any circumstances"}
-            ],
-            "correct_answer": "A",
-            "explanation": (
-                "CORRECT ANSWER (LEAST APPROPRIATE): A. S03-14 and G03-02-08 establish specific "
-                "protocols for BWC review after use of force incidents. Involved officers reviewing "
-                "footage before providing statements is problematic because it can allow them to "
-                "tailor their account. The review process should be controlled and documented — "
-                "supervisors should be present during any review.\n\n"
-                "WHY OTHER ANSWERS ARE LESS PROBLEMATIC:\n"
-                "B (+1): Accurate recall is a legitimate goal but must follow proper protocols.\n"
-                "C (+1): Waiting for a supervisor is the correct approach.\n"
-                "D (-1): Review is not completely prohibited — but it must follow specific procedures."
-            ),
-            "io_scores": {"A": -2, "B": 1, "C": 1, "D": -1},
-            "difficulty": "hard",
-            "reference": "S03-14, Section VI (Post-Incident Review); G03-02-08",
-            "exam_source": "2026 Part 2 Study Guide"
-        },
-
-        # --- Q25 ---
-        {
-            "question_id": "go_q25",
-            "type": "most_appropriate",
-            "category_id": "cat_g03_06_firearm_discharge",
-            "category_name": "2026 Part 2: General Orders Study Guide",
-            "title": "BWC — Recording in Sensitive Locations",
-            "content": (
-                "Officers respond to a domestic violence call at a private residence. The "
-                "victim, who has visible injuries, asks the officer to turn off the body-worn "
-                "camera because she is embarrassed and does not want to be recorded."
-            ),
-            "question": "Under S03-14, what is the MOST appropriate response?",
-            "options": [
-                {"label": "A", "text": "Turn off the camera immediately — the victim has a right to privacy in her own home"},
-                {"label": "B", "text": "Inform the victim that BWC must remain active during law enforcement activity but explain it is for her protection and the integrity of the investigation"},
-                {"label": "C", "text": "Turn off the camera since domestic violence is a sensitive situation"},
-                {"label": "D", "text": "Continue recording but do not tell the victim the camera is on"}
-            ],
-            "correct_answer": "B",
-            "explanation": (
-                "CORRECT ANSWER: B. S03-14 requires BWC to remain active during all law enforcement "
-                "activity, including domestic violence calls. Officers cannot deactivate based on a "
-                "subject's request during an active investigation. However, officers should inform "
-                "subjects they are being recorded and explain the purpose. The recording protects "
-                "both the victim and the officers.\n\n"
-                "WHY OTHER ANSWERS ARE WRONG:\n"
-                "A (-2): Officers cannot deactivate during mandatory recording events.\n"
-                "C (-2): Sensitivity does not override the mandatory recording requirement.\n"
-                "D (-1): Continuing without informing is less transparent than policy intends."
-            ),
-            "io_scores": {"A": -2, "B": 2, "C": -2, "D": -1},
-            "difficulty": "medium",
-            "reference": "S03-14, Section V (Recording Requirements); Victim Interactions",
-            "exam_source": "2026 Part 2 Study Guide"
-        },
-
-        # ============================================================
-        # G03-06: OID RESPONSE AND INVESTIGATION (Core Directive)
-        # ============================================================
 
         # --- Q26 ---
         {
-            "question_id": "go_q26",
-            "type": "most_appropriate",
+            "question_id": "go_rank_q26",
+            "type": "ranking",
             "category_id": "cat_g03_06_firearm_discharge",
             "category_name": "2026 Part 2: General Orders Study Guide",
-            "title": "OID — Definition and Scope",
+            "title": "Crime Scene — Evidence Integrity After Contamination",
             "content": (
-                "A subject in custody dies after officers delayed calling for medical attention "
-                "for over an hour despite the subject complaining of chest pains. The officers "
-                "were on duty at the time."
+                "At an officer-involved death scene, you discover that a responding officer "
+                "picked up shell casings from the street and placed them on the hood of a "
+                "squad car 'so they wouldn't get run over.' The original locations are unknown. "
+                "Rank the following actions in the correct priority order per G04-02."
             ),
-            "question": "Under G03-06, does this incident qualify as an officer-involved death?",
-            "options": [
-                {"label": "A", "text": "No, because the officers did not use physical force against the subject"},
-                {"label": "B", "text": "Yes, because it resulted from an intentional omission (unreasonable delay in seeking medical attention) by on-duty officers"},
-                {"label": "C", "text": "Only if the Medical Examiner rules the death was preventable"},
-                {"label": "D", "text": "No, because the death was caused by a medical condition, not police action"}
+            "items": [
+                {"label": "A", "text": "Do NOT return the casings to the street — placing them in approximate locations creates false evidence positioning"},
+                {"label": "B", "text": "Photograph the casings in their current location on the squad car hood"},
+                {"label": "C", "text": "Document the chain of custody breach — who moved them, from where (if known), to where, and when"},
+                {"label": "D", "text": "Interview the officer who moved them to determine if he remembers the approximate original locations"},
+                {"label": "E", "text": "Collect and inventory the casings with a note in the evidence report about the custody breach"},
+                {"label": "F", "text": "Brief the lead detective and COPA investigator about the evidence contamination"},
             ],
-            "correct_answer": "B",
+            "correct_order": [0, 1, 2, 3, 5, 4],
             "explanation": (
-                "CORRECT ANSWER: B. Per G03-06 and 50 ILCS 727/1-5, an 'officer-involved death' "
-                "includes any death resulting directly from an intentional omission, INCLUDING "
-                "unreasonable delay involving a person in custody OR intentional failure to seek "
-                "medical attention when the need is apparent.\n\n"
-                "STUDY TIP: The definition is BROADER than most people think. It covers omissions, "
-                "delays, motor vehicle accidents during apprehension, and actions by off-duty "
-                "officers performing law enforcement duties.\n\n"
-                "WHY OTHER ANSWERS ARE WRONG:\n"
-                "A (-2): Physical force is NOT required — omissions count.\n"
-                "C (-1): ME ruling is irrelevant to classification under the statute.\n"
-                "D (-2): The statute explicitly covers failure to seek medical attention."
+                "Do NOT return casings (A) — this would create false documentation, which is worse "
+                "than the original contamination. Photograph current location (B) — document the actual "
+                "state. Document the breach (C) — who, what, when. Interview the officer (D) for "
+                "approximate originals. Brief lead detective and COPA (F) about the contamination. "
+                "Collect and inventory (E) with breach documentation. The casings still have forensic "
+                "value (fingerprints, ballistic matching) despite the location contamination.\n\n"
+                "KEY REFERENCE: G04-02, Section IV (Evidence Integrity); Chain of Custody"
             ),
-            "io_scores": {"A": -2, "B": 2, "C": -1, "D": -2},
             "difficulty": "hard",
-            "reference": "G03-06, Section II-A-3; 50 ILCS 727/1-5",
-            "exam_source": "2026 Part 2 Study Guide"
+            "is_premium": True,
+            "reference": "G04-02, Section IV (Evidence Integrity)",
         },
 
         # --- Q27 ---
         {
-            "question_id": "go_q27",
-            "type": "most_appropriate",
+            "question_id": "go_rank_q27",
+            "type": "ranking",
             "category_id": "cat_g03_06_firearm_discharge",
             "category_name": "2026 Part 2: General Orders Study Guide",
-            "title": "OID — COPA vs. CPD Investigative Authority",
+            "title": "Crime Scene — Expanding the Scene After New Evidence",
             "content": (
-                "An officer-involved shooting has occurred where the subject was struck and "
-                "seriously injured but survived. Both COPA investigators and CPD detectives "
-                "are responding to the scene."
+                "At a shooting scene, you have secured a perimeter around the victim's body "
+                "and shell casings. A witness now tells you the shooter ran through the alley "
+                "behind the building and dropped a gun in a dumpster two blocks away. "
+                "Rank the following actions in the correct priority order per G04-02."
             ),
-            "question": "Under G03-06, who has primary investigative authority?",
-            "options": [
-                {"label": "A", "text": "CPD detectives have full authority since the subject survived"},
-                {"label": "B", "text": "COPA has primary authority over the misconduct/force investigation, while CPD Bureau of Detectives handles the criminal investigation of the underlying incident"},
-                {"label": "C", "text": "The State's Attorney's Office takes over all investigations involving officer shootings"},
-                {"label": "D", "text": "The FBI automatically takes jurisdiction for all officer-involved shootings"}
+            "items": [
+                {"label": "A", "text": "Immediately dispatch officers to secure the dumpster area and prevent anyone from accessing it"},
+                {"label": "B", "text": "Extend the crime scene perimeter to include the alley and the path the suspect reportedly took"},
+                {"label": "C", "text": "Do NOT retrieve the gun from the dumpster yourself — wait for Evidence Technicians to process it properly"},
+                {"label": "D", "text": "Document the witness's statement in detail including the time, route described, and dumpster location"},
+                {"label": "E", "text": "Canvas the alley for additional evidence — discarded clothing, blood trail, additional witnesses"},
+                {"label": "F", "text": "Notify the lead detective of the expanded scene and request additional ET resources"},
             ],
-            "correct_answer": "B",
+            "correct_order": [0, 1, 2, 5, 3, 4],
             "explanation": (
-                "CORRECT ANSWER: B. G03-06 establishes a dual-track investigation model. COPA "
-                "investigates the officer's use of force (the misconduct/accountability track). "
-                "CPD Bureau of Detectives investigates the criminal incident that led to the "
-                "encounter (e.g., the offense the subject committed). These are parallel but "
-                "separate investigations.\n\n"
-                "WHY OTHER ANSWERS ARE WRONG:\n"
-                "A (-2): COPA has authority over the force investigation regardless of outcome.\n"
-                "C (-1): The SAO may be consulted but does not take over the investigation.\n"
-                "D (-2): The FBI does not automatically have jurisdiction."
+                "Dispatch to secure dumpster (A) — prevent evidence loss or tampering. Extend perimeter "
+                "(B) to include the flight path. Do NOT retrieve gun yourself (C) — ET must process for "
+                "prints, DNA. Notify lead detective (F) for additional resources. Document the witness "
+                "statement (D) in detail. Canvas the alley (E) for more evidence.\n\n"
+                "KEY REFERENCE: G04-02, Section V (Scene Expansion); Evidence Recovery"
             ),
-            "io_scores": {"A": -2, "B": 2, "C": -1, "D": -2},
-            "difficulty": "hard",
-            "reference": "G03-06, Section IV (Investigative Authority); COPA Jurisdiction",
-            "exam_source": "2026 Part 2 Study Guide"
+            "difficulty": "medium",
+            "is_premium": True,
+            "reference": "G04-02, Section V (Scene Expansion)",
         },
 
         # --- Q28 ---
         {
-            "question_id": "go_q28",
-            "type": "most_appropriate",
-            "category_id": "cat_g03_06_firearm_discharge",
-            "category_name": "2026 Part 2: General Orders Study Guide",
-            "title": "OID — Involved Member Immediate Duties",
-            "content": (
-                "An officer has just been involved in a shooting where the subject is deceased. "
-                "Other officers have arrived on scene. The involved officer is physically uninjured."
-            ),
-            "question": "Under G03-06, what are the involved member's immediate duties?",
-            "options": [
-                {"label": "A", "text": "Provide a full detailed statement to the first supervisor on scene"},
-                {"label": "B", "text": "Remain on scene, do not discuss the incident with other officers, provide a public safety statement, and request FOP representation"},
-                {"label": "C", "text": "Immediately leave the scene and report to the district station"},
-                {"label": "D", "text": "Begin securing evidence and shell casings from the scene"}
-            ],
-            "correct_answer": "B",
-            "explanation": (
-                "CORRECT ANSWER: B. G03-06 requires involved members to: (1) remain on scene, "
-                "(2) not discuss the incident with other involved members, (3) provide a public "
-                "safety statement (limited to threats, direction of flight, outstanding suspects, "
-                "injuries), and (4) request union representation before any further statements. "
-                "The separation requirement prevents cross-contamination of accounts.\n\n"
-                "WHY OTHER ANSWERS ARE WRONG:\n"
-                "A (-2): A full detailed statement should NOT be given immediately — only a public "
-                "safety statement.\n"
-                "C (-2): Leaving the scene is prohibited.\n"
-                "D (-1): Evidence collection is not the involved member's role."
-            ),
-            "io_scores": {"A": -2, "B": 2, "C": -2, "D": -1},
-            "difficulty": "hard",
-            "reference": "G03-06, Section VI (Involved Member Duties); Public Safety Statement",
-            "exam_source": "2026 Part 2 Study Guide"
-        },
-
-        # --- Q29 ---
-        {
-            "question_id": "go_q29",
-            "type": "most_appropriate",
-            "category_id": "cat_g03_06_firearm_discharge",
-            "category_name": "2026 Part 2: General Orders Study Guide",
-            "title": "OID — CPIC Notification Requirements",
-            "content": (
-                "An officer-involved death incident has just occurred. The watch commander "
-                "is the first supervisor notified."
-            ),
-            "question": "Under G03-06, which entity must be notified through CPIC?",
-            "options": [
-                {"label": "A", "text": "Only the Area Detective Division"},
-                {"label": "B", "text": "COPA, the State's Attorney's Office, the Independent Monitor, the Area Deputy Chief, and additional entities specified in the notification list"},
-                {"label": "C", "text": "Only COPA — they handle all other notifications"},
-                {"label": "D", "text": "Only the Superintendent's Office"}
-            ],
-            "correct_answer": "B",
-            "explanation": (
-                "CORRECT ANSWER: B. G03-06 requires an extensive notification chain through CPIC "
-                "(Chicago Police Information Center). Notifications must include COPA, the State's "
-                "Attorney's Office, the Independent Monitor, the Area Deputy Chief, the Chaplain "
-                "Unit, and other entities as specified in the order. This ensures all stakeholders "
-                "are informed simultaneously.\n\n"
-                "WHY OTHER ANSWERS ARE WRONG:\n"
-                "A (-2): Detective Division is just one of many required notifications.\n"
-                "C (-1): COPA does not handle CPD's internal notifications.\n"
-                "D (-1): The Superintendent's Office is one notification, not the only one."
-            ),
-            "io_scores": {"A": -2, "B": 2, "C": -1, "D": -1},
-            "difficulty": "medium",
-            "reference": "G03-06, Section V-C (CPIC Notifications); Notification Chain",
-            "exam_source": "2026 Part 2 Study Guide"
-        },
-
-        # --- Q30 ---
-        {
-            "question_id": "go_q30",
-            "type": "most_appropriate",
-            "category_id": "cat_g03_06_firearm_discharge",
-            "category_name": "2026 Part 2: General Orders Study Guide",
-            "title": "OID — Street Deputy / Incident Commander Role",
-            "content": (
-                "A high-profile officer-involved shooting has occurred. The Street Deputy "
-                "(or designated incident commander) arrives on scene."
-            ),
-            "question": "Under G03-06, what is the Street Deputy's PRIMARY role?",
-            "options": [
-                {"label": "A", "text": "Conduct the criminal investigation of the shooting"},
-                {"label": "B", "text": "Assume overall command of the scene, coordinate CPD and COPA activities, ensure all required protocols are followed, and manage resources"},
-                {"label": "C", "text": "Interview the involved officer and witnesses"},
-                {"label": "D", "text": "Hold a press conference about the incident"}
-            ],
-            "correct_answer": "B",
-            "explanation": (
-                "CORRECT ANSWER: B. G03-06 designates the Street Deputy or incident commander as "
-                "having overall scene authority. Their role is to coordinate all responding entities "
-                "(CPD units, COPA, ET, medical), ensure compliance with protocols, manage resources, "
-                "and serve as the single point of command. They do NOT conduct investigations or "
-                "interviews themselves.\n\n"
-                "WHY OTHER ANSWERS ARE WRONG:\n"
-                "A (-2): The criminal investigation is handled by the Bureau of Detectives.\n"
-                "C (-2): Interviews are conducted by COPA and/or detectives — not the IC.\n"
-                "D (-1): Media communication goes through the Office of Communications."
-            ),
-            "io_scores": {"A": -2, "B": 2, "C": -2, "D": -1},
-            "difficulty": "medium",
-            "reference": "G03-06, Section VII (Incident Commander); Street Deputy Role",
-            "exam_source": "2026 Part 2 Study Guide"
-        },
-
-        # --- Q31 ---
-        {
-            "question_id": "go_q31",
-            "type": "most_appropriate",
-            "category_id": "cat_g03_06_firearm_discharge",
-            "category_name": "2026 Part 2: General Orders Study Guide",
-            "title": "OID — Firearm Recovery from Involved Officer",
-            "content": (
-                "An officer has discharged his firearm during an OID incident. COPA and "
-                "detectives are on scene. The involved officer's firearm needs to be recovered "
-                "as evidence."
-            ),
-            "question": "Under G03-06, what is the correct procedure for recovering the involved officer's firearm?",
-            "options": [
-                {"label": "A", "text": "The officer keeps his firearm until he returns to the district station"},
-                {"label": "B", "text": "The involved officer's firearm is recovered at the scene by a supervisor, who provides a replacement weapon, and the discharged firearm is inventoried as evidence"},
-                {"label": "C", "text": "COPA investigators take the firearm directly from the officer"},
-                {"label": "D", "text": "The firearm is only recovered if the officer requests to surrender it"}
-            ],
-            "correct_answer": "B",
-            "explanation": (
-                "CORRECT ANSWER: B. G03-06 requires that the involved officer's firearm be "
-                "recovered at the scene by a CPD supervisor. The officer must be provided with "
-                "a replacement/loaner weapon. The discharged firearm is inventoried into evidence "
-                "for ballistic analysis and investigation purposes. This is a mandatory procedure — "
-                "not discretionary.\n\n"
-                "WHY OTHER ANSWERS ARE WRONG:\n"
-                "A (-2): The firearm must be recovered at the scene — not later at the station.\n"
-                "C (-1): CPD supervisors recover the firearm — not COPA investigators.\n"
-                "D (-2): Recovery is mandatory — not dependent on the officer's request."
-            ),
-            "io_scores": {"A": -2, "B": 2, "C": -1, "D": -2},
-            "difficulty": "medium",
-            "reference": "G03-06, Section VII (Firearm Recovery); Evidence Procedures",
-            "exam_source": "2026 Part 2 Study Guide"
-        },
-
-        # --- Q32 ---
-        {
-            "question_id": "go_q32",
-            "type": "least_appropriate",
-            "category_id": "cat_g03_06_firearm_discharge",
-            "category_name": "2026 Part 2: General Orders Study Guide",
-            "title": "OID — Video Evidence Review Protocol",
-            "content": (
-                "At an OID scene, BWC and POD camera footage is available. Both COPA "
-                "investigators and CPD detectives want to review the video evidence."
-            ),
-            "question": "Under G03-06, which action regarding video evidence is LEAST appropriate?",
-            "options": [
-                {"label": "A", "text": "COPA and CPD review the video independently without documenting who viewed it"},
-                {"label": "B", "text": "Document each Department member who views video and whether COPA was present"},
-                {"label": "C", "text": "COPA and CPD coordinate on the timing and process of video review"},
-                {"label": "D", "text": "Preserve all original video files and maintain chain of custody documentation"}
-            ],
-            "correct_answer": "A",
-            "explanation": (
-                "CORRECT ANSWER (LEAST APPROPRIATE): A. G03-06 Section VIII-E-3-b requires that "
-                "the Bureau of Detectives secondary case report document EACH Department member "
-                "who viewed video evidence, including whether COPA was present during the viewing. "
-                "Undocumented review undermines evidence integrity and accountability.\n\n"
-                "WHY OTHER ANSWERS ARE BETTER:\n"
-                "B (+2): Individual documentation is exactly what the order requires.\n"
-                "C (+1): Coordination between COPA and CPD is expected.\n"
-                "D (+1): Preservation and chain of custody are fundamental requirements."
-            ),
-            "io_scores": {"A": -2, "B": 2, "C": 1, "D": 1},
-            "difficulty": "hard",
-            "reference": "G03-06, Section VIII-E-3-b, c; Video Evidence Protocol",
-            "exam_source": "2026 Part 2 Study Guide"
-        },
-
-        # --- Q33 ---
-        {
-            "question_id": "go_q33",
-            "type": "most_appropriate",
-            "category_id": "cat_g03_06_firearm_discharge",
-            "category_name": "2026 Part 2: General Orders Study Guide",
-            "title": "OID — Lead Investigator Certification",
-            "content": (
-                "An officer-involved death has occurred. The department is assembling the "
-                "investigation team as required by Illinois law."
-            ),
-            "question": "What is the MINIMUM certification for the lead investigator under G03-06?",
-            "options": [
-                {"label": "A", "text": "Must be a sworn officer with at least 10 years of experience"},
-                {"label": "B", "text": "Must be certified by the Illinois Law Enforcement Training Standards Board as a Lead Homicide Investigator, or have similar approved training"},
-                {"label": "C", "text": "Must hold the rank of detective or above"},
-                {"label": "D", "text": "Must have previously investigated at least 5 homicide cases"}
-            ],
-            "correct_answer": "B",
-            "explanation": (
-                "CORRECT ANSWER: B. Per G03-06 and 50 ILCS 727/1-10(a), the lead investigator "
-                "must be certified by the Illinois LETSB as a Lead Homicide Investigator or have "
-                "completed equivalent training. This is a statutory requirement, not a department "
-                "preference. Experience or rank alone is insufficient.\n\n"
-                "WHY OTHER ANSWERS ARE WRONG:\n"
-                "A (-1): Years of experience alone do not satisfy the certification requirement.\n"
-                "C (-1): Rank does not substitute for the specific LETSB certification.\n"
-                "D (-1): Case count does not equal formal certification."
-            ),
-            "io_scores": {"A": -1, "B": 2, "C": -1, "D": -1},
-            "difficulty": "hard",
-            "reference": "G03-06, Section IV; 50 ILCS 727/1-10(a)",
-            "exam_source": "2026 Part 2 Study Guide"
-        },
-
-        # --- Q34 ---
-        {
-            "question_id": "go_q34",
-            "type": "most_appropriate",
-            "category_id": "cat_g03_06_firearm_discharge",
-            "category_name": "2026 Part 2: General Orders Study Guide",
-            "title": "OID — Reviewing Supervisor Public Safety Investigation",
-            "content": (
-                "The reviewing supervisor arrives at the scene of an officer-involved shooting. "
-                "The threat has been neutralized, EMS has been called, and the scene is being secured."
-            ),
-            "question": "Under G03-06, what is the reviewing supervisor's immediate task?",
-            "options": [
-                {"label": "A", "text": "Begin a detailed investigation of the officer's use of force"},
-                {"label": "B", "text": "Conduct a public safety investigation: identify outstanding threats, ensure officer safety, coordinate medical response, and separate involved members"},
-                {"label": "C", "text": "Contact the media to issue an initial statement"},
-                {"label": "D", "text": "Interview the involved officer for a full account of events"}
-            ],
-            "correct_answer": "B",
-            "explanation": (
-                "CORRECT ANSWER: B. G03-06 requires the reviewing supervisor to conduct a public "
-                "safety investigation FIRST. This includes: (1) ensuring no outstanding threats, "
-                "(2) coordinating medical care, (3) separating involved and witness members, "
-                "(4) securing the scene, and (5) identifying immediate evidence preservation needs. "
-                "The detailed investigation comes after the scene is safe.\n\n"
-                "WHY OTHER ANSWERS ARE WRONG:\n"
-                "A (-1): Detailed investigation follows the public safety investigation.\n"
-                "C (-2): Media contact is the Office of Communications' role.\n"
-                "D (-2): Full interviews require union representation and COPA involvement."
-            ),
-            "io_scores": {"A": -1, "B": 2, "C": -2, "D": -2},
-            "difficulty": "medium",
-            "reference": "G03-06, Section VII (Reviewing Supervisor); Public Safety Investigation",
-            "exam_source": "2026 Part 2 Study Guide"
-        },
-
-        # --- Q35 ---
-        {
-            "question_id": "go_q35",
-            "type": "most_appropriate",
-            "category_id": "cat_g03_06_firearm_discharge",
-            "category_name": "2026 Part 2: General Orders Study Guide",
-            "title": "OID — Witness Officer Separation",
-            "content": (
-                "Four officers were present during an officer-involved shooting. Two officers "
-                "discharged their firearms (involved members) and two witnessed the event "
-                "(witness officers). All are gathered near the squad cars."
-            ),
-            "question": "Under G03-06, what is the correct approach to these officers?",
-            "options": [
-                {"label": "A", "text": "Keep all four officers together so they can support each other emotionally"},
-                {"label": "B", "text": "Separate ALL four officers — involved members from each other and from witness officers — to prevent cross-contamination of accounts"},
-                {"label": "C", "text": "Separate involved members but witness officers can remain together"},
-                {"label": "D", "text": "Send all four officers back to the station immediately for debriefing"}
-            ],
-            "correct_answer": "B",
-            "explanation": (
-                "CORRECT ANSWER: B. G03-06 mandates that ALL involved and witness members be "
-                "separated as soon as practicable. This means involved members are separated from "
-                "each other AND from witness officers, and witness officers are separated from "
-                "each other. The purpose is to prevent cross-contamination of independent accounts.\n\n"
-                "WHY OTHER ANSWERS ARE WRONG:\n"
-                "A (-2): Keeping officers together allows conscious or unconscious account alignment.\n"
-                "C (-1): Witness officers must also be separated from each other.\n"
-                "D (-1): Officers must remain on scene — not return to the station."
-            ),
-            "io_scores": {"A": -2, "B": 2, "C": -1, "D": -1},
-            "difficulty": "medium",
-            "reference": "G03-06, Section VI (Member Separation); Account Integrity",
-            "exam_source": "2026 Part 2 Study Guide"
-        },
-
-        # ============================================================
-        # CROSS-DIRECTIVE INTEGRATION QUESTIONS
-        # ============================================================
-
-        # --- Q36 ---
-        {
-            "question_id": "go_q36",
-            "type": "most_appropriate",
-            "category_id": "cat_g03_06_firearm_discharge",
-            "category_name": "2026 Part 2: General Orders Study Guide",
-            "title": "Integration — BWC at OID Scene (S03-14 + G03-06)",
-            "content": (
-                "At an OID scene, a supervisor orders all officers to deactivate their BWCs "
-                "'to protect the involved officer's privacy and legal rights.'"
-            ),
-            "question": "Under S03-14 and G03-06, is this order appropriate?",
-            "options": [
-                {"label": "A", "text": "Yes, the supervisor has authority to order BWC deactivation for privacy concerns"},
-                {"label": "B", "text": "No, BWCs must remain active during active law enforcement activity at an OID scene — deactivation for this reason is improper and must be reported"},
-                {"label": "C", "text": "Yes, but only after COPA investigators arrive on scene"},
-                {"label": "D", "text": "The involved officer can choose to deactivate but witness officers cannot"}
-            ],
-            "correct_answer": "B",
-            "explanation": (
-                "CORRECT ANSWER: B. S03-14 requires BWC activation during law enforcement "
-                "activity. An OID scene is a mandatory recording event. Supervisors cannot order "
-                "deactivation to 'protect' an officer — this undermines evidence integrity and "
-                "accountability. G03-06 reinforces that all evidence, including BWC footage, must "
-                "be preserved. An improper deactivation order should be documented and reported.\n\n"
-                "WHY OTHER ANSWERS ARE WRONG:\n"
-                "A (-2): Privacy concerns do not override mandatory recording requirements.\n"
-                "C (-1): COPA's arrival does not trigger deactivation.\n"
-                "D (-1): Neither involved nor witness officers should deactivate."
-            ),
-            "io_scores": {"A": -2, "B": 2, "C": -1, "D": -1},
-            "difficulty": "hard",
-            "reference": "S03-14, Section IV; G03-06, Section VIII (Evidence Preservation)",
-            "exam_source": "2026 Part 2 Study Guide"
-        },
-
-        # --- Q37 ---
-        {
-            "question_id": "go_q37",
-            "type": "most_appropriate",
-            "category_id": "cat_g03_06_firearm_discharge",
-            "category_name": "2026 Part 2: General Orders Study Guide",
-            "title": "Integration — Force Review After OID (G03-02-08 + G03-06)",
-            "content": (
-                "Following an officer-involved shooting where the subject survived, the TRR "
-                "has been submitted. The reviewing sergeant must now investigate the use of force."
-            ),
-            "question": "How does G03-02-08's TRR review interact with G03-06's OID investigation?",
-            "options": [
-                {"label": "A", "text": "The TRR review replaces the need for a G03-06 investigation since it covers the force used"},
-                {"label": "B", "text": "The TRR review and G03-06 investigation are separate processes — the TRR review by the sergeant proceeds in parallel with COPA's investigation under G03-06"},
-                {"label": "C", "text": "The sergeant should wait for COPA's investigation to conclude before completing the TRR review"},
-                {"label": "D", "text": "Only COPA can review the TRR in an OID incident — the sergeant has no role"}
-            ],
-            "correct_answer": "B",
-            "explanation": (
-                "CORRECT ANSWER: B. G03-02-08 and G03-06 create parallel but separate review "
-                "processes. The sergeant completes the TRR review (internal force accountability) "
-                "while COPA conducts its independent investigation under G03-06. Neither replaces "
-                "the other. The sergeant's review should not wait for COPA and should not defer "
-                "to COPA.\n\n"
-                "WHY OTHER ANSWERS ARE WRONG:\n"
-                "A (-2): The TRR review does not replace the G03-06 investigation.\n"
-                "C (-1): Waiting would cause unreasonable delay in the supervisory review.\n"
-                "D (-2): The sergeant retains TRR review responsibilities under G03-02-08."
-            ),
-            "io_scores": {"A": -2, "B": 2, "C": -1, "D": -2},
-            "difficulty": "hard",
-            "reference": "G03-02-08, Section III; G03-06, Section IV",
-            "exam_source": "2026 Part 2 Study Guide"
-        },
-
-        # --- Q38 ---
-        {
-            "question_id": "go_q38",
-            "type": "most_appropriate",
-            "category_id": "cat_g03_06_firearm_discharge",
-            "category_name": "2026 Part 2: General Orders Study Guide",
-            "title": "Integration — Crime Scene at OID (G04-02 + G03-06)",
-            "content": (
-                "At an OID scene where an officer shot a subject, the detective and COPA "
-                "investigator both want to process the scene. COPA wants to begin their "
-                "own evidence collection, and the detective wants to process the underlying "
-                "criminal case evidence."
-            ),
-            "question": "Under G04-02 and G03-06, how should scene processing be coordinated?",
-            "options": [
-                {"label": "A", "text": "COPA processes the scene first, then CPD can process afterward"},
-                {"label": "B", "text": "CPD and COPA coordinate joint scene processing, with Evidence Technicians handling physical evidence under the direction of both investigative tracks"},
-                {"label": "C", "text": "CPD processes the scene and provides COPA with copies of reports"},
-                {"label": "D", "text": "Each agency processes the scene independently at different times"}
-            ],
-            "correct_answer": "B",
-            "explanation": (
-                "CORRECT ANSWER: B. G04-02 and G03-06 require coordinated scene processing. "
-                "Evidence Technicians process the physical evidence under direction from both "
-                "the CPD criminal investigation and the COPA accountability investigation. This "
-                "prevents duplicate processing, maintains evidence integrity, and ensures both "
-                "tracks have access to the same evidence simultaneously.\n\n"
-                "WHY OTHER ANSWERS ARE WRONG:\n"
-                "A (-1): COPA does not have exclusive first access to the scene.\n"
-                "C (-1): Simply providing copies is insufficient — COPA needs to be involved in processing.\n"
-                "D (-2): Independent processing risks evidence contamination and duplication."
-            ),
-            "io_scores": {"A": -1, "B": 2, "C": -1, "D": -2},
-            "difficulty": "hard",
-            "reference": "G04-02, Section IV; G03-06, Section VIII (Scene Processing)",
-            "exam_source": "2026 Part 2 Study Guide"
-        },
-
-        # --- Q39 ---
-        {
-            "question_id": "go_q39",
-            "type": "most_appropriate",
-            "category_id": "cat_g03_06_firearm_discharge",
-            "category_name": "2026 Part 2: General Orders Study Guide",
-            "title": "Integration — De-escalation Failure Leading to OID (G03-02 + G03-06)",
-            "content": (
-                "Officers respond to a mental health crisis call. Despite CIT training, "
-                "the situation escalates and the subject charges at officers with a knife. "
-                "An officer discharges his firearm, fatally striking the subject."
-            ),
-            "question": "Under G03-02 and G03-06, which investigations will occur?",
-            "options": [
-                {"label": "A", "text": "Only a COPA investigation into the shooting"},
-                {"label": "B", "text": "A COPA investigation into the use of force (G03-06), a CPD criminal investigation, AND a G03-02-08 supervisory review of the force and de-escalation efforts"},
-                {"label": "C", "text": "Only an internal affairs investigation"},
-                {"label": "D", "text": "A criminal investigation by the State's Attorney only"}
-            ],
-            "correct_answer": "B",
-            "explanation": (
-                "CORRECT ANSWER: B. Multiple parallel investigations are triggered. COPA "
-                "investigates the use of force under G03-06. CPD Bureau of Detectives conducts "
-                "the criminal investigation. G03-02-08 requires a supervisory review that includes "
-                "evaluating whether de-escalation was properly attempted. Each investigation serves "
-                "a different purpose and none replaces the others.\n\n"
-                "WHY OTHER ANSWERS ARE WRONG:\n"
-                "A (-1): COPA is one investigation but not the only one.\n"
-                "C (-2): Internal affairs is not the sole investigating body.\n"
-                "D (-2): The SAO may be involved but does not conduct the only investigation."
-            ),
-            "io_scores": {"A": -1, "B": 2, "C": -2, "D": -2},
-            "difficulty": "hard",
-            "reference": "G03-02, Section III; G03-06, Section IV; G03-02-08, Section III",
-            "exam_source": "2026 Part 2 Study Guide"
-        },
-
-        # --- Q40 ---
-        {
-            "question_id": "go_q40",
-            "type": "most_appropriate",
-            "category_id": "cat_g03_06_firearm_discharge",
-            "category_name": "2026 Part 2: General Orders Study Guide",
-            "title": "Integration — Force Continuum and Firearm Use (G03-02-01 + G03-02-03)",
-            "content": (
-                "An officer encounters a subject armed with a baseball bat who is threatening "
-                "bystanders. The subject is 30 feet away from the nearest bystander and has "
-                "not yet swung the bat. Multiple officers are on scene."
-            ),
-            "question": "Under G03-02-01 and G03-02-03, what is the MOST appropriate approach?",
-            "options": [
-                {"label": "A", "text": "Immediately use deadly force since the bat is a deadly weapon"},
-                {"label": "B", "text": "Create distance, establish a perimeter, give clear verbal commands to drop the bat, and have less-lethal options (Taser, OC spray) ready while maintaining lethal cover"},
-                {"label": "C", "text": "Have all officers draw their firearms and give a single warning before firing"},
-                {"label": "D", "text": "Approach the subject alone to establish rapport without backup"}
-            ],
-            "correct_answer": "B",
-            "explanation": (
-                "CORRECT ANSWER: B. G03-02-01 and G03-02-03 work together. While a baseball bat "
-                "can be a deadly weapon, the 30-foot distance and multiple officers provide an "
-                "opportunity to use force mitigation: distance, verbal commands, perimeter, and "
-                "less-lethal options. Deadly force is reserved for when the imminent threat cannot "
-                "be resolved by lesser means.\n\n"
-                "WHY OTHER ANSWERS ARE WRONG:\n"
-                "A (-2): Immediate deadly force ignores available de-escalation opportunities.\n"
-                "C (-1): Mass firearm display without attempting lesser means is disproportionate.\n"
-                "D (-2): Approaching alone removes tactical options and increases danger."
-            ),
-            "io_scores": {"A": -2, "B": 2, "C": -1, "D": -2},
-            "difficulty": "hard",
-            "reference": "G03-02-01, Section IV; G03-02-03, Section III",
-            "exam_source": "2026 Part 2 Study Guide"
-        },
-
-        # ============================================================
-        # RANKING QUESTIONS (following seed_ranking_questions.py format)
-        # ============================================================
-
-        # --- Q41 (Ranking) ---
-        {
-            "question_id": "go_rank_q41",
+            "question_id": "go_rank_q28",
             "type": "ranking",
-            "category_id": "cat_g03_06_firearm_discharge",
-            "category_name": "2026 Part 2: General Orders Study Guide",
-            "title": "Officer-Involved Shooting — First Supervisor Response Priority",
-            "content": (
-                "You are the first supervisor to arrive at an officer-involved shooting. "
-                "The subject is down with gunshot wounds. The involved officer is standing "
-                "nearby, visibly shaken but physically uninjured. EMS has not been called. "
-                "Several witness officers are discussing what happened. Rank the following "
-                "actions in the correct priority order."
-            ),
-            "items": [
-                {"label": "A", "text": "Request EMS for the subject and render first aid until they arrive"},
-                {"label": "B", "text": "Separate the involved officer from witness officers and instruct all not to discuss the incident"},
-                {"label": "C", "text": "Obtain a public safety statement from the involved officer (threats, outstanding suspects, direction of flight, injuries)"},
-                {"label": "D", "text": "Secure the scene, establish a perimeter, and begin a crime scene log"},
-                {"label": "E", "text": "Notify CPIC to initiate the required notification chain (COPA, SAO, Deputy Chief, etc.)"},
-                {"label": "F", "text": "Recover the involved officer's firearm and provide a replacement weapon"}
-            ],
-            "correct_order": [0, 3, 1, 2, 4, 5],
-            "explanation": (
-                "Request EMS and render aid (A) is always the top priority — duty to provide medical "
-                "care is both a policy and constitutional requirement. Secure the scene (D) to preserve "
-                "evidence and control access. Separate all members (B) to prevent cross-contamination "
-                "of accounts. Obtain the public safety statement (C) — limited to immediate threats "
-                "and safety information. Notify CPIC (E) to activate the notification chain. Recover "
-                "the firearm (F) after immediate safety and separation are addressed.\n\n"
-                "KEY REFERENCES: G03-06, Sections V-VII; G03-02-03, Section VI (Duty to Render Aid)"
-            ),
-            "difficulty": "hard",
-            "is_premium": True,
-            "reference": "G03-06, Sections V-VII; G03-02-03, Section VI",
-            "created_at": now,
-            "updated_at": now
-        },
-
-        # --- Q42 (Ranking) ---
-        {
-            "question_id": "go_rank_q42",
-            "type": "ranking",
-            "category_id": "cat_g03_06_firearm_discharge",
-            "category_name": "2026 Part 2: General Orders Study Guide",
-            "title": "Use of Force Escalation — Resistant Subject Response Priority",
-            "content": (
-                "You and your partner encounter a domestic battery suspect in the alley behind "
-                "the victim's home. He is intoxicated, shouting threats, and clenching his fists. "
-                "He has not yet made a physical move toward officers but is blocking the alley. "
-                "No weapons are visible. Rank the following response actions in the correct "
-                "priority order per G03-02 and G03-02-01."
-            ),
-            "items": [
-                {"label": "A", "text": "Deploy your Taser in probe mode to immediately incapacitate the subject"},
-                {"label": "B", "text": "Issue clear, firm verbal commands: 'Police — turn around and place your hands behind your back'"},
-                {"label": "C", "text": "Request backup units to establish numerical advantage before making contact"},
-                {"label": "D", "text": "Create distance and move to a position of tactical advantage while maintaining visual contact"},
-                {"label": "E", "text": "Use OC spray if the subject advances aggressively toward officers"},
-                {"label": "F", "text": "Complete a Tactical Response Report (TRR) documenting all force used and the subject's resistance level"}
-            ],
-            "correct_order": [3, 1, 2, 4, 0, 5],
-            "explanation": (
-                "Create distance and tactical positioning (D) first — force mitigation through time "
-                "and distance. Issue verbal commands (B) — always the first force option attempted. "
-                "Request backup (C) to achieve numerical advantage, which often resolves situations "
-                "without physical force. OC spray (E) if the subject advances — appropriate for "
-                "active aggression. Taser (A) is a higher force option reserved for when lesser "
-                "means fail. Document everything in a TRR (F) after the incident is resolved.\n\n"
-                "KEY REFERENCES: G03-02, Section III (Force Mitigation); G03-02-01, Section IV (Force Options)"
-            ),
-            "difficulty": "hard",
-            "is_premium": True,
-            "reference": "G03-02, Section III; G03-02-01, Section IV",
-            "created_at": now,
-            "updated_at": now
-        },
-
-        # --- Q43 (Ranking) ---
-        {
-            "question_id": "go_rank_q43",
-            "type": "ranking",
-            "category_id": "cat_g03_06_firearm_discharge",
-            "category_name": "2026 Part 2: General Orders Study Guide",
-            "title": "Crime Scene Processing at OID — Evidence Priority Order",
-            "content": (
-                "You are the lead detective at an officer-involved death scene. The subject "
-                "was shot and killed after pointing a replica firearm at officers. The replica "
-                "firearm is on the ground near the subject's body. Shell casings are in the "
-                "street. BWC footage exists. COPA has been notified and is en route. Rank the "
-                "following evidence processing actions in the correct priority order per "
-                "G04-02 and G03-06."
-            ),
-            "items": [
-                {"label": "A", "text": "Collect shell casings, the replica firearm, and other physical evidence for inventory"},
-                {"label": "B", "text": "Photograph the entire scene, including the subject's body position, the replica firearm, and all evidence in place with measurement markers"},
-                {"label": "C", "text": "Coordinate with COPA on a joint scene walk-through before any evidence is moved"},
-                {"label": "D", "text": "Ensure all BWC footage is identified, preserved, and a chain of custody log is started"},
-                {"label": "E", "text": "Request Evidence Technicians for forensic processing (fingerprints, DNA, ballistics)"},
-                {"label": "F", "text": "Canvas for additional video sources (POD cameras, private surveillance, Ring doorbells)"}
-            ],
-            "correct_order": [3, 2, 1, 4, 5, 0],
-            "explanation": (
-                "Preserve BWC footage (D) immediately — digital evidence can be overwritten or lost. "
-                "Coordinate with COPA for a joint walk-through (C) before anything is disturbed — "
-                "G03-06 requires COPA involvement. Photograph everything in place (B) before any "
-                "items are moved. Request ET (E) for professional forensic processing. Canvas for "
-                "additional video (F) before it's overwritten by surveillance systems. Collect "
-                "physical evidence (A) only after all documentation and processing is complete.\n\n"
-                "KEY REFERENCES: G04-02, Section IV; G03-06, Section VIII-E"
-            ),
-            "difficulty": "hard",
-            "is_premium": True,
-            "reference": "G04-02, Section IV; G03-06, Section VIII-E",
-            "created_at": now,
-            "updated_at": now
-        },
-
-        # --- Q44 (Ranking) ---
-        {
-            "question_id": "go_rank_q44",
-            "type": "ranking",
-            "category_id": "cat_g03_06_firearm_discharge",
-            "category_name": "2026 Part 2: General Orders Study Guide",
-            "title": "TRR Review Process — Supervisor Investigation Steps",
-            "content": (
-                "A sergeant is assigned to review a TRR submitted after an officer used an "
-                "emergency takedown and OC spray on a subject who was actively resisting arrest. "
-                "The subject sustained a cut above his eye. The officer's BWC was active during "
-                "the incident. Multiple witnesses were present. Rank the following review "
-                "steps in the correct order per G03-02-08."
-            ),
-            "items": [
-                {"label": "A", "text": "Make a final determination on whether the force was within policy and document findings"},
-                {"label": "B", "text": "Review all available BWC and other video footage of the incident"},
-                {"label": "C", "text": "Interview the involved officer about the force used and the subject's resistance"},
-                {"label": "D", "text": "Interview civilian witnesses and other officers who were present"},
-                {"label": "E", "text": "Examine and photograph the subject's injuries and review medical records if available"},
-                {"label": "F", "text": "Review the TRR documentation for completeness and accuracy against the evidence"}
-            ],
-            "correct_order": [1, 4, 3, 2, 5, 0],
-            "explanation": (
-                "Review video first (B) — BWC provides the most objective account of events. "
-                "Examine the subject's injuries (E) to understand the actual force impact. "
-                "Interview witnesses (D) for independent accounts. Interview the involved officer (C) "
-                "after reviewing other evidence to ask informed questions. Review the TRR documentation "
-                "against evidence (F) for consistency. Make the final policy determination (A) only "
-                "after all evidence has been considered.\n\n"
-                "KEY REFERENCES: G03-02-08, Sections III-V"
-            ),
-            "difficulty": "hard",
-            "is_premium": True,
-            "reference": "G03-02-08, Sections III-V",
-            "created_at": now,
-            "updated_at": now
-        },
-
-        # --- Q45 (Ranking) ---
-        {
-            "question_id": "go_rank_q45",
-            "type": "ranking",
-            "category_id": "cat_g03_06_firearm_discharge",
-            "category_name": "2026 Part 2: General Orders Study Guide",
-            "title": "BWC Protocol at Use of Force Scene — Action Priority",
-            "content": (
-                "Officers have used force to arrest a subject after a foot chase. One officer "
-                "deployed a Taser, another used a control hold. The subject is now in custody "
-                "and complaining of pain. Multiple officers have BWC. A bystander recorded "
-                "the incident on a cell phone. Rank the following BWC-related actions in the "
-                "correct priority order per S03-14 and G03-02."
-            ),
-            "items": [
-                {"label": "A", "text": "Have all officers with BWC keep cameras active — do not deactivate until the encounter is fully concluded including transport and medical evaluation"},
-                {"label": "B", "text": "Request EMS for the subject and document the Taser probe removal by medical personnel on BWC"},
-                {"label": "C", "text": "Identify all officers whose BWC captured the incident and note badge numbers and camera IDs"},
-                {"label": "D", "text": "Request the bystander's cell phone video or obtain their contact information for follow-up"},
-                {"label": "E", "text": "Ensure involved officers do not review their own BWC footage until the supervisor review process begins"},
-                {"label": "F", "text": "Complete the BWC metadata log noting activation time, deactivation time, and any gaps in recording"}
-            ],
-            "correct_order": [0, 1, 4, 2, 3, 5],
-            "explanation": (
-                "Keep BWCs active (A) is paramount — deactivating prematurely loses critical evidence "
-                "including medical care and statements. Request EMS and document medical on BWC (B) — "
-                "medical care is a duty and recording it protects everyone. Prevent premature footage "
-                "review (E) to preserve account integrity. Identify all BWC-equipped officers (C) for "
-                "evidence tracking. Obtain bystander video (D) as supplemental evidence. Complete BWC "
-                "metadata logs (F) as the administrative final step.\n\n"
-                "KEY REFERENCES: S03-14, Sections IV-VI; G03-02, Section VI"
-            ),
-            "difficulty": "hard",
-            "is_premium": True,
-            "reference": "S03-14, Sections IV-VI; G03-02, Section VI",
-            "created_at": now,
-            "updated_at": now
-        },
-
-        # ============================================================
-        # ADDITIONAL MOST/LEAST APPROPRIATE QUESTIONS
-        # ============================================================
-
-        # --- Q46 ---
-        {
-            "question_id": "go_q46",
-            "type": "least_appropriate",
-            "category_id": "cat_g03_06_firearm_discharge",
-            "category_name": "2026 Part 2: General Orders Study Guide",
-            "title": "Use of Force — Prohibited Techniques",
-            "content": (
-                "An officer is struggling to control an actively resisting subject during an "
-                "arrest. The subject is grabbing the officer's vest and attempting to headbutt. "
-                "The officer's partner is en route but not yet on scene."
-            ),
-            "question": "Under G03-02, which technique is LEAST appropriate?",
-            "options": [
-                {"label": "A", "text": "Applying a lateral vascular neck restraint (chokehold) to gain control"},
-                {"label": "B", "text": "Using closed-fist strikes to the subject's torso to break the grip"},
-                {"label": "C", "text": "Using a knee strike to the subject's thigh to create distance"},
-                {"label": "D", "text": "Deploying your Taser at close range in drive-stun mode"}
-            ],
-            "correct_answer": "A",
-            "explanation": (
-                "CORRECT ANSWER (LEAST APPROPRIATE): A. G03-02 PROHIBITS chokeholds and lateral "
-                "vascular neck restraints (LVNR) except when deadly force is justified. A "
-                "chokehold applied to someone who is actively resisting — but not presenting a "
-                "deadly threat — is a prohibited technique and a serious policy violation.\n\n"
-                "WHY OTHER ANSWERS ARE BETTER:\n"
-                "B (+1): Closed-fist strikes are authorized for active resistance.\n"
-                "C (+2): Knee strikes to large muscle groups are a recognized control technique.\n"
-                "D (+1): Drive-stun mode is authorized for active resistance at close range."
-            ),
-            "io_scores": {"A": -2, "B": 1, "C": 2, "D": 1},
-            "difficulty": "medium",
-            "reference": "G03-02, Section IV (Prohibited Techniques); Chokehold Prohibition",
-            "exam_source": "2026 Part 2 Study Guide"
-        },
-
-        # --- Q47 ---
-        {
-            "question_id": "go_q47",
-            "type": "most_appropriate",
-            "category_id": "cat_g03_06_firearm_discharge",
-            "category_name": "2026 Part 2: General Orders Study Guide",
-            "title": "OID — Accidental/Unintentional Discharge",
-            "content": (
-                "While clearing a building during a burglary search, an officer's finger slips "
-                "on the trigger and a round is discharged into the floor. No one is injured. "
-                "No suspect is present in the area."
-            ),
-            "question": "Under G03-06, how should this accidental discharge be handled?",
-            "options": [
-                {"label": "A", "text": "No report needed since it was accidental and no one was injured"},
-                {"label": "B", "text": "The officer must report the discharge to a supervisor immediately; the incident must be documented and investigated per firearm discharge protocols"},
-                {"label": "C", "text": "The officer should file a report only if a supervisor asks about it"},
-                {"label": "D", "text": "Simply document it in the daily log and move on"}
-            ],
-            "correct_answer": "B",
-            "explanation": (
-                "CORRECT ANSWER: B. G03-06 requires ALL firearm discharges to be reported, "
-                "investigated, and documented — regardless of whether they are intentional, "
-                "accidental, or unintentional, and regardless of whether anyone is injured. "
-                "An accidental discharge triggers the same notification and reporting requirements.\n\n"
-                "WHY OTHER ANSWERS ARE WRONG:\n"
-                "A (-2): All discharges must be reported — 'accidental' is not an exemption.\n"
-                "C (-1): The officer has an affirmative duty to report — not wait to be asked.\n"
-                "D (-1): A daily log entry is insufficient — formal reporting is required."
-            ),
-            "io_scores": {"A": -2, "B": 2, "C": -1, "D": -1},
-            "difficulty": "medium",
-            "reference": "G03-06, Section III (Reporting Requirements); All Discharges",
-            "exam_source": "2026 Part 2 Study Guide"
-        },
-
-        # --- Q48 ---
-        {
-            "question_id": "go_q48",
-            "type": "most_appropriate",
             "category_id": "cat_g03_06_firearm_discharge",
             "category_name": "2026 Part 2: General Orders Study Guide",
             "title": "Crime Scene — Weather Threats to Evidence",
             "content": (
                 "You are securing a shooting scene on an open street. It begins to rain heavily. "
                 "Blood evidence, shell casings, and a discarded weapon are exposed to the rain. "
-                "Evidence Technicians are 30 minutes away."
+                "Evidence Technicians are 30 minutes away. Rank the following actions in the "
+                "correct priority order per G04-02."
             ),
-            "question": "Under G04-02, what is the MOST appropriate action?",
-            "options": [
-                {"label": "A", "text": "Collect all evidence immediately to prevent it from being washed away"},
-                {"label": "B", "text": "Cover exposed evidence with tarps, cones, or vehicles to protect it without moving it, photograph what you can, and document conditions in your notes"},
-                {"label": "C", "text": "Leave everything as is and wait for ET — moving or covering evidence contaminates it"},
-                {"label": "D", "text": "Move the evidence inside a nearby building for protection"}
+            "items": [
+                {"label": "A", "text": "Cover exposed evidence with tarps, cones, or squad car placement to protect it without moving it from its location"},
+                {"label": "B", "text": "Photograph all evidence in its current position immediately before the rain washes it away"},
+                {"label": "C", "text": "Document the weather conditions, the time rain began, and all protective measures you took in your notes"},
+                {"label": "D", "text": "If evidence is at immediate risk of being destroyed, carefully collect and package it noting its original location with measurements"},
+                {"label": "E", "text": "Contact Evidence Technicians to request expedited response due to weather threatening evidence"},
+                {"label": "F", "text": "Establish traffic control to prevent vehicles from driving through the scene and splashing water onto evidence"},
             ],
-            "correct_answer": "B",
+            "correct_order": [5, 0, 1, 4, 3, 2],
             "explanation": (
-                "CORRECT ANSWER: B. G04-02 authorizes first responders to take reasonable steps "
-                "to protect evidence from destruction by environmental conditions. Covering evidence "
-                "in place (without moving it) preserves its location while protecting from rain. "
-                "Document everything including the weather conditions and protective measures taken.\n\n"
-                "WHY OTHER ANSWERS ARE WRONG:\n"
-                "A (-1): Moving evidence should be a last resort — cover in place first.\n"
-                "C (-1): Allowing evidence to be destroyed by rain is a failure to protect.\n"
-                "D (-2): Moving evidence to another location destroys spatial relationships."
+                "Traffic control (F) — prevent vehicles from destroying evidence. Cover evidence (A) — "
+                "protect in place without moving. Photograph immediately (B) — document before further "
+                "deterioration. Request expedited ET (E) due to weather. Collect at-risk evidence (D) — "
+                "last resort if evidence would otherwise be destroyed, with detailed location notes. "
+                "Document conditions (C) in your notes.\n\n"
+                "KEY REFERENCE: G04-02, Section III (Evidence Protection); Environmental Threats"
             ),
-            "io_scores": {"A": -1, "B": 2, "C": -1, "D": -2},
             "difficulty": "medium",
-            "reference": "G04-02, Section III (Evidence Protection); Environmental Threats",
-            "exam_source": "2026 Part 2 Study Guide"
+            "is_premium": True,
+            "reference": "G04-02, Section III (Evidence Protection)",
         },
 
-        # --- Q49 ---
+        # --- Q29 ---
         {
-            "question_id": "go_q49",
-            "type": "most_appropriate",
+            "question_id": "go_rank_q29",
+            "type": "ranking",
             "category_id": "cat_g03_06_firearm_discharge",
             "category_name": "2026 Part 2: General Orders Study Guide",
-            "title": "Force Review — Pattern Identification",
+            "title": "Crime Scene — Crime Scene Log and Access Control",
             "content": (
-                "During TRR reviews, a lieutenant notices that the same officer has submitted "
-                "five TRRs in three months — significantly more than any other officer on the "
-                "watch. Each individual use of force appeared within policy."
+                "You are maintaining the crime scene log at a homicide. A deputy chief arrives "
+                "and demands to walk through the scene without signing in. Your sergeant tells "
+                "you to let the deputy chief through. Several media crews are also requesting "
+                "access. Rank the following actions in the correct priority order per G04-02."
             ),
-            "question": "Under G03-02-08, what is the MOST appropriate supervisory action?",
-            "options": [
-                {"label": "A", "text": "Take no action since each individual TRR was within policy"},
-                {"label": "B", "text": "Refer the officer for a personnel intervention — the pattern of frequent force use warrants review for additional training, counseling, or assignment change even if individual incidents were within policy"},
-                {"label": "C", "text": "Discipline the officer for excessive use of force based on the volume of TRRs"},
-                {"label": "D", "text": "Transfer the officer to a less active district to reduce encounters"}
+            "items": [
+                {"label": "A", "text": "Respectfully inform the deputy chief that EVERYONE entering the scene must be logged — no exceptions regardless of rank"},
+                {"label": "B", "text": "Log the deputy chief's name, rank, badge number, time of entry, and reason for entering the scene"},
+                {"label": "C", "text": "Deny all media access to the crime scene — direct them to the PIO for information"},
+                {"label": "D", "text": "Provide the deputy chief with a designated pathway through the scene to avoid evidence areas"},
+                {"label": "E", "text": "Notify the lead detective that a command staff member has entered the scene"},
+                {"label": "F", "text": "Document any evidence that may have been disturbed and note who was present in the affected area"},
             ],
-            "correct_answer": "B",
+            "correct_order": [0, 1, 3, 2, 4, 5],
             "explanation": (
-                "CORRECT ANSWER: B. G03-02-08 establishes early intervention mechanisms for "
-                "officers who show patterns of force use. Even when individual incidents are "
-                "within policy, a pattern of frequent force may indicate a need for additional "
-                "training, de-escalation coaching, or other non-disciplinary intervention. "
-                "The goal is proactive improvement, not punishment.\n\n"
-                "WHY OTHER ANSWERS ARE WRONG:\n"
-                "A (-1): Ignoring a pattern fails the supervisory duty to identify trends.\n"
-                "C (-1): Discipline is inappropriate when individual incidents were within policy.\n"
-                "D (-1): Transfer is reactive and doesn't address the underlying behavior."
+                "Log everyone — no exceptions (A) — G04-02 requires ALL persons to be documented, "
+                "regardless of rank. Log the deputy chief (B) per procedure. Provide designated pathway "
+                "(D) — minimize contamination. Deny media (C) — crime scenes are closed to press. Notify "
+                "lead detective (E) of command staff entry. Document any disturbance (F) for the record.\n\n"
+                "KEY REFERENCE: G04-02, Section VI (Crime Scene Log); Access Control"
             ),
-            "io_scores": {"A": -1, "B": 2, "C": -1, "D": -1},
             "difficulty": "hard",
-            "reference": "G03-02-08, Section VI (Early Intervention); Pattern Review",
-            "exam_source": "2026 Part 2 Study Guide"
+            "is_premium": True,
+            "reference": "G04-02, Section VI (Crime Scene Log)",
         },
 
-        # --- Q50 ---
+        # ============================================================
+        # S03-14: BODY WORN CAMERAS
+        # ============================================================
+
+        # --- Q30 ---
         {
-            "question_id": "go_q50",
-            "type": "most_appropriate",
+            "question_id": "go_rank_q30",
+            "type": "ranking",
+            "category_id": "cat_g03_06_firearm_discharge",
+            "category_name": "2026 Part 2: General Orders Study Guide",
+            "title": "BWC — Mandatory Activation at Traffic Stop Shooting",
+            "content": (
+                "You initiate a traffic stop. As you approach the driver's window, the driver "
+                "suddenly produces a firearm and fires at you. You return fire and the driver "
+                "is struck. You realize your BWC was not activated before the encounter. "
+                "Rank the following actions in the correct priority order per S03-14."
+            ),
+            "items": [
+                {"label": "A", "text": "Activate your BWC immediately — the pre-event buffer will capture the last 2 minutes of video without audio"},
+                {"label": "B", "text": "Request EMS for the driver and render first aid while the BWC records the post-shooting scene"},
+                {"label": "C", "text": "Notify your supervisor that the BWC was not activated prior to the encounter and explain the circumstances"},
+                {"label": "D", "text": "Ensure other responding officers' BWCs are activated and recording as they arrive on scene"},
+                {"label": "E", "text": "Do NOT review your BWC footage — per S03-14, involved members shall not review BWC before providing a statement"},
+                {"label": "F", "text": "Complete a BWC metadata log noting the activation time, pre-event buffer status, and any gaps in recording"},
+            ],
+            "correct_order": [0, 1, 3, 4, 2, 5],
+            "explanation": (
+                "Activate BWC immediately (A) — the pre-event buffer captures 2 minutes of video, which "
+                "may include the shooting. Render aid (B) while recording. Ensure other BWCs are on (D). "
+                "Do NOT review footage (E) — involved officers cannot review before providing statements. "
+                "Notify supervisor (C) of the late activation. Complete metadata log (F).\n\n"
+                "KEY REFERENCE: S03-14, Section IV (Mandatory Activation); Pre-Event Buffer; "
+                "Involved Member Review Restrictions"
+            ),
+            "difficulty": "hard",
+            "is_premium": True,
+            "reference": "S03-14, Section IV (Mandatory Activation)",
+        },
+
+        # --- Q31 ---
+        {
+            "question_id": "go_rank_q31",
+            "type": "ranking",
+            "category_id": "cat_g03_06_firearm_discharge",
+            "category_name": "2026 Part 2: General Orders Study Guide",
+            "title": "BWC — Prohibited Actions and Sensitive Locations",
+            "content": (
+                "While investigating a domestic battery, the female victim invites you inside "
+                "her apartment. She begins changing clothes in the bedroom while talking to you "
+                "about the assault. Her 10-year-old child is present and wants to describe what "
+                "happened. A confidential informant calls your phone during the interview. "
+                "Rank the following actions in the correct priority order per S03-14."
+            ),
+            "items": [
+                {"label": "A", "text": "Step out of the bedroom or avert the camera while the victim changes — do NOT record someone in a state of undress"},
+                {"label": "B", "text": "When interviewing the minor child, ensure a parent or guardian is present and the BWC is recording"},
+                {"label": "C", "text": "Do NOT record the confidential informant conversation — step away and deactivate BWC for the CI call"},
+                {"label": "D", "text": "Reactivate BWC immediately after the CI call and verbally note the reason for the gap in recording"},
+                {"label": "E", "text": "The victim can request recording stop in her home — but you should explain why recording is important for her case"},
+                {"label": "F", "text": "Do NOT use BWC footage for personal purposes, to record other officers during non-enforcement activities, or share with unauthorized persons"},
+            ],
+            "correct_order": [0, 2, 3, 1, 4, 5],
+            "explanation": (
+                "Privacy during changing (A) — recording someone in a state of undress is prohibited. "
+                "CI call protection (C) — confidential informant conversations must NOT be recorded. "
+                "Reactivate and note gap (D) — document the reason. Interview minor with guardian (B) — "
+                "BWC should record but with proper safeguards. Victim's right to request (E) — explain "
+                "importance but honor the request. Prohibited uses (F) — general prohibition.\n\n"
+                "KEY REFERENCE: S03-14, Section VI (Prohibited Actions); Section V (Sensitive Locations)"
+            ),
+            "difficulty": "hard",
+            "is_premium": True,
+            "reference": "S03-14, Sections V-VI (Sensitive Locations; Prohibited Actions)",
+        },
+
+        # --- Q32 ---
+        {
+            "question_id": "go_rank_q32",
+            "type": "ranking",
+            "category_id": "cat_g03_06_firearm_discharge",
+            "category_name": "2026 Part 2: General Orders Study Guide",
+            "title": "BWC — End of Encounter Documentation",
+            "content": (
+                "After completing an arrest involving a use of force, you are preparing to "
+                "transport the subject to the district. The subject is secured in the back "
+                "of your squad. Your sergeant asks when you can deactivate your BWC. "
+                "Rank the following actions in the correct priority order per S03-14."
+            ),
+            "items": [
+                {"label": "A", "text": "Do NOT deactivate until the entire encounter is complete — including transport, processing, and lockup"},
+                {"label": "B", "text": "Record a verbal summary on BWC before deactivation: date, time, RD number, charges, force used"},
+                {"label": "C", "text": "Ensure the BWC footage is properly categorized and flagged as a use-of-force event in the system"},
+                {"label": "D", "text": "Upload/dock the BWC at the end of your tour of duty — do NOT wait until the next day"},
+                {"label": "E", "text": "Notify your supervisor if any portion of the encounter was NOT recorded and document the reason"},
+                {"label": "F", "text": "Do NOT delete, alter, or copy BWC footage — any tampering is a serious policy violation"},
+            ],
+            "correct_order": [0, 4, 1, 2, 3, 5],
+            "explanation": (
+                "Keep recording through completion (A) — BWC must remain active through the entire "
+                "encounter including transport and processing. Report gaps (E) if any portion was "
+                "missed. Verbal summary (B) before deactivation. Categorize footage (C) as use-of-force. "
+                "Upload at end of tour (D) — timely docking is required. No tampering (F) — deletion "
+                "or alteration is a terminable offense.\n\n"
+                "KEY REFERENCE: S03-14, Section VII (End of Encounter); Section VIII (Upload/Retention)"
+            ),
+            "difficulty": "medium",
+            "is_premium": True,
+            "reference": "S03-14, Sections VII-VIII",
+        },
+
+        # --- Q33 ---
+        {
+            "question_id": "go_rank_q33",
+            "type": "ranking",
+            "category_id": "cat_g03_06_firearm_discharge",
+            "category_name": "2026 Part 2: General Orders Study Guide",
+            "title": "BWC — Recording Inside a Hospital",
+            "content": (
+                "You transport a shooting victim to the emergency room. The victim is conscious "
+                "and wants to make a dying declaration identifying the shooter. Medical staff "
+                "are performing emergency treatment. Other patients are visible in the ER. "
+                "Rank the following actions in the correct priority order per S03-14."
+            ),
+            "items": [
+                {"label": "A", "text": "Keep BWC activated to capture the dying declaration — this is critical evidence for the investigation"},
+                {"label": "B", "text": "Minimize recording of other patients and medical procedures not related to your investigation"},
+                {"label": "C", "text": "Request medical staff allow a brief recorded statement from the victim before treatment if time permits"},
+                {"label": "D", "text": "Position yourself and the camera to focus on the victim's face and avoid capturing other patients"},
+                {"label": "E", "text": "If hospital security objects to recording, explain that BWC activation is mandatory during law enforcement encounters"},
+                {"label": "F", "text": "Document the dying declaration in your notes as well — record the victim's exact words, time, and witnesses present"},
+            ],
+            "correct_order": [0, 3, 1, 2, 4, 5],
+            "explanation": (
+                "Keep BWC active (A) — a dying declaration is critical evidence and BWC must remain "
+                "on during law enforcement encounters. Position to focus on victim (D) — minimize "
+                "other patients. Minimize non-relevant recording (B) — privacy consideration. Request "
+                "brief statement (C) — coordinate with medical staff. Address hospital objections (E) — "
+                "BWC is mandatory per policy. Written documentation (F) backs up the recording.\n\n"
+                "KEY REFERENCE: S03-14, Section V (Sensitive Locations — Hospitals); "
+                "Dying Declaration Protocol"
+            ),
+            "difficulty": "hard",
+            "is_premium": True,
+            "reference": "S03-14, Section V (Hospitals); Dying Declaration",
+        },
+
+        # ============================================================
+        # G03-06: OID RESPONSE AND INVESTIGATION
+        # ============================================================
+
+        # --- Q34 ---
+        {
+            "question_id": "go_rank_q34",
+            "type": "ranking",
+            "category_id": "cat_g03_06_firearm_discharge",
+            "category_name": "2026 Part 2: General Orders Study Guide",
+            "title": "OID — Definition and Scope of Officer-Involved Death",
+            "content": (
+                "A subject in custody dies after officers delayed calling for medical attention "
+                "for over an hour despite the subject complaining of chest pains. The officers "
+                "were on duty at the time. The watch commander must determine how to classify "
+                "this incident. Rank the following actions in the correct priority order per G03-06."
+            ),
+            "items": [
+                {"label": "A", "text": "Classify this as an officer-involved death — G03-06 includes deaths from intentional omissions such as unreasonable delay in seeking medical attention"},
+                {"label": "B", "text": "Notify COPA immediately — they have investigative authority over all officer-involved deaths"},
+                {"label": "C", "text": "Activate the full G03-06 notification chain including CPIC, Deputy Chief, State's Attorney, and Medical Examiner"},
+                {"label": "D", "text": "Separate the involved officers and instruct them not to discuss the incident with each other or anyone else"},
+                {"label": "E", "text": "Preserve all evidence including lockup video, medical request logs, BWC footage, and radio transmissions"},
+                {"label": "F", "text": "Secure the area where the subject was held in custody as a crime scene — no one enters without authorization"},
+            ],
+            "correct_order": [0, 3, 5, 4, 1, 2],
+            "explanation": (
+                "Classify as OID (A) — per 50 ILCS 727/1-5, 'officer-involved death' includes deaths "
+                "resulting from intentional omissions INCLUDING unreasonable delay in seeking medical "
+                "attention. The definition is BROADER than most think. Separate officers (D) immediately. "
+                "Secure the scene (F) — the custody area is now a crime scene. Preserve evidence (E) — "
+                "video, logs, BWC. Notify COPA (B) — mandatory for OID. Full notification chain (C).\n\n"
+                "KEY REFERENCE: G03-06, Section II-A-3; 50 ILCS 727/1-5"
+            ),
+            "difficulty": "hard",
+            "is_premium": True,
+            "reference": "G03-06, Section II-A-3; 50 ILCS 727/1-5",
+        },
+
+        # --- Q35 ---
+        {
+            "question_id": "go_rank_q35",
+            "type": "ranking",
+            "category_id": "cat_g03_06_firearm_discharge",
+            "category_name": "2026 Part 2: General Orders Study Guide",
+            "title": "OID — First Supervisor at Officer-Involved Shooting",
+            "content": (
+                "You are the first supervisor to arrive at an officer-involved shooting. "
+                "The subject is down with gunshot wounds. The involved officer is standing "
+                "nearby, visibly shaken but physically uninjured. EMS has not been called. "
+                "Several witness officers are discussing what happened. Rank the following "
+                "actions in the correct priority order per G03-06."
+            ),
+            "items": [
+                {"label": "A", "text": "Request EMS for the subject and render first aid until they arrive — duty to provide medical care"},
+                {"label": "B", "text": "Separate the involved officer from witness officers and instruct ALL members not to discuss the incident"},
+                {"label": "C", "text": "Obtain a public safety statement from the involved officer — limited to threats, outstanding suspects, direction of flight, and injuries"},
+                {"label": "D", "text": "Secure the scene, establish a perimeter, and begin a crime scene log of everyone present"},
+                {"label": "E", "text": "Notify CPIC to initiate the required notification chain — COPA, SAO, Deputy Chief, Medical Examiner"},
+                {"label": "F", "text": "Recover the involved officer's firearm — secure it as evidence and provide a replacement weapon"},
+            ],
+            "correct_order": [0, 3, 1, 2, 4, 5],
+            "explanation": (
+                "Request EMS and render aid (A) — ALWAYS the top priority. Secure the scene (D) to "
+                "preserve evidence and control access. Separate all members (B) to prevent cross-"
+                "contamination of accounts. Obtain public safety statement (C) — limited to immediate "
+                "threats and safety. Notify CPIC (E) to activate notifications. Recover firearm (F) "
+                "after immediate priorities.\n\n"
+                "KEY REFERENCE: G03-06, Sections V-VII; G03-02-03, Section VI (Duty to Render Aid)"
+            ),
+            "difficulty": "hard",
+            "is_premium": True,
+            "reference": "G03-06, Sections V-VII",
+        },
+
+        # --- Q36 ---
+        {
+            "question_id": "go_rank_q36",
+            "type": "ranking",
+            "category_id": "cat_g03_06_firearm_discharge",
+            "category_name": "2026 Part 2: General Orders Study Guide",
+            "title": "OID — COPA vs. CPD Investigative Authority",
+            "content": (
+                "An officer-involved shooting has occurred where the subject was struck and "
+                "seriously injured but survived. Both COPA investigators and CPD detectives "
+                "are responding to the scene. There is confusion about who controls what. "
+                "Rank the following roles and responsibilities in the correct priority order per G03-06."
+            ),
+            "items": [
+                {"label": "A", "text": "COPA has primary authority over the officer's use of force investigation — the misconduct/accountability track"},
+                {"label": "B", "text": "CPD Bureau of Detectives investigates the criminal incident that led to the encounter — the criminal investigation track"},
+                {"label": "C", "text": "The scene must be jointly processed — COPA and CPD conduct a coordinated scene walk-through before evidence is moved"},
+                {"label": "D", "text": "Witness officers provide statements to COPA — they are ordered to cooperate with the misconduct investigation"},
+                {"label": "E", "text": "The involved officer provides a public safety statement only — detailed statements come later with legal representation"},
+                {"label": "F", "text": "Both investigations run in parallel — neither takes precedence over the other and both must be accommodated at the scene"},
+            ],
+            "correct_order": [5, 2, 0, 1, 4, 3],
+            "explanation": (
+                "Parallel investigations (F) — neither COPA nor CPD takes precedence; both must be "
+                "accommodated. Joint scene processing (C) — coordinated walk-through before evidence "
+                "moves. COPA authority (A) over the force investigation. CPD authority (B) over the "
+                "criminal investigation. Involved officer public safety statement only (E) — detailed "
+                "statement later. Witness officer statements to COPA (D) — ordered to cooperate.\n\n"
+                "KEY REFERENCE: G03-06, Section IV (Dual-Track Investigation); COPA Jurisdiction"
+            ),
+            "difficulty": "hard",
+            "is_premium": True,
+            "reference": "G03-06, Section IV (Investigative Authority)",
+        },
+
+        # --- Q37 ---
+        {
+            "question_id": "go_rank_q37",
+            "type": "ranking",
+            "category_id": "cat_g03_06_firearm_discharge",
+            "category_name": "2026 Part 2: General Orders Study Guide",
+            "title": "OID — Involved Member Immediate Duties After Shooting",
+            "content": (
+                "You have just been involved in a shooting where you fired your weapon, striking "
+                "the subject. The subject is down and not moving. Your partner is with you. "
+                "You are physically uninjured. Rank the following actions YOU must take in the "
+                "correct priority order per G03-06."
+            ),
+            "items": [
+                {"label": "A", "text": "Approach and render first aid to the subject — request EMS on an emergency basis"},
+                {"label": "B", "text": "Secure the subject's weapon if one is present — do NOT touch it if it can be secured by perimeter alone"},
+                {"label": "C", "text": "Notify OEMC that shots have been fired by police and provide your exact location"},
+                {"label": "D", "text": "Remain on the scene and do NOT discuss what happened with anyone except your attorney or FOP representative"},
+                {"label": "E", "text": "Provide a public safety statement to the first responding supervisor — threats, suspects, weapons, injuries only"},
+                {"label": "F", "text": "Do NOT handle or alter evidence — leave shell casings, weapons, and your firearm for investigators"},
+            ],
+            "correct_order": [0, 2, 1, 5, 3, 4],
+            "explanation": (
+                "Render aid (A) — constitutional and policy obligation, even to the person you shot. "
+                "Notify OEMC (C) — shots fired by police notification. Secure subject's weapon (B) — "
+                "for safety only, secure by perimeter if possible. Do NOT alter evidence (F). Remain "
+                "on scene (D) — mandatory, and do not discuss details. Public safety statement (E) — "
+                "provide when supervisor arrives.\n\n"
+                "KEY REFERENCE: G03-06, Section V (Involved Member Duties)"
+            ),
+            "difficulty": "hard",
+            "is_premium": True,
+            "reference": "G03-06, Section V (Involved Member Duties)",
+        },
+
+        # --- Q38 ---
+        {
+            "question_id": "go_rank_q38",
+            "type": "ranking",
+            "category_id": "cat_g03_06_firearm_discharge",
+            "category_name": "2026 Part 2: General Orders Study Guide",
+            "title": "OID — CPIC Notification Chain",
+            "content": (
+                "An officer-involved death has occurred. As the on-scene supervisor, you must "
+                "initiate the notification chain through CPIC (Crime Prevention and Information "
+                "Center). The subject is deceased. COPA has been called. Rank the following "
+                "notifications in the correct priority order per G03-06."
+            ),
+            "items": [
+                {"label": "A", "text": "Notify CPIC with the basic facts — location, nature of incident, involved member information, and subject status"},
+                {"label": "B", "text": "CPIC notifies the Deputy Chief of the affected area to respond to the scene"},
+                {"label": "C", "text": "CPIC notifies the Superintendent's office and the Chief of Detectives"},
+                {"label": "D", "text": "CPIC notifies the Cook County State's Attorney's Office for Felony Review"},
+                {"label": "E", "text": "CPIC notifies the Medical Examiner to respond for the deceased subject"},
+                {"label": "F", "text": "CPIC notifies the Office of News Affairs for media management and public communication"},
+            ],
+            "correct_order": [0, 1, 2, 3, 4, 5],
+            "explanation": (
+                "Notify CPIC with facts (A) — initiates the entire chain. Deputy Chief (B) — "
+                "responds to scene as incident commander. Superintendent and Chief of Detectives "
+                "(C) — command notification. State's Attorney (D) — for criminal investigation "
+                "authority. Medical Examiner (E) — for the deceased. News Affairs (F) — for media "
+                "management. Each notification triggers automatically once CPIC is contacted.\n\n"
+                "KEY REFERENCE: G03-06, Section VI (CPIC Notification Requirements)"
+            ),
+            "difficulty": "medium",
+            "is_premium": True,
+            "reference": "G03-06, Section VI (CPIC Notifications)",
+        },
+
+        # --- Q39 ---
+        {
+            "question_id": "go_rank_q39",
+            "type": "ranking",
+            "category_id": "cat_g03_06_firearm_discharge",
+            "category_name": "2026 Part 2: General Orders Study Guide",
+            "title": "OID — Firearm Recovery from Involved Officer",
+            "content": (
+                "At an officer-involved shooting scene, the street deputy tells you to recover "
+                "the involved officer's firearm. The officer is upset and holding his duty weapon "
+                "at his side. He has already been separated from witnesses. "
+                "Rank the following actions in the correct priority order per G03-06."
+            ),
+            "items": [
+                {"label": "A", "text": "Approach the officer calmly and explain that firearm recovery is standard procedure for all police shootings"},
+                {"label": "B", "text": "Have the officer make the weapon safe (magazine out, chamber clear) and hand it to you — do NOT grab it from him"},
+                {"label": "C", "text": "Photograph the firearm before securing it — document the model, serial number, round count, and condition"},
+                {"label": "D", "text": "Place the firearm in an evidence bag, seal it, and start a chain of custody log"},
+                {"label": "E", "text": "Provide the officer with a replacement duty weapon so he is not unarmed for the remainder of his tour"},
+                {"label": "F", "text": "Document the recovery in your notes — who recovered it, from whom, time, location, and condition of the weapon"},
+            ],
+            "correct_order": [0, 1, 2, 3, 5, 4],
+            "explanation": (
+                "Approach calmly and explain (A) — the officer is likely in distress; treat with "
+                "dignity. Officer makes weapon safe and hands it over (B) — do not forcibly take it. "
+                "Photograph the weapon (C) — document before bagging. Evidence bag with chain of "
+                "custody (D). Document the recovery (F) in notes. Provide replacement weapon (E).\n\n"
+                "KEY REFERENCE: G03-06, Section VII (Firearm Recovery); Evidence Handling"
+            ),
+            "difficulty": "medium",
+            "is_premium": True,
+            "reference": "G03-06, Section VII (Firearm Recovery)",
+        },
+
+        # --- Q40 ---
+        {
+            "question_id": "go_rank_q40",
+            "type": "ranking",
+            "category_id": "cat_g03_06_firearm_discharge",
+            "category_name": "2026 Part 2: General Orders Study Guide",
+            "title": "OID — Witness Officer Separation and Statements",
+            "content": (
+                "At an OID scene, there are four witness officers who saw the shooting. They "
+                "are standing together near their squad cars talking about what happened. The "
+                "involved officer is nearby listening. COPA investigators are en route. "
+                "Rank the following actions in the correct priority order per G03-06."
+            ),
+            "items": [
+                {"label": "A", "text": "Immediately separate ALL witness officers from each other and from the involved officer — each must be isolated"},
+                {"label": "B", "text": "Instruct each witness officer not to discuss the incident with anyone until they provide a formal statement"},
+                {"label": "C", "text": "Collect each witness officer's BWC and secure the footage — do NOT allow them to review their own recordings"},
+                {"label": "D", "text": "Assign a non-witness officer to stay with the involved member for welfare support"},
+                {"label": "E", "text": "Obtain identifying information from each witness officer — name, star, unit, and their location during the incident"},
+                {"label": "F", "text": "When COPA arrives, direct the witness officers to cooperate — they are ORDERED to provide statements to COPA investigators"},
+            ],
+            "correct_order": [0, 1, 2, 3, 4, 5],
+            "explanation": (
+                "Separate immediately (A) — cross-contamination of accounts is the biggest threat "
+                "to investigative integrity. Instruct no discussion (B) — reinforce separation. "
+                "Secure BWC footage (C) — witnesses cannot review their own recordings. Assign "
+                "welfare officer (D) to involved member. Obtain identifying info (E) from each. "
+                "COPA cooperation (F) — witness officers ARE ordered to cooperate.\n\n"
+                "KEY REFERENCE: G03-06, Section VIII (Witness Officers); Separation Protocol"
+            ),
+            "difficulty": "hard",
+            "is_premium": True,
+            "reference": "G03-06, Section VIII (Witness Officers)",
+        },
+
+        # --- Q41 ---
+        {
+            "question_id": "go_rank_q41",
+            "type": "ranking",
+            "category_id": "cat_g03_06_firearm_discharge",
+            "category_name": "2026 Part 2: General Orders Study Guide",
+            "title": "OID — Video Evidence Review Protocol",
+            "content": (
+                "As the lead detective at an OID scene, you learn that a POD camera, two "
+                "private surveillance cameras, a Ring doorbell, and a bystander's cell phone "
+                "may have captured the incident. BWC footage from 6 officers also exists. "
+                "Rank the following actions in the correct priority order per G03-06."
+            ),
+            "items": [
+                {"label": "A", "text": "Secure all BWC footage from every officer on scene — flag as OID evidence and restrict access"},
+                {"label": "B", "text": "Request OEMC to preserve the POD camera footage before it is automatically overwritten"},
+                {"label": "C", "text": "Contact the bystander and request their cell phone video — offer to copy it on scene if they will not surrender the phone"},
+                {"label": "D", "text": "Serve emergency preservation requests on the private surveillance camera owners before footage is overwritten"},
+                {"label": "E", "text": "Coordinate with COPA on a joint review of all video evidence before either agency views it independently"},
+                {"label": "F", "text": "Create a video evidence log documenting every source identified, its status, who secured it, and chain of custody"},
+            ],
+            "correct_order": [0, 1, 3, 2, 5, 4],
+            "explanation": (
+                "Secure BWC (A) — department-controlled footage first, easiest to preserve. POD camera "
+                "(B) — request OEMC preservation before auto-overwrite. Private surveillance (D) — serve "
+                "emergency preservation before business owners delete or overwrite. Bystander video (C) — "
+                "request cooperation. Video log (F) — document all sources. Joint COPA review (E) — "
+                "coordinate before independent viewing.\n\n"
+                "KEY REFERENCE: G03-06, Section VIII-E (Video Evidence); S03-14 (BWC Preservation)"
+            ),
+            "difficulty": "hard",
+            "is_premium": True,
+            "reference": "G03-06, Section VIII-E; S03-14",
+        },
+
+        # --- Q42 ---
+        {
+            "question_id": "go_rank_q42",
+            "type": "ranking",
             "category_id": "cat_g03_06_firearm_discharge",
             "category_name": "2026 Part 2: General Orders Study Guide",
             "title": "OID — Involved Member Support and Welfare",
             "content": (
                 "An officer involved in a fatal shooting is at the scene. He is emotionally "
-                "distraught, shaking, and repeating 'I had no choice.' His partner wants to "
-                "comfort him and asks you what to do."
+                "distraught, shaking, and repeating 'I had no choice.' His partner, who was "
+                "a witness to the shooting, wants to comfort him and asks you what to do. "
+                "Rank the following actions in the correct priority order per G03-06."
             ),
-            "question": "Under G03-06, what is the MOST appropriate way to support the involved officer?",
-            "options": [
-                {"label": "A", "text": "Allow his partner to stay with him and discuss the incident to help him process"},
-                {"label": "B", "text": "Assign a non-witness peer support officer to stay with the involved member, ensure he does not discuss the incident details, and request the Chaplain Unit and EAP"},
-                {"label": "C", "text": "Tell the officer to 'tough it out' and focus on the investigation"},
-                {"label": "D", "text": "Immediately transport the officer to the hospital for a psychological evaluation"}
+            "items": [
+                {"label": "A", "text": "Separate the partner (witness) from the involved officer — witnesses and involved members MUST be kept apart"},
+                {"label": "B", "text": "Assign a non-witness peer support officer to stay with the involved member for emotional support"},
+                {"label": "C", "text": "Instruct the peer support officer that the involved member should NOT discuss details of the incident"},
+                {"label": "D", "text": "Request the Chaplain Unit to respond for the involved member's spiritual and emotional welfare"},
+                {"label": "E", "text": "Contact the Employee Assistance Program (EAP) to arrange professional counseling support"},
+                {"label": "F", "text": "Ensure the involved member knows he has the right to FOP representation before any detailed statement"},
             ],
-            "correct_answer": "B",
+            "correct_order": [0, 1, 2, 5, 3, 4],
             "explanation": (
-                "CORRECT ANSWER: B. G03-06 provides for involved member welfare while maintaining "
-                "investigative integrity. A non-witness peer support officer can provide emotional "
-                "support without contaminating accounts. The Chaplain Unit and Employee Assistance "
-                "Program (EAP) offer professional support. The key balance is providing genuine "
-                "support while preventing discussion of incident details.\n\n"
-                "WHY OTHER ANSWERS ARE WRONG:\n"
-                "A (-2): His partner may be a witness — they must be separated, and incident "
-                "discussion is prohibited.\n"
-                "C (-2): Dismissing emotional distress is harmful and contrary to department welfare policy.\n"
-                "D (-1): Hospital transport may be appropriate if warranted but is not the first step."
+                "Separate partner/witness (A) — investigative integrity requires separation even "
+                "though the partner wants to help. Assign peer support (B) — a non-witness officer "
+                "provides companionship without contamination. No incident discussion (C) — support "
+                "without details. Right to representation (F) — inform of FOP rights. Chaplain (D) "
+                "for spiritual support. EAP (E) for professional counseling.\n\n"
+                "KEY REFERENCE: G03-06, Section IX (Member Welfare); Peer Support; EAP"
             ),
-            "io_scores": {"A": -2, "B": 2, "C": -2, "D": -1},
             "difficulty": "medium",
-            "reference": "G03-06, Section IX (Member Welfare); Peer Support; EAP",
-            "exam_source": "2026 Part 2 Study Guide"
+            "is_premium": True,
+            "reference": "G03-06, Section IX (Member Welfare)",
+        },
+
+        # --- Q43 ---
+        {
+            "question_id": "go_rank_q43",
+            "type": "ranking",
+            "category_id": "cat_g03_06_firearm_discharge",
+            "category_name": "2026 Part 2: General Orders Study Guide",
+            "title": "OID — Street Deputy Incident Commander Responsibilities",
+            "content": (
+                "The street deputy arrives at an officer-involved shooting scene. The first "
+                "supervisor has rendered aid, separated officers, and secured a basic perimeter. "
+                "COPA is 15 minutes away. Media vans are arriving. The deputy assumes command. "
+                "Rank the following actions in the correct priority order per G03-06."
+            ),
+            "items": [
+                {"label": "A", "text": "Assess and expand the perimeter if needed — ensure all evidence areas are within the secured zone"},
+                {"label": "B", "text": "Confirm that the involved and witness officers are separated and have been given non-discussion orders"},
+                {"label": "C", "text": "Designate a media staging area and direct News Affairs personnel to handle all press inquiries"},
+                {"label": "D", "text": "Review the public safety statement obtained from the involved officer and assess for outstanding threats"},
+                {"label": "E", "text": "Coordinate with the arriving COPA team on scene access, evidence walk-through, and interview scheduling"},
+                {"label": "F", "text": "Brief the Chief of Detectives or designee and ensure the lead detective has been assigned and briefed"},
+            ],
+            "correct_order": [0, 1, 3, 5, 2, 4],
+            "explanation": (
+                "Assess perimeter (A) — first command action is to ensure scene security. Confirm "
+                "separation (B) — verify the most critical investigative safeguard. Review public "
+                "safety statement (D) — check for ongoing threats. Brief Chief of Detectives (F) — "
+                "ensure investigative leadership. Media staging (C) — manage the press. Coordinate "
+                "with COPA (E) when they arrive.\n\n"
+                "KEY REFERENCE: G03-06, Section VI (Incident Commander); Street Deputy Duties"
+            ),
+            "difficulty": "hard",
+            "is_premium": True,
+            "reference": "G03-06, Section VI (Incident Commander)",
+        },
+
+        # --- Q44 ---
+        {
+            "question_id": "go_rank_q44",
+            "type": "ranking",
+            "category_id": "cat_g03_06_firearm_discharge",
+            "category_name": "2026 Part 2: General Orders Study Guide",
+            "title": "OID — Lead Investigator Certification Requirements",
+            "content": (
+                "You are a detective assigned as lead investigator on an officer-involved death. "
+                "This is a complex scene with multiple shooters (officers), one deceased subject, "
+                "and numerous witnesses. You have never been a lead on an OID before. "
+                "Rank the following actions in the correct priority order per G03-06."
+            ),
+            "items": [
+                {"label": "A", "text": "Confirm with your commanding officer that you meet the certification requirements to serve as lead OID investigator"},
+                {"label": "B", "text": "Conduct a scene walk-through with COPA investigators before any evidence is collected or moved"},
+                {"label": "C", "text": "Create a master witness list and coordinate with COPA on who interviews which witnesses"},
+                {"label": "D", "text": "Assign tasks to assisting detectives — scene processing, canvass, video recovery, hospital follow-up"},
+                {"label": "E", "text": "Review all BWC footage identified so far and create a timeline of events"},
+                {"label": "F", "text": "Prepare a preliminary report for the Chief of Detectives summarizing initial findings"},
+            ],
+            "correct_order": [0, 1, 3, 2, 4, 5],
+            "explanation": (
+                "Confirm certification (A) — G03-06 requires lead OID investigators to meet specific "
+                "training and certification requirements. Joint walk-through with COPA (B) — mandatory "
+                "before evidence collection. Assign detective tasks (D) — organize the investigation. "
+                "Master witness list with COPA (C) — coordinate parallel interviews. Review BWC and "
+                "timeline (E). Preliminary report (F) to command.\n\n"
+                "KEY REFERENCE: G03-06, Section VIII (Lead Investigator); Certification Requirements"
+            ),
+            "difficulty": "hard",
+            "is_premium": True,
+            "reference": "G03-06, Section VIII (Lead Investigator)",
+        },
+
+        # --- Q45 ---
+        {
+            "question_id": "go_rank_q45",
+            "type": "ranking",
+            "category_id": "cat_g03_06_firearm_discharge",
+            "category_name": "2026 Part 2: General Orders Study Guide",
+            "title": "OID — Accidental Discharge Investigation",
+            "content": (
+                "An officer accidentally discharges his weapon inside the district station. "
+                "The round strikes the floor and no one is injured. The officer immediately "
+                "reports it to the desk sergeant. Rank the following actions in the correct "
+                "priority order per G03-06 and G03-02-03."
+            ),
+            "items": [
+                {"label": "A", "text": "Confirm no one is injured — check for ricochets and ensure the area is safe"},
+                {"label": "B", "text": "Recover the officer's firearm for inspection — determine if there is a mechanical defect or if it was officer error"},
+                {"label": "C", "text": "Secure the discharge scene — locate the bullet or bullet fragment and photograph the impact point"},
+                {"label": "D", "text": "Notify CPIC — all firearm discharges require notification regardless of whether anyone is injured"},
+                {"label": "E", "text": "Complete a TRR and firearm discharge report documenting the circumstances of the accidental discharge"},
+                {"label": "F", "text": "The officer should provide a detailed written statement explaining exactly how the discharge occurred"},
+            ],
+            "correct_order": [0, 2, 3, 1, 5, 4],
+            "explanation": (
+                "Confirm safety (A) — ensure no one is hurt and the area is safe. Secure scene and "
+                "evidence (C) — locate the bullet and document. Notify CPIC (D) — ALL firearm discharges "
+                "require notification. Recover firearm (B) for inspection. Officer's written statement "
+                "(F) explaining circumstances. TRR and discharge report (E).\n\n"
+                "KEY REFERENCE: G03-06, Section II (All Discharges); G03-02-03, Section VIII "
+                "(Accidental/Unintentional Discharge)"
+            ),
+            "difficulty": "medium",
+            "is_premium": True,
+            "reference": "G03-06, Section II; G03-02-03, Section VIII",
+        },
+
+        # ============================================================
+        # CROSS-DIRECTIVE INTEGRATION
+        # ============================================================
+
+        # --- Q46 ---
+        {
+            "question_id": "go_rank_q46",
+            "type": "ranking",
+            "category_id": "cat_g03_06_firearm_discharge",
+            "category_name": "2026 Part 2: General Orders Study Guide",
+            "title": "Integration — BWC at OID Scene (S03-14 + G03-06)",
+            "content": (
+                "Officers have used force to arrest a subject after a foot chase. One officer "
+                "deployed a Taser, another used a control hold. The subject is now in custody "
+                "and complaining of pain. Multiple officers have BWC. A bystander recorded "
+                "on a cell phone. Rank the following BWC-related actions in the correct "
+                "priority order per S03-14 and G03-02."
+            ),
+            "items": [
+                {"label": "A", "text": "Confirm all officers' BWCs are still recording — do not deactivate until the entire encounter is complete including medical treatment"},
+                {"label": "B", "text": "Request EMS for the subject and document the medical response on BWC"},
+                {"label": "C", "text": "Identify all officers whose BWC captured the incident and note their star numbers for the BWC log"},
+                {"label": "D", "text": "Request the bystander's cell phone video or obtain their contact information for follow-up"},
+                {"label": "E", "text": "Ensure involved officers do NOT review their own BWC footage until authorized by the investigating supervisor"},
+                {"label": "F", "text": "Complete the BWC metadata log noting activation time, deactivation time, and any gaps in recording for each officer"},
+            ],
+            "correct_order": [0, 1, 4, 2, 3, 5],
+            "explanation": (
+                "Confirm BWCs still recording (A) — must remain active through the entire encounter. "
+                "Request EMS (B) — medical care documented on BWC. No self-review (E) — involved "
+                "officers cannot review before statements. Identify all BWC sources (C). Request "
+                "bystander video (D). Complete metadata logs (F).\n\n"
+                "KEY REFERENCE: S03-14, Section IV (Mandatory Activation); G03-02, Section VII"
+            ),
+            "difficulty": "hard",
+            "is_premium": True,
+            "reference": "S03-14, Section IV; G03-02, Section VII",
+        },
+
+        # --- Q47 ---
+        {
+            "question_id": "go_rank_q47",
+            "type": "ranking",
+            "category_id": "cat_g03_06_firearm_discharge",
+            "category_name": "2026 Part 2: General Orders Study Guide",
+            "title": "Integration — Crime Scene at OID (G04-02 + G03-06)",
+            "content": (
+                "You are the lead detective at an officer-involved death scene. The subject "
+                "was shot and killed after pointing a replica firearm at officers. The replica "
+                "is on the ground near the body. Shell casings are in the street. COPA is "
+                "en route. Rank the following evidence processing actions in the correct "
+                "priority order per G04-02 and G03-06."
+            ),
+            "items": [
+                {"label": "A", "text": "Preserve all BWC footage — identify every officer's camera and flag the recordings as OID evidence"},
+                {"label": "B", "text": "Coordinate with COPA on a joint scene walk-through before any evidence is moved or collected"},
+                {"label": "C", "text": "Photograph the entire scene with the replica firearm, body, and casings in place — use measurement markers"},
+                {"label": "D", "text": "Request Evidence Technicians for forensic processing — fingerprints on the replica, ballistic analysis of casings"},
+                {"label": "E", "text": "Canvas for additional video sources — POD cameras, private surveillance, Ring doorbells in the area"},
+                {"label": "F", "text": "Collect physical evidence only AFTER all documentation, photography, and processing is complete"},
+            ],
+            "correct_order": [0, 1, 2, 3, 4, 5],
+            "explanation": (
+                "Preserve BWC (A) — digital evidence first, can be overwritten. Joint COPA walk-through "
+                "(B) — mandatory before evidence collection per G03-06. Photograph everything in place "
+                "(C) — document before disturbing. Request ET (D) for professional processing. Canvas "
+                "for video (E) before it's overwritten. Collect physical evidence (F) — always the LAST "
+                "step after all documentation.\n\n"
+                "KEY REFERENCE: G04-02, Section IV; G03-06, Section VIII-E"
+            ),
+            "difficulty": "hard",
+            "is_premium": True,
+            "reference": "G04-02, Section IV; G03-06, Section VIII-E",
+        },
+
+        # --- Q48 ---
+        {
+            "question_id": "go_rank_q48",
+            "type": "ranking",
+            "category_id": "cat_g03_06_firearm_discharge",
+            "category_name": "2026 Part 2: General Orders Study Guide",
+            "title": "Integration — De-escalation Failure Leading to OID (G03-02 + G03-06)",
+            "content": (
+                "During a mental health crisis call, de-escalation fails and the subject charges "
+                "at officers with a large kitchen knife. An officer fires, killing the subject. "
+                "The CIT officer had been en route but hadn't arrived yet. The subject's family "
+                "is on scene screaming. Rank the following actions in the correct priority "
+                "order per G03-02 and G03-06."
+            ),
+            "items": [
+                {"label": "A", "text": "Request EMS and attempt to render aid to the subject — duty to provide medical care even after a fatal shooting"},
+                {"label": "B", "text": "Secure the knife and establish a perimeter — the scene is now both a crime scene and an OID scene"},
+                {"label": "C", "text": "Separate the involved officer from the family and all witness officers immediately"},
+                {"label": "D", "text": "Assign officers to manage the family — keep them away from the scene but do NOT let them leave without being identified"},
+                {"label": "E", "text": "Notify CPIC to activate the full OID notification chain — COPA, SAO, Deputy Chief, ME"},
+                {"label": "F", "text": "The arriving CIT officer should be assigned to the family for crisis support — they have specialized training for this"},
+            ],
+            "correct_order": [0, 1, 2, 3, 4, 5],
+            "explanation": (
+                "Render aid (A) — always first, even after a fatal shooting. Secure scene (B) — "
+                "the knife is evidence and the area must be preserved. Separate involved officer (C) — "
+                "from family and witnesses. Manage family (D) — compassion AND investigation. CPIC "
+                "notification (E) — full OID chain. Assign CIT to family (F) — their training is "
+                "valuable for the family in crisis.\n\n"
+                "KEY REFERENCE: G03-02, Section III; G03-06, Sections V-VII"
+            ),
+            "difficulty": "hard",
+            "is_premium": True,
+            "reference": "G03-02, Section III; G03-06, Sections V-VII",
+        },
+
+        # --- Q49 ---
+        {
+            "question_id": "go_rank_q49",
+            "type": "ranking",
+            "category_id": "cat_g03_06_firearm_discharge",
+            "category_name": "2026 Part 2: General Orders Study Guide",
+            "title": "Integration — Force Continuum and Firearm Use (G03-02-01 + G03-02-03)",
+            "content": (
+                "You respond to a robbery in progress at a gas station. The suspect has a "
+                "baseball bat and has already struck the clerk in the head. The clerk is "
+                "unconscious on the floor bleeding heavily. The suspect turns toward you "
+                "with the bat raised. You are alone. Backup is 3 minutes away. "
+                "Rank the following actions in the correct priority order per G03-02-01 "
+                "and G03-02-03."
+            ),
+            "items": [
+                {"label": "A", "text": "Draw your firearm and issue commands to drop the bat — a baseball bat is a deadly weapon when used to strike the head"},
+                {"label": "B", "text": "Create distance and find cover if available — do NOT close distance on a subject with a striking weapon"},
+                {"label": "C", "text": "If the suspect charges with the bat raised, lethal force is authorized — imminent threat of death or great bodily harm"},
+                {"label": "D", "text": "Once the threat is neutralized, immediately render aid to the clerk and the suspect if injured — request EMS for both"},
+                {"label": "E", "text": "If the suspect drops the bat and complies, transition to handcuffing and secure the bat as evidence"},
+                {"label": "F", "text": "Notify OEMC of the situation and request backup on an emergency basis"},
+            ],
+            "correct_order": [5, 1, 0, 2, 4, 3],
+            "explanation": (
+                "Notify OEMC (F) — request emergency backup. Create distance (B) — force mitigation "
+                "through space. Draw and command (A) — appropriate force display for a deadly weapon "
+                "threat. If charged, lethal force authorized (C) — a bat used to strike heads constitutes "
+                "deadly force. If compliant, handcuff (E) and secure evidence. Render aid (D) to all "
+                "injured parties.\n\n"
+                "KEY REFERENCE: G03-02-01, Section IV (Force Continuum); G03-02-03, Section III "
+                "(Authorized Firearm Use)"
+            ),
+            "difficulty": "hard",
+            "is_premium": True,
+            "reference": "G03-02-01, Section IV; G03-02-03, Section III",
+        },
+
+        # --- Q50 ---
+        {
+            "question_id": "go_rank_q50",
+            "type": "ranking",
+            "category_id": "cat_g03_06_firearm_discharge",
+            "category_name": "2026 Part 2: General Orders Study Guide",
+            "title": "Integration — Reviewing Supervisor Public Safety Investigation (G03-02-08 + G03-06)",
+            "content": (
+                "After an officer-involved shooting, the reviewing supervisor must conduct "
+                "a public safety investigation while COPA handles the misconduct track. The "
+                "subject survived with serious injuries. The involved officer used a Taser "
+                "first, then transitioned to his firearm. Rank the following actions in the "
+                "correct priority order per G03-02-08 and G03-06."
+            ),
+            "items": [
+                {"label": "A", "text": "Review the TRR for both the Taser deployment and the firearm discharge — separate force entries are required for each"},
+                {"label": "B", "text": "Review all BWC footage from the involved officer and witnesses to compare against the TRR narrative"},
+                {"label": "C", "text": "Interview the involved officer only after his FOP representative and attorney are present"},
+                {"label": "D", "text": "Coordinate with COPA to avoid duplicating interview efforts and share relevant non-privileged information"},
+                {"label": "E", "text": "Determine if the force continuum escalation from Taser to firearm was justified based on the changing threat level"},
+                {"label": "F", "text": "Forward your completed investigation to the Deputy Chief with findings on whether each use of force was within policy"},
+            ],
+            "correct_order": [0, 1, 2, 4, 3, 5],
+            "explanation": (
+                "Review TRRs (A) — separate TRRs for Taser and firearm are required. Review BWC (B) — "
+                "compare video to written account. Interview with representation (C) — officer's right "
+                "to FOP and attorney. Evaluate escalation (E) — was the transition from Taser to firearm "
+                "justified by increasing threat. Coordinate with COPA (D) on parallel investigation. "
+                "Forward to Deputy Chief (F) with policy findings.\n\n"
+                "KEY REFERENCE: G03-02-08, Section IV; G03-06, Section X (Reviewing Supervisor)"
+            ),
+            "difficulty": "hard",
+            "is_premium": True,
+            "reference": "G03-02-08, Section IV; G03-06, Section X",
         },
     ]
 
@@ -2004,11 +1895,11 @@ async def seed_g03_06_questions(ext_db=None):
         )
         count += 1
 
-    print(f"✓ Seeded {count} General Orders questions (2026 Part 2 Study Guide)")
+    print(f"✓ Seeded {count} General Orders ranking questions (2026 Part 2 Study Guide)")
     print(f"  Category: cat_g03_06_firearm_discharge")
     print(f"  Directives covered: G03-02, G03-02-01, G03-02-03, G03-02-08, G04-02, S03-14, G03-06")
-    print(f"  Scoring: I/O Solutions format (+2/+1/0/-1/-2)")
-    print(f"  Question types: most_appropriate, least_appropriate, ranking")
+    print(f"  Scoring: I/O Solutions ranking format")
+    print(f"  All questions: Ranking (6 items)")
     print(f"  Leaderboard: Enabled")
     print(f"  Premium: Part 2 only")
 

@@ -90,6 +90,7 @@ export default function Scenarios() {
     const paramKey = isMixed && question.type === 'ranking' ? 'questionId' : section.paramKey;
     const params: any = { title: question.title, questionType };
     params[paramKey] = question.question_id;
+    if (isMixed) params.categoryId = section.catId;
     router.push({ pathname: route as any, params });
   };
 

@@ -36,13 +36,14 @@ interface ItemScore {
 export default function RankingQuestion() {
   const { sessionToken } = useAuth();
   const router = useRouter();
-  const { questionId, title: paramTitle } = useLocalSearchParams<{ questionId: string; title: string }>();
+  const { questionId, title: paramTitle, categoryId: paramCategoryId } = useLocalSearchParams<{ questionId: string; title: string; categoryId?: string }>();
 
   const [phase, setPhase] = useState<Phase>('loading');
   const [question, setQuestion] = useState<any>(null);
   const [items, setItems] = useState<RankingItem[]>([]);
   const [selectedOrder, setSelectedOrder] = useState<number[]>([]);
   const [result, setResult] = useState<any>(null);
+  const [allQuestions, setAllQuestions] = useState<any[]>([]);
   const startTime = useRef(Date.now());
 
   // TTS state
@@ -55,8 +56,49 @@ export default function RankingQuestion() {
 
   useEffect(() => {
     loadQuestion();
+    loadAllQuestions();
     return () => stopTTS();
   }, [questionId]);
+
+  const loadAllQuestions = async () => {
+    if (allQuestions.length > 0) return;
+    try {
+      const catId = paramCategoryId || 'cat_ranking';
+      const typeFilter = paramCategoryId ? undefined : 'ranking';
+      const data = await questionService.getQuestions(typeFilter, catId, sessionToken || undefined);
+      setAllQuestions(data || []);
+    } catch (e) {
+      console.error('Failed to load question list:', e);
+    }
+  };
+
+  const getNextQuestion = () => {
+    if (allQuestions.length === 0) return null;
+    const currentIndex = allQuestions.findIndex((q: any) => q.question_id === questionId);
+    if (currentIndex === -1 || currentIndex >= allQuestions.length - 1) return null;
+    return allQuestions[currentIndex + 1];
+  };
+
+  const goToNextQuestion = () => {
+    const next = getNextQuestion();
+    if (!next) return;
+    stopTTS();
+    setSelectedOrder([]);
+    setResult(null);
+    setPhase('loading');
+    setHintCount(0);
+    if (next.type === 'ranking') {
+      router.replace({
+        pathname: '/ranking-question',
+        params: { questionId: next.question_id, title: next.title, categoryId: paramCategoryId || '' },
+      });
+    } else {
+      router.replace({
+        pathname: '/exam-question',
+        params: { questionId: next.question_id, title: next.title, questionType: next.type || 'most_appropriate', categoryId: paramCategoryId || '' },
+      });
+    }
+  };
 
   // TTS functions
   const toggleTTS = async (text: string) => {
@@ -267,11 +309,20 @@ export default function RankingQuestion() {
             </View>
           )}
 
-          {/* Try Again */}
-          <TouchableOpacity style={s.retryBtn} onPress={() => { setSelectedOrder([]); setResult(null); setPhase('ranking'); startTime.current = Date.now(); }}>
-            <Ionicons name="refresh" size={18} color="#000" />
-            <Text style={s.retryTxt}>Try Again</Text>
-          </TouchableOpacity>
+          {/* Try Again / Next */}
+          <View style={s.resultActions}>
+            <TouchableOpacity style={s.retryBtn} onPress={() => { setSelectedOrder([]); setResult(null); setPhase('ranking'); startTime.current = Date.now(); }}>
+              <Ionicons name="refresh" size={18} color="#000" />
+              <Text style={s.retryTxt}>Try Again</Text>
+            </TouchableOpacity>
+
+            {getNextQuestion() && (
+              <TouchableOpacity style={s.nextBtn} onPress={goToNextQuestion}>
+                <Text style={s.nextTxt}>Next Question</Text>
+                <Ionicons name="arrow-forward" size={18} color="#fff" />
+              </TouchableOpacity>
+            )}
+          </View>
 
           <View style={{ height: 120 }} />
         </ScrollView>
@@ -481,9 +532,12 @@ const s = StyleSheet.create({
   explanationTitle: { fontSize: 14, fontWeight: '700', color: '#fbbf24', marginTop: 4, marginBottom: 6 },
   explanationTxt: { fontSize: 13, color: '#fde68a', lineHeight: 20 },
 
-  // Retry
-  retryBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#fbbf24', paddingHorizontal: 24, paddingVertical: 12, borderRadius: 24, gap: 8, marginTop: 8 },
+  // Result actions
+  resultActions: { flexDirection: 'row', gap: 12, marginTop: 8 },
+  retryBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#fbbf24', paddingHorizontal: 16, paddingVertical: 12, borderRadius: 24, gap: 8 },
   retryTxt: { fontSize: 15, fontWeight: '700', color: '#000' },
+  nextBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#2563eb', paddingHorizontal: 16, paddingVertical: 12, borderRadius: 24, gap: 8 },
+  nextTxt: { fontSize: 15, fontWeight: '700', color: '#fff' },
 
   // TTS
   ttsBtn: { padding: 8, borderRadius: 20, backgroundColor: 'rgba(96,165,250,0.15)', marginLeft: 8 },

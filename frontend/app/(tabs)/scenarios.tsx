@@ -107,6 +107,24 @@ export default function Scenarios() {
           <Text style={s.subtitle}>I/O Solutions mixed-method exam simulation with AI grading</Text>
         </View>
 
+        {/* ===== UPDATE BANNER ===== */}
+        <View style={s.updateBanner}>
+          <View style={s.updateBadge}>
+            <Ionicons name="sparkles" size={14} color="#fbbf24" />
+            <Text style={s.updateBadgeTxt}>NEW UPDATE</Text>
+          </View>
+          <Text style={s.updateTitle}>2026 General Orders Study Guide</Text>
+          <Text style={s.updateDesc}>
+            50 brand-new ranking questions covering ALL general orders referenced in G03-06 {'\u2014'} including G03-02 (Use of Force), G03-02-01 (Force Options), G03-02-03 (Firearm Discharge), G03-02-08 (Force Review), G04-02 (Crime Scene), and S03-14 (Body Worn Cameras).
+          </Text>
+          <View style={s.updateFeatures}>
+            <View style={s.updateFeatureRow}><Ionicons name="list" size={14} color="#22d3ee" /><Text style={s.updateFeatureTxt}>Rank 6 actions in correct priority order for each scenario</Text></View>
+            <View style={s.updateFeatureRow}><Ionicons name="analytics" size={14} color="#22d3ee" /><Text style={s.updateFeatureTxt}>I/O Solutions differential scoring (+2 to -2)</Text></View>
+            <View style={s.updateFeatureRow}><Ionicons name="chatbubble-ellipses" size={14} color="#22d3ee" /><Text style={s.updateFeatureTxt}>Bot 9165 AI tutor available on every question</Text></View>
+            <View style={s.updateFeatureRow}><Ionicons name="volume-high" size={14} color="#22d3ee" /><Text style={s.updateFeatureTxt}>Voice readout for all scenarios</Text></View>
+          </View>
+        </View>
+
         {/* ===== HOW YOU'RE GRADED ===== */}
         <TouchableOpacity style={s.infoCard} onPress={() => setShowGrading(!showGrading)} activeOpacity={0.8}>
           <View style={s.infoHeader}>
@@ -390,4 +408,14 @@ const s = StyleSheet.create({
   diffH:{backgroundColor:'#7f1d1d'},
   diffM:{backgroundColor:'#1e3a5f'},
   diffTxt:{fontSize:11,color:'#fff',fontWeight:'600'},
+
+  // Update banner
+  updateBanner:{backgroundColor:'#0c2d48',borderRadius:14,padding:16,marginBottom:12,borderWidth:1,borderColor:'#22d3ee44'},
+  updateBadge:{flexDirection:'row',alignItems:'center',gap:4,backgroundColor:'rgba(251,191,36,0.15)',paddingHorizontal:10,paddingVertical:3,borderRadius:12,alignSelf:'flex-start',marginBottom:8},
+  updateBadgeTxt:{fontSize:11,fontWeight:'800',color:'#fbbf24'},
+  updateTitle:{fontSize:17,fontWeight:'800',color:'#22d3ee',marginBottom:6},
+  updateDesc:{fontSize:13,color:'#cbd5e1',lineHeight:20,marginBottom:10},
+  updateFeatures:{gap:6},
+  updateFeatureRow:{flexDirection:'row',alignItems:'center',gap:8},
+  updateFeatureTxt:{fontSize:12,color:'#94a3b8',flex:1},
 });

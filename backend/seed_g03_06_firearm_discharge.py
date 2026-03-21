@@ -85,6 +85,14 @@ async def seed_g03_06_questions(ext_db=None):
         upsert=True
     )
 
+    # Clean up old questions from previous version (g0306_* IDs)
+    old_deleted = await db.questions.delete_many({
+        "question_id": {"$regex": "^g0306_"},
+        "category_id": "cat_g03_06_firearm_discharge"
+    })
+    if old_deleted.deleted_count:
+        print(f"  Cleaned up {old_deleted.deleted_count} old g0306_* questions")
+
     # ================================================================
     # 50 QUESTIONS — 2026 Part 2 General Orders Study Guide
     # ================================================================

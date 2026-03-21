@@ -2403,11 +2403,13 @@ async def seed_exam_questions():
         from seed_mixed_exam_questions import seed_mixed_exam
         from seed_legal_trap_extra import seed_legal_trap_extra
         from seed_additional_exam_questions import seed_additional_exam_questions
+        from seed_g03_06_firearm_discharge import seed_g03_06_questions
 
         await seed_ranking_questions(ext_db=db)
         await seed_mixed_exam(ext_db=db)
         await seed_legal_trap_extra(ext_db=db)
         await seed_additional_exam_questions(ext_db=db)
+        await seed_g03_06_questions(ext_db=db)
 
         counts = {
             "ranking": await db.questions.count_documents({"type": "ranking"}),
@@ -2416,6 +2418,7 @@ async def seed_exam_questions():
             "legal_trap": await db.questions.count_documents({"type": "legal_trap"}),
             "digital_evidence": await db.questions.count_documents({"type": "digital_evidence"}),
             "mini_scenario": await db.questions.count_documents({"type": "mini_scenario"}),
+            "g03_06_firearm_discharge": await db.questions.count_documents({"category_id": "cat_g03_06_firearm_discharge"}),
         }
         return {"status": "success", "counts": counts}
     except Exception as e:

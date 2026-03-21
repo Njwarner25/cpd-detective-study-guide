@@ -14,7 +14,6 @@ if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental
 // Section config for each exam type
 const EXAM_SECTIONS = [
   { type: 'ranking', catId: 'cat_g03_06_firearm_discharge', title: '2026 General Orders Study Guide', icon: 'book', color: '#22d3ee', desc: 'NEW — 50 ranking questions covering G03-02, G03-02-01, G03-02-03, G03-02-08, G04-02, S03-14 & G03-06. Rank 6 actions in priority order.', tag: 'Rank 6 items', route: '/ranking-question', paramKey: 'questionId' },
-  { type: 'ranking', catId: 'cat_ranking', title: 'Ranking Questions', icon: 'swap-vertical', color: '#60a5fa', desc: 'Rank actions in correct priority order using I/O differential weighting.', tag: 'Rank 6 items', route: '/ranking-question', paramKey: 'questionId' },
   { type: 'most_appropriate', catId: 'cat_most_appropriate', title: 'Most Appropriate', icon: 'checkmark-circle', color: '#22c55e', desc: 'Select the BEST action for each detective scenario.', tag: '4 options', route: '/exam-question', paramKey: 'questionId' },
   { type: 'least_appropriate', catId: 'cat_least_appropriate', title: 'Least Appropriate', icon: 'alert-circle', color: '#f87171', desc: 'Select the WORST action for each detective scenario.', tag: '4 options', route: '/exam-question', paramKey: 'questionId' },
   { type: 'legal_trap', catId: 'cat_legal_trap', title: 'Legal Trap', icon: 'warning', color: '#fbbf24', desc: 'Tricky legal and constitutional questions where the obvious answer is wrong.', tag: 'High stakes', route: '/exam-question', paramKey: 'questionId' },

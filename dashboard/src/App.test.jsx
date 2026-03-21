@@ -83,7 +83,6 @@ describe('DetectiveExamDashboard', () => {
     expect(screen.getByText('ILCS Crime Classifications')).toBeInTheDocument();
     expect(screen.getByText('Part 2 Scenarios')).toBeInTheDocument();
     // These appear in multiple places, just verify they exist
-    expect(screen.getAllByText('Ranking Questions').length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText('Most Appropriate').length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText('Least Appropriate').length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText('Legal Trap').length).toBeGreaterThanOrEqual(1);
@@ -166,7 +165,6 @@ describe('DetectiveExamDashboard', () => {
   it('renders Part 2 scenario types', () => {
     render(<DetectiveExamDashboard />);
     expect(screen.getByText('Written Scenarios')).toBeInTheDocument();
-    expect(screen.getAllByText('Ranking Questions').length).toBeGreaterThanOrEqual(1);
   });
 
   // ── Recent Activity ───────────────────────────────────────

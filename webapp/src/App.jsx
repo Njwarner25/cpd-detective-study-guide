@@ -151,7 +151,7 @@ const style = {
 // ─── FLASHCARDS ───────────────────────────────────────────────────────────────
 const categories = [
   "All", "Full Practice Exam", "Gold Scenarios", "ILCS Crime Classifications",
-  "Detective Part 2 Scenarios", "Ranking Questions", "Most Appropriate",
+  "Detective Part 2 Scenarios", "Most Appropriate",
   "Least Appropriate", "Legal Trap", "Digital Evidence", "Mini Scenarios"
 ];
 
@@ -162,7 +162,6 @@ const sampleCards = [
   { id: 4, category: "Most Appropriate", difficulty: "Medium", title: "Witness Interview Protocol", code: "MA-011", bookmarked: false },
   { id: 5, category: "Digital Evidence", difficulty: "Hard", title: "Chain of Custody — Digital Devices", code: "DE-007", bookmarked: true },
   { id: 6, category: "Gold Scenarios", difficulty: "Easy", title: "Use of Force Documentation", code: "G03-02-01", bookmarked: false },
-  { id: 7, category: "Ranking Questions", difficulty: "Medium", title: "Priority Actions at Crime Scene", code: "RQ-019", bookmarked: false },
   { id: 8, category: "Mini Scenarios", difficulty: "Easy", title: "Domestic Dispute — First Response", code: "MS-003", bookmarked: true },
 ];
 
@@ -826,7 +825,6 @@ function BookmarksPage({ onNavigate }) {
 // ─── PART 2 PAGE ─────────────────────────────────────────────────────────────
 const part2Sections = [
   { id: "written", label: "Written Scenarios", desc: "Full 20-minute timed scenarios with AI grading", count: 20, color: COLORS.blue, icon: "✍️", completed: 4, framework: "Use the R.E.A.C.T.I.O.N. framework to structure your written response. Graded by AI on accuracy, completeness, and proper procedure.", sample: "You arrive at a homicide scene. The victim is found in an alley with multiple stab wounds. Describe your initial actions as the detective in charge." },
-  { id: "ranking", label: "Ranking Questions", desc: "Rank actions in correct priority order using I/O differential weighting", count: 20, color: COLORS.cyan, icon: "↕️", completed: 8, framework: "Rank all actions from MOST to LEAST appropriate. Points awarded based on I/O differential weighting — partial credit for near-correct answers.", sample: "Rank the following 4 actions a detective should take upon arriving at a domestic disturbance call: (A) Interview the victim, (B) Secure the scene, (C) Notify a supervisor, (D) Document injuries." },
   { id: "most", label: "Most Appropriate", desc: "Select the BEST action for each detective scenario", count: 10, color: COLORS.green, icon: "✅", completed: 10, framework: "Choose the single BEST course of action. Consider legal requirements, department policy, and officer safety in your selection.", sample: "A witness to a robbery refuses to speak with you. What is the MOST appropriate action?" },
   { id: "least", label: "Least Appropriate", desc: "Select the WORST action for each detective scenario", count: 10, color: COLORS.red, icon: "🚫", completed: 3, framework: "Choose the single WORST course of action. Identify actions that violate policy, law, or sound investigative practice.", sample: "During an interrogation, the suspect invokes their right to an attorney. What is the LEAST appropriate response?" },
   { id: "legal", label: "Legal Trap", desc: "Identify legally problematic actions in complex scenarios", count: 30, color: COLORS.amber, icon: "⚖️", completed: 12, framework: "Identify the action or statement in the scenario that creates legal liability, violates constitutional rights, or could result in case suppression.", sample: "During a traffic stop, the officer smells marijuana and searches the vehicle without consent. Which action in this scenario is the legal trap?" },
@@ -947,7 +945,6 @@ function Part2Page({ onNavigate }) {
               <div style={{ marginTop: "16px", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "10px" }}>
                 {[
                   { label: "Written Scenarios", method: "AI grading on accuracy, completeness & procedure" },
-                  { label: "Ranking Questions", method: "I/O differential weighting — partial credit applies" },
                   { label: "Most / Least Appropriate", method: "Binary — correct or incorrect, no partial credit" },
                   { label: "Legal Trap", method: "Identify the specific legally problematic element" },
                   { label: "Digital Evidence", method: "Chain of custody and procedural accuracy" },
@@ -1051,7 +1048,6 @@ function HomePage({ onNavigate }) {
 
   const part2Sections = [
     { label: "Written Scenarios", count: 20, color: COLORS.blue },
-    { label: "Ranking Questions", count: 20, color: COLORS.cyan },
     { label: "Most Appropriate", count: 10, color: COLORS.green },
     { label: "Least Appropriate", count: 10, color: COLORS.red },
     { label: "Legal Trap", count: 30, color: COLORS.amber },

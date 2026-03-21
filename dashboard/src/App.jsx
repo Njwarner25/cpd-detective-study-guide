@@ -17,7 +17,6 @@ const categories = [
   { id: "gold", name: "Gold Scenarios", icon: Star, desc: "Complex detective scenarios with real-world dilemmas", count: 15, color: "#f59e0b" },
   { id: "ilcs", name: "ILCS Crime Classifications", icon: Scale, desc: "Illinois Compiled Statutes crime classifications and sentencing", count: 20, color: "#8b5cf6" },
   { id: "part2", name: "Part 2 Scenarios", icon: PenTool, desc: "Timed written scenarios with AI grading", count: 20, color: "#3b82f6" },
-  { id: "ranking", name: "Ranking Questions", icon: BarChart3, desc: "Priority-ordering with differential weighting", count: 40, color: "#06b6d4" },
   { id: "most", name: "Most Appropriate", icon: Target, desc: "Select the MOST appropriate action", count: 40, color: "#10b981" },
   { id: "least", name: "Least Appropriate", icon: AlertTriangle, desc: "Select the LEAST appropriate action", count: 40, color: "#ef4444" },
   { id: "legal", name: "Legal Trap", icon: Shield, desc: "Tricky legal and constitutional questions", count: 10, color: "#f97316" },
@@ -35,7 +34,6 @@ const leaderboard = [
 
 const part2Sections = [
   { name: "Written Scenarios", desc: "Full 20-minute timed scenarios with AI grading", count: 20, icon: PenTool, color: "#3b82f6" },
-  { name: "Ranking Questions", desc: "Rank actions in correct priority order using I/O differential weighting", count: 40, icon: BarChart3, color: "#06b6d4" },
   { name: "Most Appropriate", desc: "Select the BEST action for each detective scenario", count: 30, icon: Target, color: "#10b981" },
   { name: "Least Appropriate", desc: "Select the WORST action for each detective scenario", count: 30, icon: AlertTriangle, color: "#ef4444" },
   { name: "Legal Trap", desc: "Tricky legal and constitutional questions where the obvious answer is wrong", count: 30, icon: Shield, color: "#f97316" },

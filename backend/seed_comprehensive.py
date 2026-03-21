@@ -86,7 +86,7 @@ async def seed_flashcards():
     """Create comprehensive flashcard questions"""
     
     flashcards = [
-        # ==================== GENERAL ORDERS (25 cards) ====================
+        # ==================== GENERAL ORDERS (37 cards) ====================
         {
             "type": "flashcard",
             "category_id": "cat_general_orders",
@@ -362,7 +362,139 @@ async def seed_flashcards():
             "difficulty": "easy",
             "reference": "General Order G07-01: Case Reporting"
         },
-        
+        {
+            "type": "flashcard",
+            "category_id": "cat_general_orders",
+            "category_name": "General Orders",
+            "title": "De-escalation Techniques - G03-02",
+            "content": "What de-escalation techniques are required under CPD General Order G03-02 before using force?",
+            "answer": "Officers must, when safe and feasible: (1) Use verbal persuasion and warnings, (2) Slow down the situation by creating distance and time, (3) Request additional resources, (4) Use active listening skills, (5) Employ crisis intervention techniques, (6) Consider the subject's mental or emotional state.",
+            "explanation": "De-escalation is a core CPD policy. Officers must articulate why de-escalation was not feasible if force was used without attempting it.",
+            "difficulty": "medium",
+            "reference": "General Order G03-02: De-escalation, Response to Resistance, and Use of Force"
+        },
+        {
+            "type": "flashcard",
+            "category_id": "cat_general_orders",
+            "category_name": "General Orders",
+            "title": "Protection of Human Rights - G02-01",
+            "content": "What does CPD General Order G02-01 require regarding protection of human rights?",
+            "answer": "Members must: (1) Act within the law at all times, (2) Maintain objectivity and avoid bias, (3) Treat all persons with dignity and respect, (4) Not discriminate based on race, color, ethnicity, national origin, religion, gender, sexual orientation, or disability, (5) Report violations of civil rights.",
+            "explanation": "This is a foundational order that underpins the Consent Decree requirements. Violations can result in federal civil rights charges under 18 U.S.C. §242.",
+            "difficulty": "easy",
+            "reference": "General Order G02-01: Protection of Human Rights"
+        },
+        {
+            "type": "flashcard",
+            "category_id": "cat_general_orders",
+            "category_name": "General Orders",
+            "title": "Racial Profiling Prohibition - G02-04",
+            "content": "What does General Order G02-04 prohibit regarding racial profiling and bias-based policing?",
+            "answer": "Prohibits: (1) Using race, ethnicity, or national origin as sole justification for stops, searches, or arrests, (2) Making enforcement decisions based on stereotypes, (3) Bias-based policing in any form. Officers may use race only as part of a specific suspect description.",
+            "explanation": "The order requires documentation of all investigatory stops (ISRs). Supervisors must review stop data for patterns of bias.",
+            "difficulty": "medium",
+            "reference": "General Order G02-04: Prohibitions Regarding Racial Profiling and Other Bias-Based Policing"
+        },
+        {
+            "type": "flashcard",
+            "category_id": "cat_general_orders",
+            "category_name": "General Orders",
+            "title": "Interactions with Youth - G02-05",
+            "content": "What special considerations apply when CPD members interact with youth under G02-05?",
+            "answer": "Members must: (1) Use age-appropriate language and communication, (2) Consider the child's age, size, and apparent mental capacity, (3) Use the least coercive means appropriate, (4) Avoid handcuffing children under 13 unless immediate safety threat, (5) Contact DCFS when abuse or neglect is suspected.",
+            "explanation": "Youth are more susceptible to coercive tactics. False confession risk is higher with juveniles. Trauma-informed approaches are required.",
+            "difficulty": "medium",
+            "reference": "General Order G02-05: Interactions with Youth and Children"
+        },
+        {
+            "type": "flashcard",
+            "category_id": "cat_general_orders",
+            "category_name": "General Orders",
+            "title": "Gender-Based Violence - G02-06",
+            "content": "What does General Order G02-06 require for gender-based violence incidents?",
+            "answer": "Members must: (1) Apply a victim-centered approach, (2) Not ask victims why they didn't fight back or leave, (3) Avoid implying the victim is responsible, (4) Provide referrals to victim services, (5) Complete thorough documentation, (6) Coordinate with specialized units when appropriate.",
+            "explanation": "Gender-based violence includes domestic violence, sexual assault, stalking, and trafficking. The order emphasizes trauma-informed response.",
+            "difficulty": "medium",
+            "reference": "General Order G02-06: Gender-Based Violence Incidents"
+        },
+        {
+            "type": "flashcard",
+            "category_id": "cat_general_orders",
+            "category_name": "General Orders",
+            "title": "Video Surveillance Technology - G03-05",
+            "content": "What are the rules governing CPD use of video surveillance technology (POD cameras) under G03-05?",
+            "answer": "POD cameras: (1) Used for crime deterrence and evidence collection, (2) May not be used to target individuals based on protected characteristics, (3) Recordings retained per retention schedule, (4) Access restricted to authorized personnel, (5) CPIC and OEMC may monitor in real time for public safety.",
+            "explanation": "Includes POD cameras, mobile camera trailers, and other surveillance systems. Privacy considerations must be balanced with public safety needs.",
+            "difficulty": "medium",
+            "reference": "General Order G03-05: Video Surveillance Technology"
+        },
+        {
+            "type": "flashcard",
+            "category_id": "cat_general_orders",
+            "category_name": "General Orders",
+            "title": "First Amendment Rights - G02-02",
+            "content": "What does General Order G02-02 require regarding First Amendment activities?",
+            "answer": "Members must: (1) Protect the right to peaceful assembly, protest, and free speech, (2) Not interfere with lawful recording of police activity, (3) Not seize recording devices without a warrant, (4) Not order media or public to stop recording, (5) Facilitate rather than restrict lawful demonstrations.",
+            "explanation": "The public has a First Amendment right to record police performing duties in public. Officers cannot demand ID from persons lawfully recording.",
+            "difficulty": "medium",
+            "reference": "General Order G02-02: First Amendment Rights"
+        },
+        {
+            "type": "flashcard",
+            "category_id": "cat_general_orders",
+            "category_name": "General Orders",
+            "title": "Hate Crimes Response - G04-06",
+            "content": "How must CPD members respond to hate crimes under General Order G04-06?",
+            "answer": "Members must: (1) Complete a case report for all hate crime/bias incidents, (2) Notify detective division, (3) Provide victim with hate crime information pamphlet, (4) Document bias indicators (slurs, symbols, location significance, date significance), (5) Classify as hate crime, hate incident, or bias-related incident.",
+            "explanation": "Illinois hate crime statute (720 ILCS 5/12-7.1) covers crimes motivated by actual or perceived race, religion, sexual orientation, disability, national origin, or gender.",
+            "difficulty": "medium",
+            "reference": "General Order G04-06: Hate Crimes, Hate Incidents, and Related Incidents Motivated by Bias or Hate"
+        },
+        {
+            "type": "flashcard",
+            "category_id": "cat_general_orders",
+            "category_name": "General Orders",
+            "title": "Orders of Protection - G04-04-01",
+            "content": "What are CPD members' responsibilities regarding orders of protection?",
+            "answer": "Members must: (1) Enforce valid orders of protection, (2) Arrest violators when probable cause exists, (3) Not require victims to produce the order — verify through LEADS, (4) Serve orders when encountered, (5) Document all service attempts, (6) Advise victims how to obtain emergency orders.",
+            "explanation": "Three types: Emergency (14 days, no hearing), Interim (up to 30 days), and Plenary (up to 2 years). Violation is a Class A misdemeanor, subsequent violations are felonies.",
+            "difficulty": "hard",
+            "reference": "General Order G04-04-01: Orders of Protection"
+        },
+        {
+            "type": "flashcard",
+            "category_id": "cat_general_orders",
+            "category_name": "General Orders",
+            "title": "Processing Persons Under Department Control - G06-01",
+            "content": "What are the general requirements for processing persons under department control?",
+            "answer": "Must: (1) Process without unnecessary delay, (2) Allow phone calls within reasonable time, (3) Provide access to attorney, (4) Provide medical attention when needed, (5) Document all processing steps, (6) Ensure proper conditions of detention, (7) Complete required paperwork before end of tour.",
+            "explanation": "Persons in custody retain constitutional rights. Conditions must meet minimum standards for health and safety. Monitoring required for at-risk individuals.",
+            "difficulty": "medium",
+            "reference": "General Order G06-01: Processing Persons Under Department Control"
+        },
+        {
+            "type": "flashcard",
+            "category_id": "cat_general_orders",
+            "category_name": "General Orders",
+            "title": "Department Review of Use of Force - G03-02-08",
+            "content": "What is the review process for use of force incidents under G03-02-08?",
+            "answer": "Review process includes: (1) Immediate supervisor investigates and completes review within 7 days, (2) TRR reviewed by chain of command, (3) Force Review Board examines Level 2 and 3 uses of force, (4) COPA investigates officer-involved shootings and serious misconduct, (5) Annual analysis of force trends conducted.",
+            "explanation": "Force levels: Level 1 (no injury, minimal force), Level 2 (injury/hospitalization, Taser/OC use), Level 3 (firearm discharge, serious injury/death). Each level has different review requirements.",
+            "difficulty": "hard",
+            "reference": "General Order G03-02-08: Department Review of Use of Force"
+        },
+        {
+            "type": "flashcard",
+            "category_id": "cat_general_orders",
+            "category_name": "General Orders",
+            "title": "TIGN Interactions - G02-01-03",
+            "content": "What does G02-01-03 require for interactions with Transgender, Intersex, and Gender Nonconforming individuals?",
+            "answer": "Members must: (1) Address individuals by their preferred name and pronouns, (2) Not conduct searches to determine gender, (3) Allow individuals to be searched by officer of their preferred gender, (4) House transgender arrestees consistent with their gender identity when possible, (5) Not subject to ridicule or harassment.",
+            "explanation": "Misgendering or refusing to use preferred names/pronouns violates department policy. Document preferred name and gender identity on reports.",
+            "difficulty": "medium",
+            "reference": "General Order G02-01-03: Interactions with TIGN Individuals"
+        },
+
         # ==================== ILLINOIS CRIMINAL LAW (35 cards) ====================
         {
             "type": "flashcard",

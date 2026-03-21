@@ -85,13 +85,13 @@ async def seed_g03_06_questions(ext_db=None):
         upsert=True
     )
 
-    # Clean up old questions from previous version (g0306_* IDs)
+    # Clean up old questions from previous versions
     old_deleted = await db.questions.delete_many({
-        "question_id": {"$regex": "^g0306_"},
+        "question_id": {"$regex": "^(g0306_|rank_go_)"},
         "category_id": "cat_g03_06_firearm_discharge"
     })
     if old_deleted.deleted_count:
-        print(f"  Cleaned up {old_deleted.deleted_count} old g0306_* questions")
+        print(f"  Cleaned up {old_deleted.deleted_count} old questions from previous versions")
 
     # ================================================================
     # 50 QUESTIONS — 2026 Part 2 General Orders Study Guide
@@ -1606,7 +1606,7 @@ async def seed_g03_06_questions(ext_db=None):
 
         # --- Q41 (Ranking) ---
         {
-            "question_id": f"rank_go_{uuid.uuid4().hex[:12]}",
+            "question_id": "go_rank_q41",
             "type": "ranking",
             "category_id": "cat_g03_06_firearm_discharge",
             "category_name": "2026 Part 2: General Orders Study Guide",
@@ -1645,7 +1645,7 @@ async def seed_g03_06_questions(ext_db=None):
 
         # --- Q42 (Ranking) ---
         {
-            "question_id": f"rank_go_{uuid.uuid4().hex[:12]}",
+            "question_id": "go_rank_q42",
             "type": "ranking",
             "category_id": "cat_g03_06_firearm_discharge",
             "category_name": "2026 Part 2: General Orders Study Guide",
@@ -1684,7 +1684,7 @@ async def seed_g03_06_questions(ext_db=None):
 
         # --- Q43 (Ranking) ---
         {
-            "question_id": f"rank_go_{uuid.uuid4().hex[:12]}",
+            "question_id": "go_rank_q43",
             "type": "ranking",
             "category_id": "cat_g03_06_firearm_discharge",
             "category_name": "2026 Part 2: General Orders Study Guide",
@@ -1724,7 +1724,7 @@ async def seed_g03_06_questions(ext_db=None):
 
         # --- Q44 (Ranking) ---
         {
-            "question_id": f"rank_go_{uuid.uuid4().hex[:12]}",
+            "question_id": "go_rank_q44",
             "type": "ranking",
             "category_id": "cat_g03_06_firearm_discharge",
             "category_name": "2026 Part 2: General Orders Study Guide",
@@ -1763,7 +1763,7 @@ async def seed_g03_06_questions(ext_db=None):
 
         # --- Q45 (Ranking) ---
         {
-            "question_id": f"rank_go_{uuid.uuid4().hex[:12]}",
+            "question_id": "go_rank_q45",
             "type": "ranking",
             "category_id": "cat_g03_06_firearm_discharge",
             "category_name": "2026 Part 2: General Orders Study Guide",

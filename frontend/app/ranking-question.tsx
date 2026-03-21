@@ -12,7 +12,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../contexts/AuthContext';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { questionService, rankingService } from '../services/api';
+import { questionService, rankingService, ttsService } from '../services/api';
+import DetectiveBotBubble from '../components/DetectiveBotBubble';
+import ChatOverlay from '../components/ChatOverlay';
 
 type Phase = 'loading' | 'ranking' | 'submitting' | 'result';
 
@@ -43,9 +45,53 @@ export default function RankingQuestion() {
   const [result, setResult] = useState<any>(null);
   const startTime = useRef(Date.now());
 
+  // TTS state
+  const [isTTSPlaying, setIsTTSPlaying] = useState(false);
+  const ttsRef = useRef<any>(null);
+
+  // Chatbot state
+  const [chatVisible, setChatVisible] = useState(false);
+  const [hintCount, setHintCount] = useState(0);
+
   useEffect(() => {
     loadQuestion();
+    return () => stopTTS();
   }, [questionId]);
+
+  // TTS functions
+  const toggleTTS = async (text: string) => {
+    if (isTTSPlaying) { stopTTS(); return; }
+    try {
+      stopTTS();
+      setIsTTSPlaying(true);
+      const audioUrl = await ttsService.generateSpeech(text, sessionToken || undefined, 'nova');
+      const audio = new Audio(audioUrl);
+      audio.onended = () => { setIsTTSPlaying(false); URL.revokeObjectURL(audioUrl); };
+      audio.onerror = () => { setIsTTSPlaying(false); URL.revokeObjectURL(audioUrl); };
+      ttsRef.current = audio;
+      await audio.play();
+    } catch (e) {
+      console.error('TTS error:', e);
+      setIsTTSPlaying(false);
+      if (Platform.OS === 'web' && 'speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.rate = 0.95;
+        utterance.onend = () => setIsTTSPlaying(false);
+        utterance.onerror = () => setIsTTSPlaying(false);
+        ttsRef.current = utterance;
+        window.speechSynthesis.speak(utterance);
+        setIsTTSPlaying(true);
+      }
+    }
+  };
+
+  const stopTTS = () => {
+    if (ttsRef.current) {
+      if (ttsRef.current instanceof Audio) { ttsRef.current.pause(); ttsRef.current.currentTime = 0; }
+      else if (Platform.OS === 'web' && 'speechSynthesis' in window) { window.speechSynthesis.cancel(); }
+    }
+    setIsTTSPlaying(false);
+  };
 
   const loadQuestion = async () => {
     try {
@@ -227,8 +273,18 @@ export default function RankingQuestion() {
             <Text style={s.retryTxt}>Try Again</Text>
           </TouchableOpacity>
 
-          <View style={{ height: 60 }} />
+          <View style={{ height: 120 }} />
         </ScrollView>
+
+        {/* Bot 9165 */}
+        <DetectiveBotBubble onPress={() => setChatVisible(true)} hintCount={hintCount} />
+        <ChatOverlay
+          visible={chatVisible}
+          onClose={() => setChatVisible(false)}
+          questionId={question?.question_id || questionId!}
+          userCurrentResponse={`Submitted ranking. Score: ${result.normalized_score}/100`}
+          onHintReceived={(count) => setHintCount(count)}
+        />
       </SafeAreaView>
     );
   }
@@ -258,7 +314,12 @@ export default function RankingQuestion() {
 
         {/* Scenario Text */}
         <View style={s.scenarioCard}>
-          <Text style={s.scenarioTxt}>{question?.content}</Text>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <Text style={[s.scenarioTxt, { flex: 1 }]}>{question?.content}</Text>
+            <TouchableOpacity onPress={() => toggleTTS(question?.content || '')} style={s.ttsBtn}>
+              <Ionicons name={isTTSPlaying ? 'stop' : 'volume-high'} size={18} color="#60a5fa" />
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/* Instructions */}
@@ -319,8 +380,18 @@ export default function RankingQuestion() {
           </TouchableOpacity>
         </View>
 
-        <View style={{ height: 60 }} />
+        <View style={{ height: 120 }} />
       </ScrollView>
+
+      {/* Bot 9165 */}
+      <DetectiveBotBubble onPress={() => setChatVisible(true)} hintCount={hintCount} />
+      <ChatOverlay
+        visible={chatVisible}
+        onClose={() => setChatVisible(false)}
+        questionId={question?.question_id || questionId!}
+        userCurrentResponse={selectedOrder.length > 0 ? `Current ranking order: ${selectedOrder.map((idx, pos) => `${pos + 1}. ${items[idx]?.label}`).join(', ')}` : ''}
+        onHintReceived={(count) => setHintCount(count)}
+      />
     </SafeAreaView>
   );
 }
@@ -413,4 +484,7 @@ const s = StyleSheet.create({
   // Retry
   retryBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#fbbf24', paddingHorizontal: 24, paddingVertical: 12, borderRadius: 24, gap: 8, marginTop: 8 },
   retryTxt: { fontSize: 15, fontWeight: '700', color: '#000' },
+
+  // TTS
+  ttsBtn: { padding: 8, borderRadius: 20, backgroundColor: 'rgba(96,165,250,0.15)', marginLeft: 8 },
 });

@@ -77,6 +77,7 @@ export default function PracticeScenario() {
   const [feedbackMessage, setFeedbackMessage] = useState('');
   const [feedbackSubmitting, setFeedbackSubmitting] = useState(false);
   const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
+  const [allScenarios, setAllScenarios] = useState<any[]>([]);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef<number>(0);
   const ttsRef = useRef<any>(null);
@@ -174,6 +175,7 @@ export default function PracticeScenario() {
 
   useEffect(() => {
     loadScenario();
+    loadAllScenarios();
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
       stopTTS();
@@ -212,6 +214,33 @@ export default function PracticeScenario() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const loadAllScenarios = async () => {
+    if (allScenarios.length > 0) return;
+    try {
+      const data = await questionService.getQuestions('scenario', undefined, sessionToken || undefined);
+      setAllScenarios(data || []);
+    } catch (e) { console.error('Failed to load scenario list:', e); }
+  };
+
+  const getNextScenario = () => {
+    if (allScenarios.length === 0) return null;
+    const scenarioId = params.scenarioId as string;
+    const currentIndex = allScenarios.findIndex((q: any) => q.question_id === scenarioId);
+    if (currentIndex === -1 || currentIndex >= allScenarios.length - 1) return null;
+    return allScenarios[currentIndex + 1];
+  };
+
+  const goToNextScenario = () => {
+    const next = getNextScenario();
+    if (!next) return;
+    stopTTS();
+    if (timerRef.current) clearInterval(timerRef.current);
+    router.replace({
+      pathname: '/practice-scenario',
+      params: { scenarioId: next.question_id, title: next.title },
+    });
   };
 
   // ── TTS (OpenAI high-quality voices via backend) ──
@@ -675,9 +704,18 @@ export default function PracticeScenario() {
             </View>
           )}
 
-          <TouchableOpacity style={styles.doneButton} onPress={() => router.back()}>
-            <Text style={styles.doneButtonText}>Back to Scenarios</Text>
-          </TouchableOpacity>
+          <View style={{ flexDirection: 'row', gap: 10 }}>
+            <TouchableOpacity style={styles.doneButton} onPress={() => router.back()}>
+              <Text style={styles.doneButtonText}>Back to Scenarios</Text>
+            </TouchableOpacity>
+
+            {getNextScenario() && (
+              <TouchableOpacity style={styles.nextScenarioBtn} onPress={goToNextScenario}>
+                <Text style={styles.nextScenarioBtnText}>Next Scenario</Text>
+                <Ionicons name="arrow-forward" size={18} color="#fff" />
+              </TouchableOpacity>
+            )}
+          </View>
         </ScrollView>
       </SafeAreaView>
     );
@@ -1334,16 +1372,33 @@ const styles = StyleSheet.create({
     color: '#000',
   },
   doneButton: {
-    backgroundColor: '#2563eb',
+    flex: 1,
+    backgroundColor: '#334155',
     padding: 16,
     borderRadius: 12,
-    alignItems: 'center',
+    alignItems: 'center' as const,
     marginTop: 16,
   },
   doneButtonText: {
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
+  },
+  nextScenarioBtn: {
+    flex: 1,
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    justifyContent: 'center' as const,
+    backgroundColor: '#2563eb',
+    padding: 16,
+    borderRadius: 12,
+    marginTop: 16,
+    gap: 8,
+  },
+  nextScenarioBtnText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '700',
   },
   // Feedback styles
   feedbackBtn: {

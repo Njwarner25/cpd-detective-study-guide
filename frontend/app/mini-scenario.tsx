@@ -57,11 +57,12 @@ export default function MiniScenario() {
   const [feedbackMessage, setFeedbackMessage] = useState('');
   const [feedbackSubmitting, setFeedbackSubmitting] = useState(false);
   const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
+  const [allScenarios, setAllScenarios] = useState<any[]>([]);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef<number>(0);
   const ttsRef = useRef<any>(null);
 
-  useEffect(() => { loadScenario(); return () => { stopTTS(); if (timerRef.current) clearInterval(timerRef.current); }; }, [scenarioId]);
+  useEffect(() => { loadScenario(); loadAllScenarios(); return () => { stopTTS(); if (timerRef.current) clearInterval(timerRef.current); }; }, [scenarioId]);
 
   const loadScenario = async () => {
     try {
@@ -70,6 +71,32 @@ export default function MiniScenario() {
       setTimeRemaining(data.time_limit || MINI_TIME);
     } catch (e) { console.error('Failed to load mini scenario:', e); }
     finally { setLoading(false); }
+  };
+
+  const loadAllScenarios = async () => {
+    if (allScenarios.length > 0) return;
+    try {
+      const data = await questionService.getQuestions('mini_scenario', 'cat_mini_scenario', sessionToken || undefined);
+      setAllScenarios(data || []);
+    } catch (e) { console.error('Failed to load scenario list:', e); }
+  };
+
+  const getNextScenario = () => {
+    if (allScenarios.length === 0) return null;
+    const currentIndex = allScenarios.findIndex((q: any) => q.question_id === scenarioId);
+    if (currentIndex === -1 || currentIndex >= allScenarios.length - 1) return null;
+    return allScenarios[currentIndex + 1];
+  };
+
+  const goToNextScenario = () => {
+    const next = getNextScenario();
+    if (!next) return;
+    stopTTS();
+    if (timerRef.current) clearInterval(timerRef.current);
+    router.replace({
+      pathname: '/mini-scenario',
+      params: { scenarioId: next.question_id, title: next.title },
+    });
   };
 
   // Timer
@@ -354,10 +381,19 @@ export default function MiniScenario() {
             </Text>
           </View>
 
-          <TouchableOpacity style={s.retryBtn} onPress={() => { setResponse(''); setResult(null); setFeedbackSubmitted(false); setShowFeedbackForm(false); setFeedbackMessage(''); setTimeRemaining(scenario?.time_limit || MINI_TIME); setPhase('start'); }}>
-            <Ionicons name="refresh" size={18} color="#000" />
-            <Text style={s.retryTxt}>Try Again</Text>
-          </TouchableOpacity>
+          <View style={{ flexDirection: 'row', gap: 10, marginTop: 8 }}>
+            <TouchableOpacity style={s.retryBtn} onPress={() => { setResponse(''); setResult(null); setFeedbackSubmitted(false); setShowFeedbackForm(false); setFeedbackMessage(''); setTimeRemaining(scenario?.time_limit || MINI_TIME); setPhase('start'); }}>
+              <Ionicons name="refresh" size={18} color="#000" />
+              <Text style={s.retryTxt}>Try Again</Text>
+            </TouchableOpacity>
+
+            {getNextScenario() && (
+              <TouchableOpacity style={s.nextBtn} onPress={goToNextScenario}>
+                <Text style={s.nextTxt}>Next Scenario</Text>
+                <Ionicons name="arrow-forward" size={18} color="#fff" />
+              </TouchableOpacity>
+            )}
+          </View>
 
           <View style={{ height: 80 }} />
         </ScrollView>
@@ -501,8 +537,10 @@ const s = StyleSheet.create({
   yourResponseTitle: { fontSize: 13, fontWeight: '700', color: '#94a3b8', marginBottom: 6 },
   yourResponseTxt: { fontSize: 12, color: '#64748b', lineHeight: 20 },
 
-  retryBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#fbbf24', paddingHorizontal: 24, paddingVertical: 12, borderRadius: 24, gap: 8, marginTop: 8 },
+  retryBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#fbbf24', paddingHorizontal: 16, paddingVertical: 12, borderRadius: 24, gap: 8 },
   retryTxt: { fontSize: 15, fontWeight: '700', color: '#000' },
+  nextBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#2563eb', paddingHorizontal: 16, paddingVertical: 12, borderRadius: 24, gap: 8 },
+  nextTxt: { fontSize: 15, fontWeight: '700', color: '#fff' },
 
   // Feedback styles
   fbBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: '#1e293b', borderWidth: 1, borderColor: '#f59e0b', padding: 14, borderRadius: 12, marginTop: 16 },

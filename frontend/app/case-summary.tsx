@@ -151,7 +151,12 @@ export default function CaseSummary() {
 
   const pickImageMobile = async () => {
     try {
-      const ImagePicker = require('expo-image-picker');
+      // Dynamically import to avoid build errors if not installed
+      const ImagePicker = await import('expo-image-picker').catch(() => null);
+      if (!ImagePicker) {
+        showAlert('Unavailable', 'Photo library access is not available. Please use the web version to upload screenshots.');
+        return;
+      }
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: false,
@@ -164,7 +169,7 @@ export default function CaseSummary() {
       }
     } catch (e) {
       console.error('Image picker error:', e);
-      showAlert('Error', 'Could not access photo library');
+      showAlert('Error', 'Could not access photo library. Try uploading via the file picker.');
     }
   };
 

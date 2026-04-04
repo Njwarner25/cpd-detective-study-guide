@@ -1334,6 +1334,147 @@ YOUR RULES:
             hints_given=0
         )
 
+# ========== CASE SUMMARY GRADING ENDPOINT ==========
+
+class CaseSummarySubmit(BaseModel):
+    question_id: str
+    image_data: str  # base64 data URL of the handwritten response photo
+
+@api_router.post("/case-summary/grade")
+async def grade_case_summary(data: CaseSummarySubmit, user: User = Depends(require_user)):
+    """Grade a handwritten case summary using Claude Vision.
+    The student uploads a photo of their handwritten response.
+    AI reads the image and grades it against the model answer and key facts."""
+    try:
+        if not ANTHROPIC_API_KEY:
+            raise Exception("Anthropic API key not configured")
+
+        # Fetch the question from DB
+        question = await db.questions.find_one({"question_id": data.question_id}, {"_id": 0})
+        if not question:
+            raise HTTPException(status_code=404, detail="Question not found")
+
+        case_text = question.get("content", "")
+        model_answer = question.get("model_answer", "")
+        key_facts = question.get("key_facts", [])
+
+        # Parse the base64 image
+        image_data = data.image_data
+        if "," in image_data:
+            # Strip data URL prefix (e.g., "data:image/jpeg;base64,")
+            header, image_data = image_data.split(",", 1)
+            media_type = header.split(":")[1].split(";")[0] if ":" in header else "image/jpeg"
+        else:
+            media_type = "image/jpeg"
+
+        import anthropic
+        client = anthropic.AsyncAnthropic(api_key=ANTHROPIC_API_KEY)
+
+        system_prompt = f"""You are an expert CPD Detective Exam grader evaluating a handwritten investigative case summary.
+You grade strictly in accordance with Chicago Police Department General Orders.
+
+THE CASE THE STUDENT WAS GIVEN:
+{case_text}
+
+MODEL ANSWER:
+{model_answer}
+
+KEY FACTS THAT SHOULD BE INCLUDED:
+{chr(10).join(f'- {f}' for f in key_facts)}
+
+GRADING INSTRUCTIONS (Per CPD General Orders):
+1. First, read and transcribe the handwritten text from the image as accurately as possible.
+2. Compare the student's summary against the key facts list AND the following CPD General Order standards:
+   - G06-01-01 (Field Reports): Case summaries must include all pertinent facts — who, what, when, where, how, and why. Reports must be clear, concise, accurate, and complete.
+   - G06-01-02 (Case Supplementary Reports): Follow-up details, witness statements, and evidence documentation must be thorough and properly sequenced.
+   - G04-02 (Crime Scene Processing): Evidence handling, chain of custody, and forensic observations must be correctly referenced.
+   - G06-03 (Arrest Reports): When applicable, probable cause elements and suspect identification details must be present.
+   - S04-14 (Preliminary Investigations): Initial response actions, scene security, and victim/witness canvass details should be documented.
+   - G03-02 (Use of Force Reporting): If force was used, documentation must align with department policy.
+3. Score out of 100:
+   - Key facts coverage (up to 70 pts): Each key fact included = points proportional to total facts
+   - General Order compliance (up to 15 pts): Proper report structure, required elements per GO standards
+   - Professional quality (up to 15 pts): Clear organization, conciseness, professional tone, proper sequencing
+   - Deductions for inaccurate information (-5 per error)
+   - Deductions for including opinion instead of facts (-5 per instance)
+   - Deductions for missing mandatory GO elements (-3 per omission)
+4. Provide specific, actionable feedback referencing which General Orders the student should review.
+
+RESPOND IN THIS EXACT JSON FORMAT (no markdown, just raw JSON):
+{{
+  "score": <0-100>,
+  "feedback": "<2-3 sentences of specific feedback>",
+  "key_facts_hit": ["<fact 1 they included>", "<fact 2>"],
+  "key_facts_missed": ["<fact they missed 1>", "<fact they missed 2>"],
+  "transcription": "<your best reading of their handwritten text>",
+  "model_answer": "<the model answer>"
+}}"""
+
+        response = await client.messages.create(
+            model="claude-sonnet-4-20250514",
+            system=system_prompt,
+            messages=[
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "image",
+                            "source": {
+                                "type": "base64",
+                                "media_type": media_type,
+                                "data": image_data,
+                            },
+                        },
+                        {
+                            "type": "text",
+                            "text": "Please read this handwritten case summary and grade it according to the instructions.",
+                        },
+                    ],
+                }
+            ],
+            temperature=0.3,
+            max_tokens=2000,
+        )
+
+        import json
+        response_text = response.content[0].text.strip()
+        # Try to parse JSON — handle cases where model wraps in markdown
+        if response_text.startswith("```"):
+            response_text = response_text.split("```")[1]
+            if response_text.startswith("json"):
+                response_text = response_text[4:]
+            response_text = response_text.strip()
+
+        result = json.loads(response_text)
+
+        # Save the response
+        await db.case_summary_responses.insert_one({
+            "user_id": user.user_id,
+            "question_id": data.question_id,
+            "score": result.get("score", 0),
+            "feedback": result.get("feedback", ""),
+            "transcription": result.get("transcription", ""),
+            "submitted_at": datetime.now(timezone.utc),
+        })
+
+        return result
+
+    except json.JSONDecodeError:
+        logging.error(f"Failed to parse AI grading response: {response_text[:200]}")
+        return {
+            "score": 0,
+            "feedback": "Unable to grade your response. Please ensure the image is clear and try again.",
+            "key_facts_hit": [],
+            "key_facts_missed": key_facts,
+            "model_answer": model_answer,
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Case summary grading error: {e}")
+        raise HTTPException(status_code=500, detail=f"Grading failed: {str(e)}")
+
+
 # ========== TTS ENDPOINT ==========
 
 @api_router.post("/tts")
@@ -2404,12 +2545,16 @@ async def seed_exam_questions():
         from seed_legal_trap_extra import seed_legal_trap_extra
         from seed_additional_exam_questions import seed_additional_exam_questions
         from seed_g03_06_firearm_discharge import seed_g03_06_questions
+        from seed_situational_judgment import seed_situational_judgment
+        from seed_case_summary import seed_case_summary
 
         await seed_ranking_questions(ext_db=db)
         await seed_mixed_exam(ext_db=db)
         await seed_legal_trap_extra(ext_db=db)
         await seed_additional_exam_questions(ext_db=db)
         await seed_g03_06_questions(ext_db=db)
+        await seed_situational_judgment(ext_db=db)
+        await seed_case_summary(ext_db=db)
 
         counts = {
             "ranking": await db.questions.count_documents({"type": "ranking"}),
@@ -2419,6 +2564,8 @@ async def seed_exam_questions():
             "digital_evidence": await db.questions.count_documents({"type": "digital_evidence"}),
             "mini_scenario": await db.questions.count_documents({"type": "mini_scenario"}),
             "g03_06_firearm_discharge": await db.questions.count_documents({"category_id": "cat_g03_06_firearm_discharge"}),
+            "situational_judgment": await db.questions.count_documents({"category_id": "cat_situational_judgment"}),
+            "case_management": await db.questions.count_documents({"category_id": "cat_case_management"}),
         }
         return {"status": "success", "counts": counts}
     except Exception as e:

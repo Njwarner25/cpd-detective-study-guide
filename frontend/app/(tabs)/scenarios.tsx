@@ -14,6 +14,9 @@ if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental
 // Section config for each exam type
 const EXAM_SECTIONS = [
   { type: 'ranking', catId: 'cat_g03_06_firearm_discharge', title: '2026 General Orders Study Guide', icon: 'book', color: '#22d3ee', desc: 'NEW — 50 ranking questions covering G03-02, G03-02-01, G03-02-03, G03-02-08, G04-02, S03-14 & G03-06. Rank 6 actions in priority order.', tag: 'Rank 6 items', route: '/ranking-question', paramKey: 'questionId' },
+  { type: 'most_appropriate', catId: 'cat_situational_judgment', title: 'Situational Judgment', icon: 'shield-half', color: '#818cf8', desc: 'NEW — 20 paired Most/Least Effective scenario questions. Mirrors the actual CPD Part 2 exam format with real-world detective dilemmas.', tag: 'Paired Q\u0027s', route: '/exam-question', paramKey: 'questionId', mixed: true },
+  { type: 'mini_scenario', catId: 'cat_case_management', title: 'Case Management & Prioritization', icon: 'layers', color: '#f472b6', desc: 'NEW — 7 detective cases. Assign priority (High/Medium/Low) and justify your reasoning. AI-graded written responses.', tag: 'Written', route: '/mini-scenario', paramKey: 'scenarioId' },
+  { type: 'case_summary', catId: 'cat_case_summary', title: 'Detective Briefing Exercises', icon: 'reader', color: '#06b6d4', desc: 'NEW — 15 cases. Read reports, write a handwritten summary, upload a photo, and get AI grading. Mirrors the actual exam format.', tag: 'Photo Upload', route: '/case-summary', paramKey: 'scenarioId' },
   { type: 'most_appropriate', catId: 'cat_most_appropriate', title: 'Most Appropriate', icon: 'checkmark-circle', color: '#22c55e', desc: 'Select the BEST action for each detective scenario.', tag: '4 options', route: '/exam-question', paramKey: 'questionId' },
   { type: 'least_appropriate', catId: 'cat_least_appropriate', title: 'Least Appropriate', icon: 'alert-circle', color: '#f87171', desc: 'Select the WORST action for each detective scenario.', tag: '4 options', route: '/exam-question', paramKey: 'questionId' },
   { type: 'legal_trap', catId: 'cat_legal_trap', title: 'Legal Trap', icon: 'warning', color: '#fbbf24', desc: 'Tricky legal and constitutional questions where the obvious answer is wrong.', tag: 'High stakes', route: '/exam-question', paramKey: 'questionId' },
@@ -37,9 +40,15 @@ export default function Scenarios() {
   const [examData, setExamData] = useState<Record<string, any[]>>({});
   const [examLoading, setExamLoading] = useState<Record<string, boolean>>({});
 
+  // Categories that contain mixed question types — load by catId only (no type filter)
+  const MIXED_CATEGORIES = ['cat_situational_judgment', 'cat_case_management', 'cat_case_summary'];
+
   useEffect(() => {
     loadScenarios();
-    EXAM_SECTIONS.forEach(sec => loadExamSection(sec.type || sec.catId, sec.type || undefined, sec.catId));
+    EXAM_SECTIONS.forEach(sec => {
+      const isMixedCat = MIXED_CATEGORIES.includes(sec.catId);
+      loadExamSection(sec.catId, isMixedCat ? undefined : (sec.type || undefined), sec.catId);
+    });
   }, [sessionToken]);
 
   const loadScenarios = async () => {
@@ -110,17 +119,17 @@ export default function Scenarios() {
         <View style={s.updateBanner}>
           <View style={s.updateBadge}>
             <Ionicons name="sparkles" size={14} color="#fbbf24" />
-            <Text style={s.updateBadgeTxt}>NEW UPDATE</Text>
+            <Text style={s.updateBadgeTxt}>NEW CONTENT DROP</Text>
           </View>
-          <Text style={s.updateTitle}>2026 General Orders Study Guide</Text>
+          <Text style={s.updateTitle}>Situational Judgment + Case Summaries</Text>
           <Text style={s.updateDesc}>
-            50 brand-new ranking questions covering ALL general orders referenced in G03-06 {'\u2014'} including G03-02 (Use of Force), G03-02-01 (Force Options), G03-02-03 (Firearm Discharge), G03-02-08 (Force Review), G04-02 (Crime Scene), and S03-14 (Body Worn Cameras).
+            Major update: 20 paired Situational Judgment questions (Most/Least Effective), 7 Case Management prioritization exercises, and 15 Detective Briefing cases with handwritten photo upload grading {'\u2014'} all designed to mirror the actual CPD Part 2 exam format.
           </Text>
           <View style={s.updateFeatures}>
-            <View style={s.updateFeatureRow}><Ionicons name="list" size={14} color="#22d3ee" /><Text style={s.updateFeatureTxt}>Rank 6 actions in correct priority order for each scenario</Text></View>
-            <View style={s.updateFeatureRow}><Ionicons name="analytics" size={14} color="#22d3ee" /><Text style={s.updateFeatureTxt}>I/O Solutions differential scoring (+2 to -2)</Text></View>
-            <View style={s.updateFeatureRow}><Ionicons name="chatbubble-ellipses" size={14} color="#22d3ee" /><Text style={s.updateFeatureTxt}>Bot 9165 AI tutor available on every question</Text></View>
-            <View style={s.updateFeatureRow}><Ionicons name="volume-high" size={14} color="#22d3ee" /><Text style={s.updateFeatureTxt}>Voice readout for all scenarios</Text></View>
+            <View style={s.updateFeatureRow}><Ionicons name="shield-half" size={14} color="#818cf8" /><Text style={s.updateFeatureTxt}>20 Situational Judgment paired scenarios (Most + Least Effective)</Text></View>
+            <View style={s.updateFeatureRow}><Ionicons name="layers" size={14} color="#f472b6" /><Text style={s.updateFeatureTxt}>7 Case Management exercises {'\u2014'} prioritize cases High/Medium/Low</Text></View>
+            <View style={s.updateFeatureRow}><Ionicons name="reader" size={14} color="#06b6d4" /><Text style={s.updateFeatureTxt}>15 Detective Briefing cases {'\u2014'} write summaries, upload photos, get AI graded</Text></View>
+            <View style={s.updateFeatureRow}><Ionicons name="chatbubble-ellipses" size={14} color="#22d3ee" /><Text style={s.updateFeatureTxt}>Bot 9165 AI helper on every question + voice readout</Text></View>
           </View>
         </View>
 
@@ -259,7 +268,7 @@ export default function Scenarios() {
 
         {/* ===== ACCORDION: Exam Sections ===== */}
         {EXAM_SECTIONS.map((section) => {
-          const sectionKey = section.type || section.catId;
+          const sectionKey = section.catId;
           const questions = examData[sectionKey] || [];
           const isLoading = examLoading[sectionKey];
           const isExpanded = expandedSections[sectionKey] || false;

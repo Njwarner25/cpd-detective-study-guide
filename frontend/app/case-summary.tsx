@@ -175,7 +175,7 @@ export default function CaseSummary() {
     }
     setPhase('submitting');
     try {
-      const API_URL = process.env.EXPO_PUBLIC_API_URL || '';
+      const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL || '';
       const res = await fetch(`${API_URL}/api/case-summary/grade`, {
         method: 'POST',
         headers: {

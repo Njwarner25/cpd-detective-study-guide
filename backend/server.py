@@ -2566,6 +2566,7 @@ async def seed_exam_questions():
             "g03_06_firearm_discharge": await db.questions.count_documents({"category_id": "cat_g03_06_firearm_discharge"}),
             "situational_judgment": await db.questions.count_documents({"category_id": "cat_situational_judgment"}),
             "case_management": await db.questions.count_documents({"category_id": "cat_case_management"}),
+            "case_summary": await db.questions.count_documents({"category_id": "cat_case_summary"}),
         }
         return {"status": "success", "counts": counts}
     except Exception as e:

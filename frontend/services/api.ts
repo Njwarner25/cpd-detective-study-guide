@@ -57,6 +57,14 @@ api.interceptors.response.use(
           const originalRequest = error.config;
 
       // If 401 and not already retrying
+
+                // If 403 (Premium access required), enhance error for UI handling
+                if (error.response?.status === 403) {
+                                const premiumError: any = new Error(error.response?.data?.detail || 'Premium access required');
+                                premiumError.isPremiumRequired = true;
+                                premiumError.status = 403;
+                                return Promise.reject(premiumError);
+                }
       if (error.response?.status === 401 && !originalRequest._retry && !isRefreshing) {
               originalRequest._retry = true;
               isRefreshing = true;

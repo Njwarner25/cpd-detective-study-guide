@@ -53,6 +53,10 @@ export default function ExamQuestion() {
       startTime.current = Date.now();
     } catch (e) {
       console.error('Failed to load exam question:', e);
+            if ((e as any)?.isPremiumRequired) {
+                      router.replace('/upgrade');
+                      return;
+            }
     }
   };
 

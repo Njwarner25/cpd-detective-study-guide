@@ -210,7 +210,13 @@ export const questionService = {
           return response.data;
     },
 
-    async getQuestion(questionId: string, token?: string) {
+    async getQuestionsBulk(queries: Array<{type?: string; category_id?: string}>, token?: string) {
+    const headers = token ? { Authorization: `Bearer ${token}` } : {};
+    const response = await api.post('/questions/bulk', { queries }, { headers });
+    return response.data;
+  },
+
+  async getQuestion(questionId: string, token?: string) {
           const headers = token ? { Authorization: `Bearer ${token}` } : {};
           const response = await api.get(`/questions/${questionId}`, { headers });
           return response.data;

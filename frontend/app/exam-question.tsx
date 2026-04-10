@@ -28,7 +28,7 @@ const TYPE_CONFIG: Record<string, { icon: string; color: string; label: string; 
 export default function ExamQuestion() {
   const { sessionToken } = useAuth();
   const router = useRouter();
-  const { questionId, title: paramTitle, questionType } = useLocalSearchParams<{ questionId: string; title: string; questionType: string }>();
+  const { questionId, title: paramTitle, questionType, categoryId } = useLocalSearchParams<{ questionId: string; title: string; questionType: string; categoryId?: string }>();
 
   const [phase, setPhase] = useState<Phase>('loading');
   const [question, setQuestion] = useState<any>(null);
@@ -57,6 +57,8 @@ export default function ExamQuestion() {
                       router.replace('/upgrade');
                       return;
             }
+      // For any other error, go back instead of leaving user stuck on loading spinner
+      router.back();
     }
   };
 
@@ -64,7 +66,8 @@ export default function ExamQuestion() {
     if (allQuestions.length > 0) return;
     try {
       const type = questionType || 'most_appropriate';
-      const catId = `cat_${type}`;
+      // Use categoryId from route params if available, otherwise construct from type
+      const catId = categoryId || `cat_${type}`;
       const data = await questionService.getQuestions(type, catId, sessionToken || undefined);
       setAllQuestions(data || []);
     } catch (e) {

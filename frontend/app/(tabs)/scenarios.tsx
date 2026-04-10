@@ -45,11 +45,48 @@ export default function Scenarios() {
 
   useEffect(() => {
     loadScenarios();
-    EXAM_SECTIONS.forEach(sec => {
-      const isMixedCat = MIXED_CATEGORIES.includes(sec.catId);
-      loadExamSection(sec.catId, isMixedCat ? undefined : (sec.type || undefined), sec.catId);
-    });
+    loadAllExamSections();
   }, [sessionToken]);
+
+  // Bulk load all exam sections in a single API call for performance
+  const loadAllExamSections = async () => {
+    if (!sessionToken) return;
+    // Mark all sections as loading
+    const loadingState: Record<string, boolean> = {};
+    EXAM_SECTIONS.forEach(sec => { loadingState[sec.catId] = true; });
+    setExamLoading(loadingState);
+    
+    try {
+      // Build queries for bulk endpoint
+      const queries = EXAM_SECTIONS.map(sec => {
+        const isMixedCat = MIXED_CATEGORIES.includes(sec.catId);
+        return {
+          type: isMixedCat ? undefined : (sec.type || undefined),
+          category_id: sec.catId,
+        };
+      });
+      
+      const bulkData = await questionService.getQuestionsBulk(queries, sessionToken || undefined);
+      
+      // Distribute results to each section
+      const newExamData: Record<string, any[]> = {};
+      EXAM_SECTIONS.forEach(sec => {
+        newExamData[sec.catId] = bulkData[sec.catId] || [];
+      });
+      setExamData(newExamData);
+    } catch (e) {
+      console.error('Bulk load failed, falling back to individual loads:', e);
+      // Fallback to individual calls if bulk fails
+      EXAM_SECTIONS.forEach(sec => {
+        const isMixedCat = MIXED_CATEGORIES.includes(sec.catId);
+        loadExamSection(sec.catId, isMixedCat ? undefined : (sec.type || undefined), sec.catId);
+      });
+    } finally {
+      const doneState: Record<string, boolean> = {};
+      EXAM_SECTIONS.forEach(sec => { doneState[sec.catId] = false; });
+      setExamLoading(doneState);
+    }
+  };
 
   const loadScenarios = async () => {
     if (!sessionToken) return;
@@ -98,7 +135,8 @@ export default function Scenarios() {
     const paramKey = isMixed && question.type === 'ranking' ? 'questionId' : section.paramKey;
     const params: any = { title: question.title, questionType };
     params[paramKey] = question.question_id;
-    if (isMixed) params.categoryId = section.catId;
+    // Always pass categoryId so Next Question navigation works correctly
+    params.categoryId = section.catId;
     router.push({ pathname: route as any, params });
   };
 

@@ -936,6 +936,53 @@ async def delete_question(question_id: str, user: User = Depends(require_admin))
         raise HTTPException(status_code=404, detail="Question not found")
     return {"message": "Question deleted"}
 
+# ========== BULK QUESTIONS ENDPOINT (Performance) ==========
+class BulkQuestionsRequest(BaseModel):
+    queries: List[Dict[str, Optional[str]]]  # List of {type, category_id}
+
+@api_router.post("/questions/bulk")
+async def get_questions_bulk(data: BulkQuestionsRequest, user: User = Depends(require_user)):
+    """Fetch questions for multiple type/category combinations in a single request.
+    Reduces N+1 API calls from the Scenarios page to a single call."""
+    # Check premium access once for all queries
+    has_premium = user.role == "admin"
+    if not has_premium:
+        payment = await db.payments.find_one(
+            {"user_id": user.user_id, "status": "completed"},
+            {"_id": 0}
+        )
+        if not payment:
+            user_doc = await db.users.find_one({"user_id": user.user_id}, {"_id": 0, "has_paid": 1})
+            has_premium = user_doc.get("has_paid", False) if user_doc else False
+        else:
+            has_premium = True
+
+    results = {}
+    for query in data.queries:
+        q_type = query.get("type")
+        cat_id = query.get("category_id")
+        mongo_query = {}
+        if q_type:
+            mongo_query["type"] = q_type
+        if cat_id:
+            mongo_query["category_id"] = cat_id
+
+        questions = await db.questions.find(mongo_query, {"_id": 0}).to_list(500)
+
+        for q in questions:
+            is_premium_q = q.get("is_premium", False)
+            q["is_locked"] = is_premium_q and not has_premium
+            if q["is_locked"]:
+                q["answer"] = None
+                q["model_answer"] = None
+                q["explanation"] = None
+
+        # Use category_id as key, fallback to type
+        key = cat_id or q_type or "unknown"
+        results[key] = questions
+
+    return results
+
 # ========== BOOKMARK ENDPOINTS ==========
 
 @api_router.post("/bookmarks/toggle")
@@ -1930,16 +1977,19 @@ async def revoke_premium_by_email(data: GrantPremiumRequest, user: User = Depend
 @api_router.get("/admin/users")
 async def get_all_users(user: User = Depends(require_admin)):
     """Admin can view all users with their payment status"""
+    # Batch fetch all completed payments to avoid N+1 queries
+    all_payments = {}
+    async for p in db.payments.find({"status": "completed"}, {"_id": 0, "user_id": 1}):
+        all_payments[p["user_id"]] = True
+
     users = []
     async for u in db.users.find({}, {"_id": 0, "password_hash": 0}):
-        payment = await db.payments.find_one(
-            {"user_id": u.get("user_id"), "status": "completed"}, {"_id": 0}
-        )
+        uid = u.get("user_id")
         users.append({
             "email": u.get("email"),
             "name": u.get("name", ""),
             "role": u.get("role", "user"),
-            "has_paid": u.get("has_paid", False) or (payment is not None),
+            "has_paid": u.get("has_paid", False) or (uid in all_payments),
             "granted_by": u.get("granted_by"),
             "created_at": str(u.get("created_at", "")),
         })
@@ -2709,6 +2759,32 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
+
+# ========== STARTUP: CREATE MONGODB INDEXES ==========
+@app.on_event("startup")
+async def create_indexes():
+    """Create MongoDB indexes for performance on startup"""
+    try:
+        # Questions: speed up filtered queries by type+category
+        await db.questions.create_index([("type", 1), ("category_id", 1)])
+        await db.questions.create_index("question_id", unique=True)
+        # User progress: speed up per-user lookups
+        await db.user_progress.create_index([("user_id", 1), ("question_id", 1)])
+        await db.user_progress.create_index([("user_id", 1), ("bookmarked", 1)])
+        # Scenario responses: speed up history and leaderboard
+        await db.scenario_responses.create_index([("user_id", 1), ("submitted_at", -1)])
+        await db.scenario_responses.create_index("ai_grade")
+        # Sessions: speed up auth lookups
+        await db.user_sessions.create_index("session_token", unique=True)
+        await db.user_sessions.create_index("user_id")
+        await db.user_sessions.create_index("expires_at")
+        # Payments: speed up payment status checks
+        await db.payments.create_index([("user_id", 1), ("status", 1)])
+        # Feedback
+        await db.feedback.create_index([("status", 1), ("submitted_at", -1)])
+        logging.info("MongoDB indexes created successfully")
+    except Exception as e:
+        logging.error(f"Failed to create indexes: {e}")
 
 @app.on_event("shutdown")
 async def shutdown_db_client():

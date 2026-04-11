@@ -208,8 +208,12 @@ export default function PracticeScenario() {
       const scenarioTime = data.time_limit || (data.is_complex ? COMPLEX_TIME : DEFAULT_TIME);
       setTimeRemaining(scenarioTime);
       setTotalTime(scenarioTime);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to load scenario:', error);
+      if (error?.isPremiumRequired || error?.status === 403) {
+        router.replace('/upgrade');
+        return;
+      }
       showAlert('Error', 'Failed to load scenario');
     } finally {
       setLoading(false);

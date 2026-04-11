@@ -69,7 +69,13 @@ export default function MiniScenario() {
       const data = await questionService.getQuestion(scenarioId!, sessionToken || undefined);
       setScenario(data);
       setTimeRemaining(data.time_limit || MINI_TIME);
-    } catch (e) { console.error('Failed to load mini scenario:', e); }
+    } catch (e: any) {
+      console.error('Failed to load mini scenario:', e);
+      if (e?.isPremiumRequired || e?.status === 403) {
+        router.replace('/upgrade');
+        return;
+      }
+    }
     finally { setLoading(false); }
   };
 

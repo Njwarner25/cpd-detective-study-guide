@@ -142,8 +142,14 @@ export default function RankingQuestion() {
       setItems(data.items || []);
       setPhase('ranking');
       startTime.current = Date.now();
-    } catch (e) {
+    } catch (e: any) {
       console.error('Failed to load ranking question:', e);
+      if (e?.isPremiumRequired || e?.status === 403) {
+        router.replace('/upgrade');
+      } else {
+        // Show error state instead of infinite spinner
+        setPhase('ranking');
+      }
     }
   };
 

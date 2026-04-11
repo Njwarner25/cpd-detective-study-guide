@@ -28,7 +28,7 @@ const TYPE_CONFIG: Record<string, { icon: string; color: string; label: string; 
 export default function ExamQuestion() {
   const { sessionToken } = useAuth();
   const router = useRouter();
-  const { questionId, title: paramTitle, questionType, categoryId } = useLocalSearchParams<{ questionId: string; title: string; questionType: string; categoryId?: string }>();
+  const { questionId, title: paramTitle, questionType, categoryId: paramCategoryId } = useLocalSearchParams<{ questionId: string; title: string; questionType: string; categoryId?: string }>();
 
   const [phase, setPhase] = useState<Phase>('loading');
   const [question, setQuestion] = useState<any>(null);
@@ -51,14 +51,14 @@ export default function ExamQuestion() {
       setQuestion(data);
       setPhase('answering');
       startTime.current = Date.now();
-    } catch (e) {
+    } catch (e: any) {
       console.error('Failed to load exam question:', e);
-            if ((e as any)?.isPremiumRequired) {
-                      router.replace('/upgrade');
-                      return;
-            }
-      // For any other error, go back instead of leaving user stuck on loading spinner
-      router.back();
+      if (e?.isPremiumRequired || e?.status === 403) {
+        router.replace('/upgrade');
+      } else {
+        // Show error state instead of infinite spinner
+        setPhase('answering');
+      }
     }
   };
 
@@ -66,9 +66,10 @@ export default function ExamQuestion() {
     if (allQuestions.length > 0) return;
     try {
       const type = questionType || 'most_appropriate';
-      // Use categoryId from route params if available, otherwise construct from type
-      const catId = categoryId || `cat_${type}`;
-      const data = await questionService.getQuestions(type, catId, sessionToken || undefined);
+      const catId = paramCategoryId || `cat_${type}`;
+      // For mixed-category sections (like General Orders), load all types from the category
+      const typeFilter = paramCategoryId ? undefined : type;
+      const data = await questionService.getQuestions(typeFilter, catId, sessionToken || undefined);
       setAllQuestions(data || []);
     } catch (e) {
       console.error('Failed to load question list:', e);
@@ -90,10 +91,18 @@ export default function ExamQuestion() {
     setResult(null);
     setPhase('loading');
     setHintCount(0);
-    router.replace({
-      pathname: '/exam-question',
-      params: { questionId: next.question_id, title: next.title, questionType: questionType || 'most_appropriate' },
-    });
+    // Route ranking questions to their own screen
+    if (next.type === 'ranking') {
+      router.replace({
+        pathname: '/ranking-question',
+        params: { questionId: next.question_id, title: next.title, categoryId: paramCategoryId || '' },
+      });
+    } else {
+      router.replace({
+        pathname: '/exam-question',
+        params: { questionId: next.question_id, title: next.title, questionType: next.type || questionType || 'most_appropriate', categoryId: paramCategoryId || '' },
+      });
+    }
   };
 
   // TTS

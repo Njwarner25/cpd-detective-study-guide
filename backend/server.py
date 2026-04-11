@@ -837,13 +837,17 @@ async def get_questions(
         query["category_id"] = category_id
     questions = await db.questions.find(query, {"_id": 0}).to_list(500)
 
-    # Check premium access
+    # Check premium access (payments collection + has_paid flag for admin-granted)
     has_premium = user.role == "admin"
     if not has_premium:
         payment = await db.payments.find_one(
             {"user_id": user.user_id, "status": "completed"}, {"_id": 0}
         )
-        has_premium = payment is not None
+        if not payment:
+            user_doc = await db.users.find_one({"user_id": user.user_id}, {"_id": 0, "has_paid": 1})
+            has_premium = user_doc.get("has_paid", False) if user_doc else False
+        else:
+            has_premium = True
 
     # Identify first scenario in cat_detective_part2 for free trial
     first_scenario_id = None
@@ -879,7 +883,13 @@ async def get_question(question_id: str, user: User = Depends(require_user)):
         payment = await db.payments.find_one(
             {"user_id": user.user_id, "status": "completed"}, {"_id": 0}
         )
+        has_paid = False
         if not payment:
+            user_doc = await db.users.find_one({"user_id": user.user_id}, {"_id": 0, "has_paid": 1})
+            has_paid = user_doc.get("has_paid", False) if user_doc else False
+        else:
+            has_paid = True
+        if not has_paid:
             # Allow free trial: check if this is the first scenario in cat_detective_part2
             is_free_trial = False
             if question.get("category_id") == "cat_detective_part2" and question.get("type") == "scenario":

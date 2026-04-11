@@ -59,7 +59,13 @@ export default function CaseSummary() {
     try {
       const data = await questionService.getQuestion(scenarioId!, sessionToken || undefined);
       setScenario(data);
-    } catch (e) { console.error('Failed to load case summary scenario:', e); }
+    } catch (e: any) {
+      console.error('Failed to load case summary scenario:', e);
+      if (e?.isPremiumRequired || e?.status === 403) {
+        router.replace('/upgrade');
+        return;
+      }
+    }
     finally { setLoading(false); }
   };
 

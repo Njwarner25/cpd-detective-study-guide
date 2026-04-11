@@ -847,10 +847,33 @@ async def seed_legal_trap_extra(ext_db=None):
     ]
 
     # ──────────────────────────────────────────────
-    # Upsert all questions into the database
+    # Normalize and upsert all questions into the database
     # ──────────────────────────────────────────────
     total_upserted = 0
     for q in questions:
+        # Normalize field names: "scenario" → "content"
+        if "scenario" in q and "content" not in q:
+            q["content"] = q.pop("scenario")
+
+        # Normalize options: dict {"A": "text"} → list [{"label": "A", "text": "..."}]
+        if isinstance(q.get("options"), dict):
+            q["options"] = [
+                {"label": k, "text": v}
+                for k, v in sorted(q["options"].items())
+            ]
+
+        # Add missing standard fields
+        if "question" not in q:
+            q["question"] = "Select the correct answer."
+        if "category_name" not in q:
+            q["category_name"] = "Legal Trap"
+        if "difficulty" not in q:
+            q["difficulty"] = "hard"
+        if "reference" not in q:
+            q["reference"] = ""
+        if "updated_at" not in q:
+            q["updated_at"] = now
+
         result = await db.questions.update_one(
             {"question_id": q["question_id"]},
             {"$set": q},

@@ -491,6 +491,23 @@ export default function PracticeScenario() {
     );
   }
 
+  if (!scenario) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.loadingContainer}>
+          <Ionicons name="alert-circle-outline" size={48} color="#f87171" />
+          <Text style={{ color: '#f87171', marginTop: 12, fontSize: 16 }}>Failed to load scenario</Text>
+          <TouchableOpacity style={{ marginTop: 16, backgroundColor: '#1e293b', paddingHorizontal: 20, paddingVertical: 10, borderRadius: 10 }} onPress={() => { setLoading(true); loadScenario(); }}>
+            <Text style={{ color: '#60a5fa', fontWeight: '700', fontSize: 15 }}>Retry</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={{ marginTop: 10 }} onPress={() => router.back()}>
+            <Text style={{ color: '#94a3b8', fontSize: 14 }}>Go Back</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   const handleFeedbackSubmit = async () => {
     if (!feedbackMessage.trim()) {
       showAlert('Error', 'Please describe the issue or correction.');

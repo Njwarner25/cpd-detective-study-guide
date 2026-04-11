@@ -857,6 +857,14 @@ async def get_questions(
             first_scenario_id = scenario_list[0].get("question_id")
 
     for q in questions:
+        # Normalize legacy field formats
+        if "scenario" in q and "content" not in q:
+            q["content"] = q.pop("scenario")
+        if isinstance(q.get("options"), dict):
+            q["options"] = [{"label": k, "text": v} for k, v in sorted(q["options"].items())]
+        if "question" not in q:
+            q["question"] = "Select the correct answer."
+
         is_premium = q.get("is_premium", False)
         q["is_locked"] = is_premium and not has_premium
 
@@ -902,6 +910,17 @@ async def get_question(question_id: str, user: User = Depends(require_user)):
                     is_free_trial = True
             if not is_free_trial:
                 raise HTTPException(status_code=403, detail="Premium access required. Please upgrade to access this scenario.")
+
+    # Normalize legacy field formats before returning
+    if "scenario" in question and "content" not in question:
+        question["content"] = question.pop("scenario")
+    if isinstance(question.get("options"), dict):
+        question["options"] = [
+            {"label": k, "text": v}
+            for k, v in sorted(question["options"].items())
+        ]
+    if "question" not in question:
+        question["question"] = "Select the correct answer."
 
     return question
 
@@ -982,6 +1001,14 @@ async def get_questions_bulk(data: BulkQuestionsRequest, user: User = Depends(re
         questions = await db.questions.find(mongo_query, {"_id": 0}).to_list(500)
 
         for q in questions:
+            # Normalize legacy field formats
+            if "scenario" in q and "content" not in q:
+                q["content"] = q.pop("scenario")
+            if isinstance(q.get("options"), dict):
+                q["options"] = [{"label": k, "text": v} for k, v in sorted(q["options"].items())]
+            if "question" not in q:
+                q["question"] = "Select the correct answer."
+
             is_premium_q = q.get("is_premium", False)
             q["is_locked"] = is_premium_q and not has_premium
             if q["is_locked"]:
@@ -1078,10 +1105,11 @@ async def submit_scenario(data: ScenarioSubmit, user: User = Depends(require_use
             base_url="https://api.openai.com/v1"
         )
         
+        scenario_content = question.get('content') or question.get('scenario', '')
         prompt = f"""Grade this detective exam scenario response using the R.E.A.C.T.I.O.N. framework.
 
 SCENARIO:
-{question['content']}
+{scenario_content}
 
 CORRECT ANSWER/KEY POINTS:
 {question.get('answer', 'Use your best judgment based on CPD procedures and Illinois law')}
@@ -2398,7 +2426,7 @@ async def submit_exam_answer(data: ExamAnswerSubmit, user: User = Depends(requir
         "response_id": response_id,
         "user_id": user.user_id,
         "question_id": data.question_id,
-        "question_type": question["type"],
+        "question_type": question.get("type", "unknown"),
         "selected_answer": data.selected_answer,
         "correct_answer": correct_answer,
         "is_correct": is_correct,
@@ -2425,14 +2453,18 @@ async def submit_exam_answer(data: ExamAnswerSubmit, user: User = Depends(requir
         upsert=True
     )
 
-    # Build per-option feedback
+    # Build per-option feedback (handle both array and dict option formats)
     option_feedback = []
-    for opt in question.get("options", []):
-        label = opt["label"]
+    raw_options = question.get("options", [])
+    if isinstance(raw_options, dict):
+        # Legacy dict format: {"A": "text", "B": "text", ...}
+        raw_options = [{"label": k, "text": v} for k, v in sorted(raw_options.items())]
+    for opt in raw_options:
+        label = opt.get("label", "")
         score = io_scores.get(label, 0)
         option_feedback.append({
             "label": label,
-            "text": opt["text"],
+            "text": opt.get("text", ""),
             "io_score": score,
             "is_correct": label == correct_answer,
             "is_selected": label == data.selected_answer
@@ -2479,10 +2511,11 @@ async def submit_mini_scenario(data: MiniScenarioSubmit, user: User = Depends(re
 
         client = AsyncOpenAI(api_key=api_key, base_url="https://api.openai.com/v1")
 
+        scenario_content = question.get('content') or question.get('scenario', '')
         prompt = f"""Grade this detective exam mini-scenario response using the R.E.A.C.T.I.O.N. framework.
 
 SCENARIO:
-{question['content']}
+{scenario_content}
 
 CORRECT ANSWER/KEY POINTS:
 {question.get('answer', 'Use your best judgment based on CPD procedures and Illinois law')}
@@ -2844,6 +2877,59 @@ async def create_indexes():
         logging.info("MongoDB indexes created successfully")
     except Exception as e:
         logging.error(f"Failed to create indexes: {e}")
+
+    # Auto-fix: normalize any legal trap questions with wrong field format
+    try:
+        fixed = 0
+        async for q in db.questions.find({"type": "legal_trap", "scenario": {"$exists": True}}):
+            updates = {}
+            # "scenario" → "content"
+            if "scenario" in q and "content" not in q:
+                updates["content"] = q["scenario"]
+                updates["scenario"] = None  # will be unset below
+            # dict options → array of {label, text}
+            if isinstance(q.get("options"), dict):
+                updates["options"] = [
+                    {"label": k, "text": v}
+                    for k, v in sorted(q["options"].items())
+                ]
+            if "question" not in q or not q.get("question"):
+                updates["question"] = "Select the correct answer."
+            if "category_name" not in q or not q.get("category_name"):
+                updates["category_name"] = "Legal Trap"
+            if "difficulty" not in q or not q.get("difficulty"):
+                updates["difficulty"] = "hard"
+            if updates:
+                unset_fields = {}
+                if "scenario" in updates and updates["scenario"] is None:
+                    del updates["scenario"]
+                    unset_fields["scenario"] = ""
+                update_op = {"$set": updates}
+                if unset_fields:
+                    update_op["$unset"] = unset_fields
+                await db.questions.update_one({"_id": q["_id"]}, update_op)
+                fixed += 1
+        # Also fix questions that have dict options but no "scenario" field
+        async for q in db.questions.find({"type": "legal_trap"}):
+            if isinstance(q.get("options"), dict):
+                updates = {
+                    "options": [
+                        {"label": k, "text": v}
+                        for k, v in sorted(q["options"].items())
+                    ]
+                }
+                if "question" not in q or not q.get("question"):
+                    updates["question"] = "Select the correct answer."
+                if "category_name" not in q or not q.get("category_name"):
+                    updates["category_name"] = "Legal Trap"
+                if "difficulty" not in q or not q.get("difficulty"):
+                    updates["difficulty"] = "hard"
+                await db.questions.update_one({"_id": q["_id"]}, {"$set": updates})
+                fixed += 1
+        if fixed:
+            logging.info(f"Auto-fixed {fixed} legal trap questions with wrong field format")
+    except Exception as e:
+        logging.error(f"Failed to auto-fix legal trap questions: {e}")
 
 @app.on_event("shutdown")
 async def shutdown_db_client():

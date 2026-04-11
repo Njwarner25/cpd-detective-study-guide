@@ -261,9 +261,26 @@ export default function ExamQuestion() {
     );
   }
 
-  // ANSWERING PHASE
+  // ANSWERING PHASE — handle missing question data
+  if (!question) {
+    return (
+      <SafeAreaView style={s.safe}>
+        <View style={s.centered}>
+          <Ionicons name="alert-circle-outline" size={48} color="#f87171" />
+          <Text style={[s.loadingTxt, { color: '#f87171', marginTop: 12 }]}>Failed to load question</Text>
+          <TouchableOpacity style={{ marginTop: 16, backgroundColor: '#2563eb', paddingHorizontal: 24, paddingVertical: 10, borderRadius: 12 }} onPress={() => { setPhase('loading'); loadQuestion(); }}>
+            <Text style={{ color: '#fff', fontWeight: '700', fontSize: 14 }}>Retry</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={{ marginTop: 10 }} onPress={() => router.back()}>
+            <Text style={{ color: '#60a5fa', fontSize: 14 }}>Go Back</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   const options = question?.options || [];
-  const scenarioText = question?.content || '';
+  const scenarioText = question?.content || question?.scenario || '';
   const questionText = question?.question || config.prompt;
 
   return (

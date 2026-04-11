@@ -231,6 +231,23 @@ export default function MiniScenario() {
     );
   }
 
+  if (!scenario) {
+    return (
+      <SafeAreaView style={s.safe}>
+        <View style={s.centered}>
+          <Ionicons name="alert-circle-outline" size={48} color="#f87171" />
+          <Text style={[s.loadingTxt, { color: '#f87171', marginTop: 12 }]}>Failed to load mini scenario</Text>
+          <TouchableOpacity style={{ marginTop: 16, backgroundColor: '#1e293b', paddingHorizontal: 20, paddingVertical: 10, borderRadius: 10 }} onPress={() => { setLoading(true); loadScenario(); }}>
+            <Text style={{ color: '#60a5fa', fontWeight: '700', fontSize: 15 }}>Retry</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={{ marginTop: 10 }} onPress={() => router.back()}>
+            <Text style={{ color: '#94a3b8', fontSize: 14 }}>Go Back</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   // START PHASE
   if (phase === 'start') {
     return (

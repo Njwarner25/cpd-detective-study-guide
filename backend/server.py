@@ -41,6 +41,8 @@ FRONTEND_URL = os.environ.get('FRONTEND_URL', 'https://detectiveexamstudyguide.c
 if STRIPE_SECRET_KEY:
     stripe.api_key = STRIPE_SECRET_KEY.strip() if STRIPE_SECRET_KEY else None
 
+print(f"STRIPE_WEBHOOK_SECRET set: {bool(STRIPE_WEBHOOK_SECRET)}")
+
 
 # Create the main app without a prefix
 app = FastAPI()
@@ -2717,8 +2719,7 @@ app.include_router(api_router)
 # ========== STRIPE WEBHOOK (on app, not api_router) ==========
 from fastapi import Request as FastAPIRequest
 
-@app.post("/stripe/webhook")
-async def stripe_webhook(request: FastAPIRequest):
+async def _handle_stripe_webhook(request: FastAPIRequest):
     if not STRIPE_WEBHOOK_SECRET:
         raise HTTPException(status_code=500, detail="Webhook secret not configured")
     payload = await request.body()
@@ -2729,7 +2730,10 @@ async def stripe_webhook(request: FastAPIRequest):
         raise HTTPException(status_code=400, detail="Invalid payload")
     except stripe.error.SignatureVerificationError:
         raise HTTPException(status_code=400, detail="Invalid signature")
-    if event["type"] == "checkout.session.completed":
+
+    event_type = event["type"]
+
+    if event_type == "checkout.session.completed":
         session = event["data"]["object"]
         user_id = session.get("client_reference_id")
         if user_id:
@@ -2742,7 +2746,52 @@ async def stripe_webhook(request: FastAPIRequest):
                 {"$set": {"has_paid": True, "paid_at": datetime.now(timezone.utc)}}
             )
             logging.info(f"Payment completed for user {user_id}")
-    return {"status": "ok"}
+
+    elif event_type == "customer.subscription.created":
+        sub = event["data"]["object"]
+        cust_id = sub.get("customer")
+        if cust_id:
+            user = await db.users.find_one({"stripe_customer_id": cust_id})
+            if user:
+                await db.users.update_one(
+                    {"_id": user["_id"]},
+                    {"$set": {"has_paid": True, "subscription_status": "active", "stripe_subscription_id": sub["id"]}}
+                )
+                logging.info(f"Subscription created for customer {cust_id}")
+
+    elif event_type == "customer.subscription.deleted":
+        sub = event["data"]["object"]
+        cust_id = sub.get("customer")
+        if cust_id:
+            user = await db.users.find_one({"stripe_customer_id": cust_id})
+            if user:
+                await db.users.update_one(
+                    {"_id": user["_id"]},
+                    {"$set": {"has_paid": False, "subscription_status": "cancelled", "stripe_subscription_id": None}}
+                )
+                logging.info(f"Subscription deleted for customer {cust_id}")
+
+    elif event_type == "invoice.payment_failed":
+        invoice = event["data"]["object"]
+        cust_id = invoice.get("customer")
+        if cust_id:
+            user = await db.users.find_one({"stripe_customer_id": cust_id})
+            if user:
+                await db.users.update_one(
+                    {"_id": user["_id"]},
+                    {"$set": {"subscription_status": "past_due"}}
+                )
+                logging.info(f"Payment failed for customer {cust_id}")
+
+    return {"received": True}
+
+@app.post("/stripe/webhook")
+async def stripe_webhook(request: FastAPIRequest):
+    return await _handle_stripe_webhook(request)
+
+@app.post("/api/webhooks/stripe")
+async def stripe_webhook_alt(request: FastAPIRequest):
+    return await _handle_stripe_webhook(request)
 
 
 app.add_middleware(
